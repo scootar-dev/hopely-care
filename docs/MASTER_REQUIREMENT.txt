@@ -1,0 +1,1938 @@
+Kamu sekarang bertindak sebagai:
+
+1. Senior Full-Stack Software Engineer
+2. Senior Flutter Developer
+3. Laravel Backend Engineer
+4. Python/FastAPI AI Engineer
+5. AI/ML Engineer
+6. Software Architect
+7. Database Engineer
+8. Healthcare Product Engineer
+9. UI/UX Engineer
+10. QA Engineer
+11. Security & Privacy Engineer
+
+Saya sedang mengembangkan aplikasi kompetisi IT Healthcare bernama:
+
+HOPELY CARE
+
+Ini bukan proyek latihan sederhana. Perlakukan proyek ini sebagai produk healthcare technology yang akan dipresentasikan dalam kompetisi tingkat nasional.
+
+==================================================
+A. ATURAN UTAMA KAMU
+==================================================
+
+Jangan hanya memberi saya tutorial, pseudocode, atau contoh kode.
+
+Saya ingin kamu MEMBANGUN implementasinya secara nyata.
+
+Jika kamu bekerja dalam workspace/repository:
+- periksa struktur repository terlebih dahulu;
+- buat file yang benar-benar dibutuhkan;
+- tulis kode produksi yang dapat dijalankan;
+- jangan membuat file dummy tanpa alasan;
+- jangan mengganti teknologi utama tanpa menjelaskan alasannya;
+- jangan melakukan overengineering;
+- selesaikan satu layer dengan benar sebelum menambah kompleksitas.
+
+Jika terdapat error:
+- investigasi akar masalah;
+- perbaiki;
+- jalankan ulang lint/test/build jika tool tersedia;
+- jangan sekadar menyembunyikan error.
+
+Gunakan current stable versions dari library/framework yang tersedia di environment pengembangan dan catat versi penting di README.
+
+Jangan hard-code:
+- API key;
+- password;
+- token;
+- service secret;
+- database credential.
+
+Semua secret harus melalui environment variables.
+
+Sediakan:
+.env.example
+
+Jangan pernah memasukkan secret asli ke Git.
+
+==================================================
+B. KONTEKS PRODUK
+==================================================
+
+Hopely Care adalah AI-powered psycho-oncology companion untuk pasien kanker.
+
+Hopely Care BUKAN:
+- alat diagnosis kanker;
+- pengganti dokter;
+- pengganti psikolog;
+- pengganti tenaga kesehatan;
+- sistem penentu terapi;
+- sistem pemberi resep;
+- aplikasi yang memberikan diagnosis gangguan psikologis.
+
+Tujuan Hopely Care adalah memahami perjalanan wellbeing emosional dan fisik pasien kanker secara longitudinal.
+
+Sistem menggabungkan:
+
+Daily Wellbeing Check-In
++
+Symptom Tracker
++
+Journal
++
+Treatment Journey
++
+AI Conversation
++
+riwayat penggunaan
++
+consented patient context
+
+untuk menghasilkan:
+
+Personalized Emotional Support
+Personalized Support Activities
+Emotional Trend
+Wellbeing Trend
+Context-aware AI Companion
+Caregiver Insight
+Doctor Visit Summary
+Trusted Healthcare Information
+
+Konsep kunci Hopely Care adalah:
+
+"Jangan hanya memahami bagaimana pasien merasa hari ini.
+Pahami bagaimana kondisi pasien berubah sepanjang perjalanan pengobatannya."
+
+==================================================
+C. TARGET USER
+==================================================
+
+Untuk MVP terdapat 3 role:
+
+1. PATIENT
+Pasien kanker yang sedang menjalani perjalanan pengobatan.
+
+2. CAREGIVER
+Keluarga/orang terpercaya yang telah diberikan izin oleh pasien.
+
+3. ADMIN
+Mengelola:
+- trusted medical knowledge;
+- content;
+- support activities;
+- moderation jika fitur community diaktifkan.
+
+Untuk MVP dokter TIDAK perlu memiliki akun sendiri.
+
+Dokter menerima informasi melalui Doctor Visit Summary yang dapat diperlihatkan/diekspor pasien.
+
+==================================================
+D. ARSITEKTUR WAJIB
+==================================================
+
+Gunakan arsitektur berikut:
+
+                    FLUTTER MOBILE
+                           |
+                           |
+                    REST API HTTPS
+                           |
+                           v
+                       LARAVEL
+                    BUSINESS API
+                           |
+            +--------------+--------------+
+            |                             |
+            v                             v
+          MYSQL                     FASTAPI AI
+                                          |
+                        +-----------------+----------------+
+                        |                 |                |
+                        v                 v                v
+                       LLM             NLP/ML            QDRANT
+                                                        VECTOR DB
+
+Firebase Cloud Messaging digunakan untuk push notification.
+
+GitHub digunakan untuk source control.
+
+PENTING:
+
+Flutter hanya berkomunikasi langsung dengan Laravel.
+
+Flutter TIDAK langsung mengakses MySQL.
+
+Flutter TIDAK langsung memanggil LLM.
+
+Flutter TIDAK langsung memanggil FastAPI.
+
+Laravel adalah API Gateway / Business Layer utama.
+
+FastAPI adalah internal AI microservice.
+
+FastAPI tidak boleh exposed ke mobile client tanpa kebutuhan.
+
+Komunikasi:
+
+Flutter -> Laravel -> FastAPI
+
+FastAPI hanya menerima data minimum yang diperlukan untuk menjalankan AI.
+
+Gunakan internal service authentication antara Laravel dan FastAPI.
+
+Contoh:
+
+X-Internal-Service-Key
+
+Secret berasal dari environment variable.
+
+==================================================
+E. TECHNOLOGY STACK
+==================================================
+
+MOBILE
+
+Flutter
+Dart
+Riverpod
+GoRouter
+Dio
+Flutter Secure Storage
+JSON serialization
+Material 3
+
+Gunakan clean feature-oriented structure.
+
+BACKEND APPLICATION
+
+Laravel
+PHP
+Laravel Sanctum untuk mobile authentication
+MySQL
+
+Gunakan:
+Controller
+Service
+Repository jika benar-benar dibutuhkan
+Form Request
+API Resource
+Policy
+Middleware
+Job jika asynchronous process diperlukan
+
+Jangan membuat abstraction layer yang tidak memberikan manfaat nyata.
+
+AI BACKEND
+
+Python
+FastAPI
+Pydantic
+HTTPX
+NumPy
+Pandas
+scikit-learn
+Transformers jika dibutuhkan
+sentence-transformers untuk embeddings jika sesuai
+
+VECTOR DATABASE
+
+Qdrant
+
+NOTIFICATION
+
+Firebase Cloud Messaging
+
+DEVELOPMENT
+
+Docker
+Docker Compose
+GitHub
+GitHub Actions jika memungkinkan
+
+==================================================
+F. SOURCE CODE STRUCTURE
+==================================================
+
+Buat monorepo atau struktur repository yang mudah dipahami.
+
+Contoh:
+
+hopely-care/
+
+mobile/
+    lib/
+    test/
+
+backend/
+    app/
+    database/
+    routes/
+    tests/
+
+ai-service/
+    app/
+        api/
+        core/
+        schemas/
+        services/
+        llm/
+        emotion/
+        trend/
+        rag/
+        recommendation/
+        safety/
+        summaries/
+    tests/
+
+infrastructure/
+    docker/
+
+docs/
+
+knowledge-base/
+
+docker-compose.yml
+README.md
+.env.example
+
+==================================================
+G. DATABASE MYSQL
+==================================================
+
+Gunakan UUID bila sesuai untuk resource sensitif/publik.
+
+Minimal buat tabel/domain berikut.
+
+USERS
+
+users
+- id
+- uuid
+- name
+- email
+- password
+- role
+- email_verified_at
+- created_at
+- updated_at
+
+PATIENT PROFILE
+
+patient_profiles
+- id
+- user_id
+- display_name
+- birth_year OPTIONAL
+- cancer_context OPTIONAL
+- treatment_phase OPTIONAL
+- timezone
+- onboarding_completed
+- created_at
+- updated_at
+
+Jangan meminta informasi medis yang tidak diperlukan.
+
+CAREGIVER
+
+caregiver_links
+- id
+- patient_user_id
+- caregiver_user_id
+- relationship_label
+- invitation_status
+- created_at
+- updated_at
+
+CAREGIVER PERMISSION
+
+caregiver_permissions
+- id
+- caregiver_link_id
+- can_view_wellbeing_summary
+- can_view_treatment_schedule
+- can_receive_support_alert
+- can_view_symptom_summary
+- can_view_activity_status
+- created_at
+- updated_at
+
+Chat AI dan jurnal HARUS private by default.
+
+Caregiver tidak boleh membaca isi jurnal/chat kecuali patient secara eksplisit membagikannya.
+
+CONSENT
+
+consents
+- id
+- user_id
+- consent_type
+- consent_version
+- accepted
+- accepted_at
+- revoked_at
+
+Consent types contoh:
+
+AI_JOURNAL_ANALYSIS
+AI_CHAT_CONTEXT
+CAREGIVER_WELLBEING_SHARE
+CAREGIVER_ALERT
+HEALTH_DATA_PROCESSING
+
+DAILY CHECK-IN
+
+daily_checkins
+- id
+- user_id
+- checkin_date
+- mood_score
+- anxiety_score
+- energy_score
+- sleep_score
+- pain_score
+- optional_note
+- created_at
+- updated_at
+
+Gunakan skala konsisten, misalnya 1–5.
+
+SYMPTOM LOG
+
+symptom_logs
+- id
+- user_id
+- logged_at
+- pain
+- fatigue
+- nausea
+- dizziness
+- appetite
+- sleep_quality
+- optional_note
+- created_at
+
+TREATMENT
+
+treatments
+- id
+- user_id
+- title
+- treatment_type
+- scheduled_at
+- location OPTIONAL
+- notes OPTIONAL
+- status
+- created_at
+- updated_at
+
+JOURNAL
+
+journals
+- id
+- user_id
+- title OPTIONAL
+- content
+- journal_date
+- ai_analysis_allowed
+- created_at
+- updated_at
+
+JOURNAL AI INSIGHT
+
+journal_ai_insights
+- id
+- journal_id
+- primary_emotion
+- emotion_scores JSON
+- themes JSON
+- generated_at
+- model_version
+
+AI CHAT
+
+chat_sessions
+- id
+- user_id
+- title
+- created_at
+- updated_at
+
+chat_messages
+- id
+- chat_session_id
+- sender
+- content
+- safety_level
+- created_at
+
+AI SNAPSHOT
+
+ai_insight_snapshots
+- id
+- user_id
+- snapshot_date
+- wellbeing_score OPTIONAL
+- emotional_trend
+- dominant_emotions JSON
+- significant_changes JSON
+- recommended_support JSON
+- safety_signal
+- model_version
+- created_at
+
+SUPPORT ACTIVITIES
+
+support_activities
+- id
+- title
+- description
+- category
+- duration_minutes
+- suitability_tags JSON
+- contraindication_notes OPTIONAL
+- medically_reviewed BOOLEAN
+- active BOOLEAN
+
+ACTIVITY RECOMMENDATION
+
+activity_recommendations
+- id
+- user_id
+- support_activity_id
+- reason
+- generated_at
+- completed_at OPTIONAL
+
+DOCTOR REPORT
+
+doctor_visit_reports
+- id
+- user_id
+- period_start
+- period_end
+- report_json
+- generated_at
+
+NOTIFICATION
+
+notifications
+- id
+- user_id
+- notification_type
+- title
+- body
+- read_at
+- created_at
+
+AUDIT LOG
+
+audit_logs
+- id
+- actor_user_id
+- event
+- resource_type
+- resource_id
+- metadata JSON
+- created_at
+
+Tambahkan index dan foreign key yang tepat.
+
+Gunakan soft-delete hanya jika memang dibutuhkan.
+
+==================================================
+H. MOBILE APPLICATION
+==================================================
+
+Buat aplikasi mobile dengan Flutter.
+
+Gunakan feature-first architecture seperti:
+
+lib/
+
+core/
+    api/
+    auth/
+    theme/
+    routing/
+    storage/
+    widgets/
+
+features/
+
+    onboarding/
+    auth/
+    home/
+    checkin/
+    symptoms/
+    treatment/
+    journal/
+    ai_companion/
+    insights/
+    activities/
+    care_circle/
+    caregiver/
+    doctor_summary/
+    knowledge/
+    settings/
+
+==================================================
+I. UI / UX
+==================================================
+
+JIKA SAYA MEMBERIKAN SCREENSHOT / PROTOTYPE STITCH:
+
+Anggap seluruh screenshot/prototype tersebut sebagai:
+
+VISUAL SOURCE OF TRUTH.
+
+Ikuti:
+- hierarchy;
+- layout;
+- navigation;
+- typography;
+- card design;
+- icon positioning;
+- spacing;
+- interaction pattern;
+- component style.
+
+Jangan redesign hanya karena kamu memiliki preferensi lain.
+
+Kamu boleh memperbaiki:
+- accessibility;
+- contrast;
+- responsive issue;
+- tap target;
+- inconsistent spacing;
+
+tetapi jangan merombak identitas desain.
+
+Jika prototype belum tersedia, buat desain sendiri dengan karakter:
+
+calm
+hopeful
+human
+premium
+modern healthcare
+tidak terlalu clinical
+tidak childish
+tidak seperti template admin dashboard.
+
+Gunakan Material 3 sebagai fondasi.
+
+Gunakan 8-point spacing system.
+
+Pastikan:
+- large readable typography;
+- accessibility;
+- high contrast;
+- loading state;
+- empty state;
+- error state;
+- offline/error handling dasar.
+
+Hindari penggunaan warna merah kecuali:
+- warning;
+- urgent state;
+- destructive actions.
+
+Jangan memenuhi UI dengan tulisan panjang.
+
+Gunakan progressive disclosure.
+
+==================================================
+J. CORE SCREEN
+==================================================
+
+Buat minimal layar berikut.
+
+1. Splash
+
+2. Welcome / Onboarding
+
+3. Role Selection
+Patient / Caregiver
+
+4. Login
+
+5. Register
+
+6. Privacy & Consent
+
+7. Patient Home
+
+Home harus menampilkan secara ringkas:
+- greeting;
+- wellbeing today;
+- next treatment;
+- quick check-in;
+- AI Companion entry;
+- personalized activity;
+- recent emotional trend.
+
+8. Daily Check-In
+
+Input:
+Mood
+Anxiety
+Energy
+Sleep
+Pain
+
+Optional note.
+
+Harus selesai dalam waktu singkat.
+
+9. Symptom Tracker
+
+Input:
+Pain
+Fatigue
+Nausea
+Dizziness
+Appetite
+Sleep quality
+Optional note
+
+10. AI Companion
+
+UI chat yang tenang.
+
+AI memiliki patient context tetapi tidak membanjiri pasien dengan data.
+
+11. Journal
+
+Private by default.
+
+Sediakan toggle:
+
+"Allow Hopely AI to analyze this journal"
+
+12. Insights
+
+Visualisasikan:
+Mood
+Anxiety
+Energy
+Sleep
+Symptoms
+
+7-day / 14-day trend.
+
+Jangan menyebut hasil sebagai diagnosis.
+
+13. Treatment Journey
+
+Timeline:
+H-2
+H-1
+Treatment day
+H+1
+H+2
+
+Treatment timeline digunakan sebagai konteks AI.
+
+14. Personalized Activities
+
+Contoh:
+Breathing
+Grounding
+Relaxation
+Reflection
+Sleep routine
+
+15. Care Circle
+
+Patient mengundang caregiver.
+
+Patient mengontrol permission.
+
+16. Caregiver Dashboard
+
+Caregiver hanya melihat data sesuai permission.
+
+Contoh insight:
+
+"Pasien tampaknya membutuhkan dukungan lebih dari biasanya."
+
+JANGAN tampilkan:
+
+isi private journal
+isi AI chat
+detail sensitif tanpa consent
+
+17. Caregiver AI Coach
+
+Memberi guidance komunikasi.
+
+Contoh:
+
+"Daripada langsung menawarkan solusi, kamu dapat bertanya apakah ia ingin berbicara atau hanya ditemani."
+
+18. Doctor Visit Summary
+
+Summary periode 7/14/30 hari.
+
+19. Trusted Knowledge
+
+User dapat mencari informasi kesehatan terpercaya.
+
+20. Settings & Privacy
+
+User dapat:
+- melihat permission;
+- menarik consent;
+- menghapus data;
+- mengatur caregiver;
+- logout.
+
+==================================================
+K. AI ARCHITECTURE
+==================================================
+
+Jangan membuat "AI" sebagai satu endpoint chatbot saja.
+
+Buat HOPELY AI ENGINE dengan beberapa module:
+
+1. Companion Engine
+
+2. Emotion Analysis
+
+3. Longitudinal Trend Engine
+
+4. Recommendation Engine
+
+5. RAG Medical Knowledge
+
+6. Doctor Summary Engine
+
+7. Caregiver Coach
+
+8. Safety Layer
+
+Semua module menggunakan schema input/output yang jelas.
+
+==================================================
+L. LLM PROVIDER
+==================================================
+
+Jangan mengikat application logic langsung ke satu vendor.
+
+Buat interface:
+
+LLMProvider
+
+contoh implementation:
+
+OpenAIProvider
+
+Tetapi application layer hanya mengenal:
+
+LLMProvider
+
+Environment:
+
+LLM_PROVIDER=
+LLM_API_KEY=
+LLM_MODEL=
+
+Dengan cara ini provider dapat diganti kemudian.
+
+Jika API key tidak tersedia pada development environment:
+
+sediakan MOCK_AI_MODE=true
+
+Mock mode hanya untuk development/demo offline.
+
+Jangan menyamarkan mock sebagai AI nyata.
+
+==================================================
+M. AI COMPANION
+==================================================
+
+Endpoint internal FastAPI:
+
+POST /v1/ai/companion
+
+Input contoh konsep:
+
+{
+  "user_id": "...",
+  "message": "...",
+  "context": {
+      "recent_checkins": [],
+      "recent_symptoms": [],
+      "next_treatment": {},
+      "emotional_trend": {},
+      "consent": {}
+  }
+}
+
+Response harus structured:
+
+{
+  "reply": "...",
+  "support_intent": "...",
+  "suggested_activity": null,
+  "safety_signal": "none",
+  "metadata": {}
+}
+
+AI Companion harus:
+
+empathetic;
+concise;
+non-judgmental;
+context aware;
+tidak memberi diagnosis;
+tidak menentukan obat;
+tidak mengubah treatment;
+tidak menjanjikan kesembuhan.
+
+AI harus mengatakan secara natural jika pertanyaan membutuhkan tenaga kesehatan.
+
+==================================================
+N. EMOTION ANALYSIS
+==================================================
+
+Implement:
+
+POST /v1/ai/emotion/analyze
+
+Input:
+text
+
+Output:
+
+{
+  "primary_emotion": "...",
+  "scores": {
+      "fear": 0.xx,
+      "sadness": 0.xx,
+      "anxiety": 0.xx,
+      "loneliness": 0.xx,
+      "anger": 0.xx,
+      "hope": 0.xx
+  },
+  "themes": [],
+  "confidence": 0.xx
+}
+
+Gunakan multilingual transformer yang memiliki kemampuan Bahasa Indonesia jika model tersedia dan masuk akal.
+
+Model name harus configurable:
+
+EMOTION_MODEL_NAME=
+
+Jangan melatih model dari nol untuk MVP.
+
+Jika model tidak tersedia, buat fallback structured LLM classification.
+
+Catat fallback di response metadata.
+
+==================================================
+O. LONGITUDINAL TREND ENGINE
+==================================================
+
+Ini adalah diferensiasi utama Hopely Care.
+
+Endpoint:
+
+POST /v1/ai/trend/analyze
+
+Analisis minimal 7–14 hari bila data tersedia.
+
+Gabungkan:
+
+daily check-in
+symptoms
+emotion signals
+treatment timing
+
+Jangan hanya:
+
+if mood < 2 -> bad
+
+Gunakan combination dari:
+
+rolling averages;
+rate of change;
+baseline comparison;
+moving trend;
+anomaly detection jika relevan;
+emotion signals.
+
+Contoh output:
+
+{
+   "period_days": 14,
+
+   "trends": {
+      "mood": "declining",
+      "anxiety": "increasing",
+      "sleep": "declining",
+      "energy": "declining"
+   },
+
+   "significant_changes": [],
+
+   "contextual_patterns": [
+      {
+        "event": "chemotherapy",
+        "observation": "fatigue increased following treatment"
+      }
+   ],
+
+   "overall_direction": "needs_attention"
+}
+
+Jangan menyimpulkan sebab-akibat medis.
+
+Gunakan wording:
+
+"terlihat berdekatan dengan"
+"terjadi setelah pencatatan treatment"
+
+bukan:
+
+"treatment menyebabkan..."
+
+==================================================
+P. PERSONALIZED RECOMMENDATION
+==================================================
+
+Jangan biarkan LLM menciptakan medical activity secara bebas.
+
+Activities harus berasal dari curated support_activity database.
+
+AI hanya:
+
+1. memahami kebutuhan user;
+2. melakukan ranking terhadap aktivitas yang tersedia;
+3. menjelaskan alasan rekomendasi.
+
+Endpoint:
+
+POST /v1/ai/recommendations
+
+Output:
+
+activity_id
+reason
+confidence
+
+Contoh:
+
+Anxiety meningkat
+Treatment besok
+
+-> breathing exercise
+
+AI TIDAK boleh memberikan aktivitas yang tidak tersedia di curated library.
+
+==================================================
+Q. TRUSTED MEDICAL KNOWLEDGE / RAG
+==================================================
+
+Gunakan Qdrant.
+
+Pipeline:
+
+trusted document
+        |
+        v
+text extraction
+        |
+        v
+chunking
+        |
+        v
+embedding
+        |
+        v
+Qdrant
+
+Gunakan sentence-transformer multilingual embedding yang baik untuk Bahasa Indonesia.
+
+Model configurable:
+
+EMBEDDING_MODEL_NAME=
+
+Buat collection:
+
+medical_knowledge
+
+Metadata setiap chunk:
+
+source_id
+title
+publisher
+source_url OPTIONAL
+published_at OPTIONAL
+chunk_index
+document_version
+
+Knowledge source hanya berasal dari sumber yang telah dikurasi.
+
+Contoh kategori sumber:
+
+WHO
+Kementerian Kesehatan
+clinical patient education
+oncology organization terpercaya
+
+Jangan memasukkan forum/random blog sebagai medical knowledge.
+
+Endpoint:
+
+POST /v1/rag/query
+
+Output:
+
+answer
+sources[]
+confidence
+
+Jawaban medical information harus memiliki citation/source reference.
+
+Jika retrieval confidence rendah:
+
+AI harus mengatakan informasi tidak cukup.
+
+JANGAN mengarang jawaban medis.
+
+==================================================
+R. KNOWLEDGE INGESTION
+==================================================
+
+Buat script/tool untuk:
+
+PDF
+TXT
+Markdown
+
+masuk ke knowledge base.
+
+Contoh:
+
+python ingest.py document.pdf
+
+Pipeline:
+
+read
+clean
+chunk
+embed
+upsert to Qdrant
+
+Simpan source metadata.
+
+Jangan memasukkan patient data ke medical knowledge vector collection.
+
+==================================================
+S. DOCTOR VISIT SUMMARY
+==================================================
+
+Endpoint:
+
+POST /v1/ai/doctor-summary
+
+Input:
+
+period
+check-ins
+symptoms
+treatments
+optional AI insights
+
+Output harus structured.
+
+Contoh:
+
+{
+ "period": "...",
+
+ "wellbeing": {
+    "mood": "...",
+    "anxiety": "...",
+    "sleep": "...",
+    "energy": "..."
+ },
+
+ "symptom_patterns": [],
+
+ "reported_concerns": [],
+
+ "treatment_context": [],
+
+ "questions_patient_may_want_to_discuss": []
+}
+
+Jangan membuat diagnosis.
+
+Jangan memberikan rekomendasi terapi.
+
+Summary harus ditulis sebagai:
+
+"patient-reported data"
+
+Tampilkan disclaimer:
+
+"This summary is generated from information reported by the patient and is not a medical diagnosis."
+
+Sediakan preview di Flutter.
+
+Jika mudah dilakukan, sediakan PDF export.
+
+==================================================
+T. CAREGIVER AI COACH
+==================================================
+
+FastAPI endpoint:
+
+POST /v1/ai/caregiver-coach
+
+Input hanya boleh berasal dari data yang diizinkan oleh patient.
+
+Jangan kirim private journal/chat.
+
+Laravel harus melakukan permission filtering SEBELUM memanggil FastAPI.
+
+Output:
+
+support_message
+communication_tip
+suggested_action
+
+Contoh:
+
+"Pasien tampaknya lebih cemas menjelang treatment."
+
+"Coba tawarkan kehadiran tanpa memaksa pasien bercerita."
+
+Jangan meminta caregiver melakukan diagnosis.
+
+==================================================
+U. SAFETY LAYER
+==================================================
+
+Karena aplikasi berkaitan dengan pasien kanker dan mental wellbeing, safety adalah PRIORITAS.
+
+Buat safety processing sebelum/atau setelah LLM response.
+
+Safety level:
+
+NONE
+CONCERN
+URGENT
+
+Tetapi jangan menyebut:
+
+"Anda mengalami depresi berat"
+
+atau diagnosis lainnya.
+
+AI tidak boleh:
+
+memberikan dosis obat;
+menghentikan obat;
+menyarankan mengganti terapi;
+menyatakan user pasti mengalami penyakit tertentu;
+menyatakan user aman padahal tidak diketahui.
+
+Jika ditemukan indikasi situasi yang membutuhkan bantuan manusia:
+
+AI harus memberi respons yang mendukung dan menyarankan user mencari bantuan manusia/profesional.
+
+Emergency resource harus configurable berdasarkan deployment region.
+
+Jangan hardcode nomor bantuan tanpa validasi.
+
+Alert caregiver hanya boleh dilakukan jika:
+
+CAREGIVER_ALERT consent aktif.
+
+Untuk kasus yang tidak jelas jangan otomatis membocorkan isi percakapan.
+
+Caregiver notification harus berupa abstract safety notification.
+
+==================================================
+V. PRIVACY
+==================================================
+
+Healthcare data dianggap sensitive.
+
+Implement:
+
+authentication;
+authorization;
+role-based access;
+Laravel Policies;
+rate limiting;
+secure token storage;
+HTTPS production assumption;
+audit logging;
+input validation;
+least privilege.
+
+Journal dan chat:
+
+PRIVATE BY DEFAULT.
+
+Jangan menaruh raw journal/chat dalam ordinary application log.
+
+Mask sensitive data dari error log jika memungkinkan.
+
+Jangan mengirim lebih banyak patient context ke AI provider daripada yang diperlukan.
+
+Buat:
+
+Data Minimization.
+
+==================================================
+W. CAREGIVER PERMISSION
+==================================================
+
+Patient adalah pemilik kontrol sharing.
+
+Permission harus diperiksa server-side.
+
+Jangan hanya menyembunyikan tombol di Flutter.
+
+Laravel wajib memvalidasi permission.
+
+Contoh:
+
+patient -> caregiver A
+
+can_view_wellbeing_summary = true
+can_view_symptom_summary = true
+can_view_treatment_schedule = false
+can_receive_support_alert = true
+
+Caregiver A hanya menerima data tersebut.
+
+==================================================
+X. API LARAVEL
+==================================================
+
+Buat API route REST yang rapi.
+
+Contoh:
+
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/me
+
+GET  /api/checkins
+POST /api/checkins
+GET  /api/checkins/{id}
+PUT  /api/checkins/{id}
+
+GET  /api/symptoms
+POST /api/symptoms
+
+GET    /api/treatments
+POST   /api/treatments
+PUT    /api/treatments/{id}
+DELETE /api/treatments/{id}
+
+GET    /api/journals
+POST   /api/journals
+GET    /api/journals/{id}
+PUT    /api/journals/{id}
+DELETE /api/journals/{id}
+
+POST /api/journals/{id}/analyze
+
+POST /api/ai/chat
+
+GET /api/insights
+
+GET /api/activities/recommended
+POST /api/activities/{id}/complete
+
+POST /api/caregivers/invite
+POST /api/caregivers/accept
+
+GET /api/caregivers
+PUT /api/caregivers/{id}/permissions
+
+GET /api/caregiver/patients
+GET /api/caregiver/patients/{id}/summary
+
+POST /api/caregiver/patients/{id}/coach
+
+POST /api/doctor-summary
+
+POST /api/knowledge/query
+
+GET /api/notifications
+
+Tambahkan endpoint lain jika dibutuhkan.
+
+Gunakan consistent response format.
+
+Contoh:
+
+{
+  "success": true,
+  "message": "...",
+  "data": {}
+}
+
+Untuk validation error gunakan standard HTTP response yang masuk akal.
+
+==================================================
+Y. FASTAPI INTERNAL API
+==================================================
+
+Implement minimal:
+
+GET /health
+
+POST /v1/ai/companion
+
+POST /v1/ai/emotion/analyze
+
+POST /v1/ai/trend/analyze
+
+POST /v1/ai/recommendations
+
+POST /v1/ai/doctor-summary
+
+POST /v1/ai/caregiver-coach
+
+POST /v1/rag/query
+
+POST /v1/knowledge/ingest
+
+Semua endpoint selain health harus dilindungi internal service authentication.
+
+Gunakan Pydantic schema.
+
+Gunakan structured error responses.
+
+==================================================
+Z. FIREBASE CLOUD MESSAGING
+==================================================
+
+Gunakan FCM untuk:
+
+treatment reminder;
+daily check-in reminder;
+caregiver support notification;
+system notification.
+
+Simpan device token dengan aman.
+
+Treatment notification bukan bagian AI.
+
+==================================================
+AA. PERSONALIZATION CONTEXT
+==================================================
+
+Sebelum Laravel meminta jawaban AI Companion:
+
+Laravel membangun sanitized context.
+
+Contoh:
+
+recent check-in: maksimum 7 hari
+recent symptoms: maksimum 7 hari
+upcoming treatment
+latest trend snapshot
+relevant completed activities
+
+Jangan mengirim seluruh database pasien.
+
+Context harus minimum dan relevan.
+
+==================================================
+AB. SUPPORT CIRCLE / COMMUNITY
+==================================================
+
+Ini PHASE 2.
+
+Jangan mengorbankan core AI untuk community.
+
+Jika core MVP sudah stabil, implement:
+
+Support Circle.
+
+Bukan clone Instagram.
+
+Fokus:
+
+small supportive communities.
+
+Optional:
+
+peer matching berdasarkan:
+treatment phase
+support need
+cancer context
+communication preference
+
+AI moderation bersifat support layer.
+
+User tetap memiliki:
+
+report
+block
+moderation.
+
+Jangan mengandalkan AI sebagai satu-satunya moderator.
+
+==================================================
+AC. FEATURE "MEANINGFUL MOMENTS"
+==================================================
+
+Jangan jadikan fitur ini prioritas MVP.
+
+Jika dikembangkan:
+
+User dapat membuat:
+text;
+photo;
+voice message;
+
+untuk orang tersayang.
+
+Jangan menggunakan:
+
+"tidak aktif 30 hari = meninggal"
+
+atau assumption sejenis.
+
+Delivery harus berdasarkan explicit user configuration.
+
+==================================================
+AD. ANALYTICS VISUALIZATION
+==================================================
+
+Flutter harus menampilkan insight dengan visual sederhana.
+
+Misalnya line chart untuk:
+
+Mood
+Anxiety
+Energy
+Sleep
+Pain
+
+Namun hindari dashboard terlalu technical.
+
+Patient harus mudah memahami:
+
+"This week"
+
+"Your anxiety has been higher than your recent baseline."
+
+Bukan:
+
+"Regression coefficient = ..."
+
+Technical analysis tetap di backend.
+
+==================================================
+AE. DEMO DATA
+==================================================
+
+Buat synthetic demo user.
+
+JANGAN menggunakan real patient data.
+
+Buat data 14 hari.
+
+Contoh pattern:
+
+hari 1–4:
+stabil
+
+hari 5:
+treatment
+
+hari 6–8:
+fatigue meningkat
+sleep menurun
+
+hari 9:
+mood membaik
+
+hari 10–14:
+anxiety meningkat menjelang treatment berikutnya.
+
+Tujuan data demo adalah membuat trend engine dapat ditunjukkan kepada juri.
+
+==================================================
+AF. DEMO FLOW
+==================================================
+
+Aplikasi harus mendukung demo berikut.
+
+SCENE 1
+
+Patient login.
+
+Home menunjukkan:
+
+next treatment;
+today wellbeing;
+personalized activity.
+
+SCENE 2
+
+Patient melakukan daily check-in:
+
+Mood 2
+Anxiety 4
+Energy 2
+Sleep 2
+Pain 3
+
+SCENE 3
+
+Patient menulis Journal:
+
+"Saya takut dengan kemoterapi berikutnya dan akhir-akhir ini sulit tidur."
+
+Patient mengaktifkan AI analysis.
+
+AI menemukan emotional signal.
+
+SCENE 4
+
+Emotional Trend menunjukkan:
+
+Anxiety increasing
+Sleep declining
+
+SCENE 5
+
+User membuka AI Companion dan menulis:
+
+"Aku takut banget untuk besok."
+
+AI mengetahui bahwa besok terdapat treatment.
+
+AI tidak menanyakan konteks yang sudah diketahui.
+
+AI memberi supportive response.
+
+SCENE 6
+
+AI merekomendasikan breathing/grounding activity dari curated database.
+
+SCENE 7
+
+Caregiver membuka dashboard.
+
+Caregiver TIDAK melihat journal.
+
+Caregiver melihat:
+
+"Patient may need additional emotional support before upcoming treatment."
+
+SCENE 8
+
+Caregiver Coach memberikan communication advice.
+
+SCENE 9
+
+Patient generate:
+
+Doctor Visit Summary.
+
+Summary menunjukkan:
+
+14-day wellbeing trend
+symptom pattern
+treatment context
+patient-reported concerns
+
+Ini merupakan END-TO-END COMPETITION DEMO.
+
+==================================================
+AG. TESTING
+==================================================
+
+Flutter:
+
+unit test
+widget test untuk screen penting
+
+Laravel:
+
+feature test
+policy test
+API validation test
+authentication test
+caregiver permission test
+
+FastAPI:
+
+pytest
+schema test
+service test
+mock LLM test
+RAG test
+safety test
+
+Pastikan permission leakage diuji.
+
+Contoh test penting:
+
+Caregiver tanpa izin TIDAK dapat melihat patient wellbeing.
+
+User A tidak dapat membaca journal User B.
+
+Mobile tidak dapat memanggil internal FastAPI endpoint tanpa service key.
+
+==================================================
+AH. DOCKER
+==================================================
+
+Buat docker-compose untuk local development.
+
+Minimal service:
+
+mysql
+qdrant
+backend
+ai-service
+
+Tambahkan service lain hanya jika perlu.
+
+Pastikan:
+
+docker compose up
+
+dapat menjalankan backend environment dengan instruksi yang jelas.
+
+Flutter dapat dijalankan terpisah menggunakan emulator/device.
+
+==================================================
+AI. DOCUMENTATION
+==================================================
+
+README wajib menjelaskan:
+
+Project overview
+Architecture
+Technology stack
+Setup requirements
+Environment variables
+How to run Docker
+How to run Laravel
+How to run FastAPI
+How to run Flutter
+How to seed demo data
+How to run tests
+How AI works
+How RAG works
+Privacy architecture
+Known limitations
+Competition demo scenario
+
+Buat juga:
+
+docs/ARCHITECTURE.md
+
+docs/AI_ENGINE.md
+
+docs/PRIVACY_AND_SAFETY.md
+
+==================================================
+AJ. CODE QUALITY
+==================================================
+
+Gunakan:
+
+meaningful naming;
+type safety;
+small functions;
+dependency injection jika berguna;
+centralized API error handling;
+consistent response schema.
+
+Jangan menaruh business logic besar di Controller.
+
+Jangan menaruh AI logic besar di FastAPI route handler.
+
+Gunakan service layer.
+
+Contoh:
+
+CompanionService
+EmotionService
+TrendService
+RAGService
+RecommendationService
+SafetyService
+SummaryService
+
+==================================================
+AK. DEVELOPMENT PHASES
+==================================================
+
+JANGAN mencoba membangun semuanya secara acak.
+
+Kerjakan dalam urutan berikut.
+
+PHASE 0
+Architecture + repository setup.
+
+PHASE 1
+Authentication + patient profile + Flutter navigation.
+
+PHASE 2
+Daily Check-In + Symptoms + Treatment.
+
+PHASE 3
+Journal.
+
+PHASE 4
+FastAPI AI foundation + LLM provider abstraction.
+
+PHASE 5
+Emotion analysis.
+
+PHASE 6
+Longitudinal Trend Engine.
+
+PHASE 7
+AI Companion contextual conversation.
+
+PHASE 8
+Personalized Support Activities.
+
+PHASE 9
+Care Circle + permissions.
+
+PHASE 10
+Caregiver Dashboard + Caregiver AI Coach.
+
+PHASE 11
+RAG Trusted Medical Knowledge.
+
+PHASE 12
+Doctor Visit Summary.
+
+PHASE 13
+FCM notification.
+
+PHASE 14
+UI polish + testing + demo seed.
+
+PHASE 15
+Support Circle community jika waktu memungkinkan.
+
+==================================================
+AL. DEFINITION OF DONE
+==================================================
+
+Feature dianggap selesai hanya jika:
+
+backend migration ada;
+model ada;
+validation ada;
+authorization ada;
+API route bekerja;
+Flutter integration bekerja;
+loading state ada;
+error state ada;
+happy path diuji;
+privacy requirement dipenuhi;
+README/update dokumentasi jika relevan.
+
+Jangan menyebut fitur selesai hanya karena UI sudah dibuat.
+
+==================================================
+AM. PRIORITY
+==================================================
+
+Jika waktu terbatas, PRIORITASKAN:
+
+1. Daily Check-In
+2. Symptom Tracker
+3. Journal
+4. Treatment Journey
+5. Emotional Trend Engine
+6. Contextual AI Companion
+7. Personalized Activities
+8. Care Circle
+9. Caregiver AI Coach
+10. Doctor Visit Summary
+11. RAG Knowledge
+
+Community dan Meaningful Moments boleh ditunda.
+
+==================================================
+AN. OUTPUT YANG SAYA INGINKAN DARI KAMU SEKARANG
+==================================================
+
+Pertama:
+
+JANGAN langsung menghasilkan ratusan file secara acak.
+
+Lakukan:
+
+1. Analisis requirement ini.
+
+2. Buat final architecture.
+
+3. Buat final repository structure.
+
+4. Buat database ERD dalam Mermaid.
+
+5. Buat application flow dalam Mermaid.
+
+6. Buat AI architecture diagram dalam Mermaid.
+
+7. Buat API contract.
+
+8. Buat implementation roadmap.
+
+9. Identifikasi risiko teknis.
+
+10. Setelah architecture konsisten, MULAI MEMBANGUN PROJECT.
+
+Jika repository kosong:
+buat struktur project dari awal.
+
+Jika repository sudah memiliki code:
+audit terlebih dahulu dan pertahankan bagian yang masih baik.
+
+Setelah setiap phase:
+- jelaskan singkat apa yang sudah dibuat;
+- run test/build/lint jika environment memungkinkan;
+- tampilkan blocker jika benar-benar ada;
+- lanjutkan ke phase berikutnya tanpa meminta konfirmasi untuk keputusan engineering kecil.
+
+Tanya saya hanya jika ada keputusan besar yang secara fundamental mengubah:
+- scope;
+- architecture;
+- product direction;
+- privacy model.
+
+==================================================
+AO. PRINSIP TERPENTING
+==================================================
+
+Keunggulan Hopely Care BUKAN:
+
+"kami mempunyai chatbot AI."
+
+Keunggulan Hopely Care adalah:
+
+"Hopely Care membangun longitudinal wellbeing context dari perjalanan pasien kanker, kemudian menggunakan AI untuk mengubah data tersebut menjadi personalized emotional support, caregiver insight, dan healthcare consultation summary."
+
+Setiap keputusan engineering harus mendukung konsep tersebut.
+
+Sekarang mulai dari ANALISIS ARSITEKTUR dan PLAN IMPLEMENTASI.
+Setelah itu lanjutkan membangun project sesuai urutan phase di atas.

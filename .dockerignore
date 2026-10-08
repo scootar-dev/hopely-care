@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.venv
+**/vendor
+**/node_modules
+mobile
+upload

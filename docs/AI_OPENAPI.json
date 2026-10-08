@@ -1,0 +1,1834 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hopely Internal AI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/companion": {
+      "post": {
+        "summary": "Companion",
+        "operationId": "companion_v1_ai_companion_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/emotion/analyze": {
+      "post": {
+        "summary": "Analyze Emotion",
+        "operationId": "analyze_emotion_v1_ai_emotion_analyze_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmotionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmotionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/trend/analyze": {
+      "post": {
+        "summary": "Trend",
+        "operationId": "trend_v1_ai_trend_analyze_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrendResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/recommendations": {
+      "post": {
+        "summary": "Recommendations",
+        "operationId": "recommendations_v1_ai_recommendations_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/doctor-summary": {
+      "post": {
+        "summary": "Summary",
+        "operationId": "summary_v1_ai_doctor_summary_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SummaryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/caregiver-coach": {
+      "post": {
+        "summary": "Caregiver",
+        "operationId": "caregiver_v1_ai_caregiver_coach_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaregiverRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaregiverResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/rag/query": {
+      "post": {
+        "summary": "Query",
+        "operationId": "query_v1_rag_query_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RagResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/knowledge/ingest": {
+      "post": {
+        "summary": "Ingest",
+        "operationId": "ingest_v1_knowledge_ingest_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Activity": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Category"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Duration Minutes"
+          },
+          "suitability_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 15,
+            "title": "Suitability Tags"
+          },
+          "contraindication_notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contraindication Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "category",
+          "duration_minutes",
+          "suitability_tags"
+        ],
+        "title": "Activity"
+      },
+      "ActivityShare": {
+        "properties": {
+          "completed_count": {
+            "type": "integer",
+            "title": "Completed Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "completed_count"
+        ],
+        "title": "ActivityShare"
+      },
+      "CaregiverContext": {
+        "properties": {
+          "wellbeing_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WellbeingShare"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "symptom_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SymptomShare"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "treatment_schedule": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Treatment"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment Schedule"
+          },
+          "activity_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActivityShare"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CaregiverContext"
+      },
+      "CaregiverRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "context": {
+            "$ref": "#/components/schemas/CaregiverContext"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message",
+          "context"
+        ],
+        "title": "CaregiverRequest"
+      },
+      "CaregiverResponse": {
+        "properties": {
+          "support_message": {
+            "type": "string",
+            "maxLength": 1500,
+            "title": "Support Message"
+          },
+          "communication_tip": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Communication Tip"
+          },
+          "suggested_action": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Suggested Action"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "support_message",
+          "communication_tip",
+          "suggested_action",
+          "metadata"
+        ],
+        "title": "CaregiverResponse"
+      },
+      "Checkin": {
+        "properties": {
+          "checkin_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Checkin Date"
+          },
+          "mood_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Mood Score"
+          },
+          "anxiety_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Anxiety Score"
+          },
+          "energy_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Energy Score"
+          },
+          "sleep_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Sleep Score"
+          },
+          "pain_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Pain Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "checkin_date",
+          "mood_score",
+          "anxiety_score",
+          "energy_score",
+          "sleep_score",
+          "pain_score"
+        ],
+        "title": "Checkin"
+      },
+      "CompanionRequest": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "user_id": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "User Id"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryMessage"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "History"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context",
+          "user_id",
+          "message"
+        ],
+        "title": "CompanionRequest"
+      },
+      "CompanionResponse": {
+        "properties": {
+          "reply": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Reply"
+          },
+          "support_intent": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Support Intent"
+          },
+          "suggested_activity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Activity"
+          },
+          "safety_signal": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "CONCERN",
+              "URGENT"
+            ],
+            "title": "Safety Signal"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reply",
+          "support_intent",
+          "suggested_activity",
+          "safety_signal",
+          "metadata"
+        ],
+        "title": "CompanionResponse"
+      },
+      "ConsentContext": {
+        "properties": {
+          "health": {
+            "type": "boolean",
+            "title": "Health",
+            "default": false
+          },
+          "journal_analysis": {
+            "type": "boolean",
+            "title": "Journal Analysis",
+            "default": false
+          },
+          "chat_context": {
+            "type": "boolean",
+            "title": "Chat Context",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ConsentContext"
+      },
+      "ContextRequest": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/PatientContext"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context"
+        ],
+        "title": "ContextRequest"
+      },
+      "EmotionRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 12000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "EmotionRequest"
+      },
+      "EmotionResponse": {
+        "properties": {
+          "primary_emotion": {
+            "type": "string",
+            "enum": [
+              "fear",
+              "sadness",
+              "anxiety",
+              "loneliness",
+              "anger",
+              "hope"
+            ],
+            "title": "Primary Emotion"
+          },
+          "scores": {
+            "$ref": "#/components/schemas/EmotionScores"
+          },
+          "themes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Themes"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "primary_emotion",
+          "scores",
+          "themes",
+          "confidence",
+          "metadata"
+        ],
+        "title": "EmotionResponse"
+      },
+      "EmotionScores": {
+        "properties": {
+          "fear": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Fear"
+          },
+          "sadness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Sadness"
+          },
+          "anxiety": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Anxiety"
+          },
+          "loneliness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Loneliness"
+          },
+          "anger": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Anger"
+          },
+          "hope": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Hope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fear",
+          "sadness",
+          "anxiety",
+          "loneliness",
+          "anger",
+          "hope"
+        ],
+        "title": "EmotionScores"
+      },
+      "EmotionSignal": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "scores": {
+            "$ref": "#/components/schemas/EmotionScores"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "date",
+          "scores"
+        ],
+        "title": "EmotionSignal"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HistoryMessage": {
+        "properties": {
+          "sender": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Sender"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sender",
+          "content"
+        ],
+        "title": "HistoryMessage"
+      },
+      "IngestRequest": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,100}$",
+            "title": "Source Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "publisher": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Publisher"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "document_version": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Document Version"
+          },
+          "reviewed_by": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reviewed By"
+          },
+          "reviewed": {
+            "type": "boolean",
+            "const": true,
+            "title": "Reviewed"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 200000,
+            "minLength": 20,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_id",
+          "title",
+          "publisher",
+          "document_version",
+          "reviewed_by",
+          "reviewed",
+          "text"
+        ],
+        "title": "IngestRequest"
+      },
+      "Metadata": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "live",
+              "statistical"
+            ],
+            "title": "Mode"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "fallback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "model_version",
+          "method"
+        ],
+        "title": "Metadata"
+      },
+      "MetricTrend": {
+        "properties": {
+          "direction": {
+            "type": "string",
+            "enum": [
+              "increasing",
+              "declining",
+              "stable",
+              "insufficient_data"
+            ],
+            "title": "Direction"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "baseline_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Mean"
+          },
+          "recent_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recent Mean"
+          },
+          "slope_per_day": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slope Per Day"
+          },
+          "baseline_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Delta"
+          },
+          "rolling_averages": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Rolling Averages"
+          },
+          "unusual_dates": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unusual Dates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "direction",
+          "mean",
+          "baseline_mean",
+          "recent_mean",
+          "slope_per_day",
+          "baseline_delta",
+          "rolling_averages",
+          "unusual_dates"
+        ],
+        "title": "MetricTrend"
+      },
+      "PatientContext": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "title": "As Of"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone",
+            "default": "Asia/Jakarta"
+          },
+          "period_days": {
+            "type": "integer",
+            "enum": [
+              7,
+              14,
+              30
+            ],
+            "title": "Period Days",
+            "default": 14
+          },
+          "recent_checkins": {
+            "items": {
+              "$ref": "#/components/schemas/Checkin"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Recent Checkins"
+          },
+          "recent_symptoms": {
+            "items": {
+              "$ref": "#/components/schemas/Symptom"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Recent Symptoms"
+          },
+          "treatments": {
+            "items": {
+              "$ref": "#/components/schemas/Treatment"
+            },
+            "type": "array",
+            "maxItems": 60,
+            "title": "Treatments"
+          },
+          "next_treatment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Treatment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "emotion_signals": {
+            "items": {
+              "$ref": "#/components/schemas/EmotionSignal"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Emotion Signals"
+          },
+          "completed_activities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Completed Activities"
+          },
+          "consent": {
+            "$ref": "#/components/schemas/ConsentContext"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "as_of",
+          "consent"
+        ],
+        "title": "PatientContext"
+      },
+      "RagRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Question"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "RagRequest"
+      },
+      "RagResponse": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "answer",
+          "sources",
+          "confidence",
+          "metadata"
+        ],
+        "title": "RagResponse"
+      },
+      "Recommendation": {
+        "properties": {
+          "activity_id": {
+            "type": "string",
+            "title": "Activity Id"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 600,
+            "title": "Reason"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "activity_id",
+          "reason",
+          "confidence"
+        ],
+        "title": "Recommendation"
+      },
+      "RecommendationRequest": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "activities": {
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Activities"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context",
+          "activities"
+        ],
+        "title": "RecommendationRequest"
+      },
+      "RecommendationResponse": {
+        "properties": {
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/Recommendation"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Recommendations"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recommendations",
+          "metadata"
+        ],
+        "title": "RecommendationResponse"
+      },
+      "SummaryRequest": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "reported_concerns": {
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Reported Concerns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context"
+        ],
+        "title": "SummaryRequest"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "recorded_days": {
+            "type": "integer",
+            "title": "Recorded Days"
+          },
+          "wellbeing": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricTrend"
+            },
+            "type": "object",
+            "title": "Wellbeing"
+          },
+          "symptom_patterns": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Symptom Patterns"
+          },
+          "reported_concerns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reported Concerns"
+          },
+          "treatment_context": {
+            "items": {
+              "$ref": "#/components/schemas/Treatment"
+            },
+            "type": "array",
+            "title": "Treatment Context"
+          },
+          "questions_patient_may_want_to_discuss": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Questions Patient May Want To Discuss"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "period",
+          "recorded_days",
+          "wellbeing",
+          "symptom_patterns",
+          "reported_concerns",
+          "treatment_context",
+          "questions_patient_may_want_to_discuss",
+          "disclaimer",
+          "metadata"
+        ],
+        "title": "SummaryResponse"
+      },
+      "Symptom": {
+        "properties": {
+          "logged_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Logged At"
+          },
+          "pain": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Pain"
+          },
+          "fatigue": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Fatigue"
+          },
+          "nausea": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Nausea"
+          },
+          "dizziness": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Dizziness"
+          },
+          "appetite": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Appetite"
+          },
+          "sleep_quality": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Sleep Quality"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logged_at",
+          "pain",
+          "fatigue",
+          "nausea",
+          "dizziness",
+          "appetite",
+          "sleep_quality"
+        ],
+        "title": "Symptom"
+      },
+      "SymptomShare": {
+        "properties": {
+          "record_count": {
+            "type": "integer",
+            "title": "Record Count"
+          },
+          "pain": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pain"
+          },
+          "fatigue": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatigue"
+          },
+          "nausea": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nausea"
+          },
+          "dizziness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dizziness"
+          },
+          "appetite": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Appetite"
+          },
+          "sleep_quality": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Quality"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "record_count",
+          "pain",
+          "fatigue",
+          "nausea",
+          "dizziness",
+          "appetite",
+          "sleep_quality"
+        ],
+        "title": "SymptomShare"
+      },
+      "Treatment": {
+        "properties": {
+          "treatment_type": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Treatment Type"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scheduled At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "default": "scheduled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "treatment_type",
+          "scheduled_at"
+        ],
+        "title": "Treatment"
+      },
+      "TrendResponse": {
+        "properties": {
+          "contains_mock_signals": {
+            "type": "boolean",
+            "title": "Contains Mock Signals",
+            "default": false
+          },
+          "period_days": {
+            "type": "integer",
+            "title": "Period Days"
+          },
+          "recorded_days": {
+            "type": "integer",
+            "title": "Recorded Days"
+          },
+          "coverage": {
+            "type": "number",
+            "title": "Coverage"
+          },
+          "trends": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Trends"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricTrend"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/Checkin"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "significant_changes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Significant Changes"
+          },
+          "contextual_patterns": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Contextual Patterns"
+          },
+          "emotion_summary": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Emotion Summary"
+          },
+          "overall_direction": {
+            "type": "string",
+            "enum": [
+              "insufficient_data",
+              "stable",
+              "needs_attention",
+              "improving"
+            ],
+            "title": "Overall Direction"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "period_days",
+          "recorded_days",
+          "coverage",
+          "trends",
+          "metrics",
+          "series",
+          "significant_changes",
+          "contextual_patterns",
+          "emotion_summary",
+          "overall_direction",
+          "metadata"
+        ],
+        "title": "TrendResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WellbeingShare": {
+        "properties": {
+          "recorded_days": {
+            "type": "integer",
+            "title": "Recorded Days"
+          },
+          "mood": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mood"
+          },
+          "anxiety": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anxiety"
+          },
+          "energy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy"
+          },
+          "sleep": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recorded_days",
+          "mood",
+          "anxiety",
+          "energy",
+          "sleep"
+        ],
+        "title": "WellbeingShare"
+      }
+    }
+  }
+}

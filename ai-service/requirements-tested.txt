@@ -1,0 +1,14 @@
+# Direct package versions present during verification; not a full transitive lockfile.
+fastapi==0.142.2
+pydantic==2.13.5
+pydantic-settings==2.15.0
+httpx==0.28.1
+numpy==2.3.5
+pandas==2.2.3
+scikit-learn==1.8.0
+pytest==9.1.1
+uvicorn==0.54.0
+qdrant-client==1.19.1
+openai==3.26.0
+pypdf==6.10.0
+ruff==0.16.10

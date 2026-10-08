@@ -1,0 +1,130 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-hopely}
+      MYSQL_USER: ${DB_USERNAME:-hopely}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Run python scripts/configure.py}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run python scripts/configure.py}
+    volumes:
+    - mysql-data:/var/lib/mysql
+    networks:
+    - private
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysqladmin ping -h 127.0.0.1 -u root --silent
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  qdrant:
+    image: ${QDRANT_IMAGE:-qdrant/qdrant:v1.19.2}
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?Run python scripts/configure.py}
+      QDRANT__TELEMETRY_DISABLED: 'true'
+    volumes:
+    - qdrant-data:/qdrant/storage
+    networks:
+    - private
+  ai-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/ai.Dockerfile
+      args:
+        WITH_LOCAL_MODELS: ${WITH_LOCAL_MODELS:-false}
+    environment:
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: ${LLM_MODEL}
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      APP_ENV: ${APP_ENV:-local}
+      MOCK_AI_MODE: ${MOCK_AI_MODE:-true}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      EMOTION_MODEL_NAME: ${EMOTION_MODEL_NAME:-}
+      EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      QDRANT_URL: http://qdrant:6333
+      RAG_MIN_SCORE: ${RAG_MIN_SCORE:-0.65}
+      EMERGENCY_RESOURCE_TEXT: ${EMERGENCY_RESOURCE_TEXT:-}
+    volumes:
+    - model-cache:/home/app/.cache
+    - ./knowledge-base:/documents:ro
+    networks:
+    - private
+    - egress
+    depends_on:
+    - qdrant
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://localhost:8001/health',timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 20
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    ports:
+    - 127.0.0.1:8000:8000
+    volumes:
+    - backend-storage:/app/storage
+    networks:
+    - private
+    - egress
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - php
+      - -r
+      - 'exit(file_get_contents(''http://localhost:8000/up'') === false ? 1 : 0);'
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    environment: &id001
+      APP_KEY: ${APP_KEY}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
+      APP_ENV: ${APP_ENV:-local}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: '3306'
+      DB_DATABASE: ${DB_DATABASE:-hopely}
+      DB_USERNAME: ${DB_USERNAME:-hopely}
+      AI_SERVICE_URL: http://ai-service:8001
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+  scheduler:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    entrypoint:
+    - php
+    - artisan
+    - schedule:work
+    volumes:
+    - backend-storage:/app/storage
+    networks:
+    - private
+    - egress
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment: *id001
+networks:
+  private:
+    internal: true
+  egress: {}
+volumes:
+  mysql-data: {}
+  qdrant-data: {}
+  model-cache: {}
+  backend-storage: {}
