@@ -213,15 +213,27 @@ void main() {
       UncontrolledProviderScope(container: container, child: const HopelyApp()),
     );
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Mulai Sekarang'), 300);
+    await tester.scrollUntilVisible(
+      find.text('Mulai Sekarang'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Mulai Sekarang'));
     await tester.pumpAndSettle();
     for (var i = 0; i < 2; i++) {
-      await tester.scrollUntilVisible(find.text('Lanjutkan'), 200);
+      await tester.scrollUntilVisible(
+        find.text('Lanjutkan'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Lanjutkan'));
       await tester.pumpAndSettle();
     }
-    await tester.scrollUntilVisible(find.text('Mulai Perjalanan'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Mulai Perjalanan'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Mulai Perjalanan'));
     await tester.pumpAndSettle();
     expect(find.text('Lanjut sebagai pasien'), findsOneWidget);
@@ -258,13 +270,15 @@ void main() {
       router.go('/caregiver/connect');
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'synthetic-invitation');
-      await tester.scrollUntilVisible(find.text('Hubungkan Sekarang'), 200);
+      await tester.scrollUntilVisible(
+        find.text('Hubungkan Sekarang'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Hubungkan Sekarang'));
       await tester.pumpAndSettle();
-      expect(api.writes.single, (
-        '/caregivers/accept',
-        {'token': 'synthetic-invitation'},
-      ));
+      expect(api.writes.single.$1, '/caregivers/accept');
+      expect(api.writes.single.$2, {'token': 'synthetic-invitation'});
       expect(router.routeInformationProvider.value.uri.path, '/caregiver');
     },
   );
@@ -290,7 +304,11 @@ void main() {
       await tester.pumpAndSettle();
       container.read(routerProvider).go('/checkin');
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('Simpan Ringkasan'), 300);
+      await tester.scrollUntilVisible(
+        find.text('Simpan Ringkasan'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Simpan Ringkasan'));
       await tester.pumpAndSettle();
       expect(api.writes.single.$1, '/checkins/checkin-1');
