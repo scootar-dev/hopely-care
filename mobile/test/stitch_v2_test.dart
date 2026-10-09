@@ -270,12 +270,15 @@ void main() {
       router.go('/caregiver/connect');
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'synthetic-invitation');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
         find.text('Hubungkan Sekarang'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Hubungkan Sekarang'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hubungkan Sekarang').hitTestable());
       await tester.pumpAndSettle();
       expect(api.writes.single.$1, '/caregivers/accept');
       expect(api.writes.single.$2, {'token': 'synthetic-invitation'});

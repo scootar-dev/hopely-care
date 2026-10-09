@@ -53,6 +53,7 @@ class PageBody extends StatelessWidget {
           ),
         ),
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
           physics: const AlwaysScrollableScrollPhysics(),
           children: children,
