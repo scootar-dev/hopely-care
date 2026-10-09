@@ -40,4 +40,12 @@ CI baseline run `37947909741`: AI lulus; Flutter analyze gagal pada 7 lint; Lara
 - Navigasi utama konsisten Beranda / Perjalanan / Hopely AI / Insight / Profil. Jurnal dan Tools tersedia lewat Beranda dan Profil; komunitas tetap fase opsional sesuai master requirement.
 - Tanpa aset ilustrasi terpisah dari Stitch, hero memakai ilustrasi ikon Flutter yang dapat diskalakan, bukan screenshot seluruh UI sebagai tampilan aplikasi.
 
-Hasil pengujian dan batas verifikasi dicatat setelah implementasi.
+## Hasil implementasi
+
+Semua 15 referensi V2 sudah dipetakan ke layar aplikasi. Splash, welcome, dan onboarding ditambahkan/disusun ulang; Tools Kesehatan, penerimaan undangan, konfirmasi check-in, dan detail pengingat dukungan mendapat route tersendiri. Beranda, chat, insight, jurnal, profil, care circle, dan dashboard kerabat memakai komponen biru/lavender yang konsisten serta data dari API yang sudah ada.
+
+Perubahan backend terbatas pada perbaikan ownership saat menyimpan consent dan penambahan `total` pada respons daftar untuk jumlah catatan yang akurat. Tes ownership/revocation ditambahkan. Skema MySQL, Sanctum, AI Engine/FastAPI, kebijakan akses, dan pengamanan catatan tetap dipertahankan.
+
+Session Flutter kini reaktif terhadap perubahan izin; router tetap satu instance. Checkbox ingat sesi mengatur penyimpanan token. Material pada kartu dan scroll chat diperbaiki setelah tes native menemukan error rendering dan overflow. Bootstrap tidak membuat ulang runner yang sudah ada dan mempertahankan atribut manifest pengguna.
+
+CI menjalankan Laravel pada SQLite/MySQL, FastAPI, Flutter analyze/widget tests, dan build APK debug. Screenshot widget memakai data sintetis, font aplikasi dan ikon asli; tidak berisi data akun pengguna. Bukti pengujian dan batas yang masih belum diverifikasi ada di [VERIFICATION.md](VERIFICATION.md).

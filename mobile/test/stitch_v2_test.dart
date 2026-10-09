@@ -379,62 +379,66 @@ void main() {
       'V2 $role routes render at phone width and produce review images',
       (tester) async {
         final shadowsWereDisabled = debugDisableShadows;
-        debugDisableShadows = false;
-        addTearDown(() => debugDisableShadows = shadowsWereDisabled);
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        final session = fixtureSession(
-          guest: role == 'guest',
-          caregiver: role == 'caregiver',
-        );
-        final container = ProviderContainer(
-          overrides: [
-            sessionProvider.overrideWith((ref) => session),
-            apiProvider.overrideWithValue(FixtureApi(session)),
-          ],
-        );
-        addTearDown(container.dispose);
-        final key = GlobalKey();
-        await tester.pumpWidget(
-          RepaintBoundary(
-            key: key,
-            child: UncontrolledProviderScope(
-              container: container,
-              child: const HopelyApp(),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final routes = role == 'guest'
-            ? ['/welcome', '/onboarding', '/login', '/role', '/register']
-            : role == 'patient'
-            ? [
-                '/home',
-                '/checkin',
-                '/chat',
-                '/insights',
-                '/journal',
-                '/profile',
-                '/tools',
-                '/care-circle',
-              ]
-            : [
-                '/caregiver',
-                '/caregiver/connect',
-                '/caregiver/patient-1',
-                '/caregiver/alerts/notice-1',
-              ];
-        for (final route in routes) {
-          container.read(routerProvider).go(route);
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull, reason: route);
-          await savePreview(
-            tester,
-            key,
-            '$role-${route.substring(1).replaceAll('/', '-')}',
+        try {
+          debugDisableShadows = false;
+          tester.view.physicalSize = const Size(390, 844);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final session = fixtureSession(
+            guest: role == 'guest',
+            caregiver: role == 'caregiver',
           );
+          final container = ProviderContainer(
+            overrides: [
+              sessionProvider.overrideWith((ref) => session),
+              apiProvider.overrideWithValue(FixtureApi(session)),
+            ],
+          );
+          addTearDown(container.dispose);
+          final key = GlobalKey();
+          await tester.pumpWidget(
+            RepaintBoundary(
+              key: key,
+              child: UncontrolledProviderScope(
+                container: container,
+                child: const HopelyApp(),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          final routes = role == 'guest'
+              ? ['/welcome', '/onboarding', '/login', '/role', '/register']
+              : role == 'patient'
+              ? [
+                  '/home',
+                  '/checkin',
+                  '/chat',
+                  '/insights',
+                  '/journal',
+                  '/profile',
+                  '/tools',
+                  '/care-circle',
+                ]
+              : [
+                  '/caregiver',
+                  '/caregiver/connect',
+                  '/caregiver/patient-1',
+                  '/caregiver/alerts/notice-1',
+                ];
+          for (final route in routes) {
+            container.read(routerProvider).go(route);
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull, reason: route);
+            await savePreview(
+              tester,
+              key,
+              '$role-${route.substring(1).replaceAll('/', '-')}',
+            );
+          }
+        } finally {
+          // Binding invariants run before addTearDown callbacks.
+          debugDisableShadows = shadowsWereDisabled;
         }
       },
     );
