@@ -69,7 +69,11 @@ ThemeData hopelyTheme() => ThemeData(
   chipTheme: ChipThemeData(
     backgroundColor: lavender,
     selectedColor: hopelyBlue,
-    labelStyle: const TextStyle(color: ink, fontWeight: FontWeight.w700),
+    labelStyle: const TextStyle(
+      fontFamily: 'DejaVuSans',
+      color: ink,
+      fontWeight: FontWeight.w700,
+    ),
     shape: const StadiumBorder(side: BorderSide.none),
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
   ),
@@ -94,13 +98,20 @@ ThemeData hopelyTheme() => ThemeData(
       elevation: 2,
       shadowColor: hopelyBlue.withValues(alpha: 0.28),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      textStyle: const TextStyle(
+        fontFamily: 'DejaVuSans',
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
       foregroundColor: hopelyBlue,
-      textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      textStyle: const TextStyle(
+        fontFamily: 'DejaVuSans',
+        fontWeight: FontWeight.w700,
+      ),
     ),
   ),
   navigationBarTheme: NavigationBarThemeData(
@@ -109,7 +120,12 @@ ThemeData hopelyTheme() => ThemeData(
     elevation: 0,
     shadowColor: Colors.black.withValues(alpha: 0.08),
     labelTextStyle: const WidgetStatePropertyAll(
-      TextStyle(fontSize: 12, color: ink, fontWeight: FontWeight.w600),
+      TextStyle(
+        fontFamily: 'DejaVuSans',
+        fontSize: 12,
+        color: ink,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     iconTheme: const WidgetStatePropertyAll(IconThemeData(color: ink)),
   ),

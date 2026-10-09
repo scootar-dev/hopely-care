@@ -1,8 +1,8 @@
 # Hopely Care
 
-Implementasi awal MVP pendamping wellbeing pasien kanker, mengikuti master requirement dan lima screenshot Stitch. Proposal lama tidak digunakan untuk menentukan fitur atau teknologi.
+MVP pendamping wellbeing pasien kanker, dilanjutkan dari repository utama dan diselaraskan dengan master requirement serta 15 layar Stitch V2 di `stitch v2/`. Proposal lama hanya digunakan untuk latar belakang.
 
-**Status:** kode aplikasi, layanan AI, konfigurasi, dan tes tersedia. Tes Python dijalankan di workspace ini. Build Flutter, eksekusi Laravel/MySQL, Docker, FCM, serta AI live belum dapat diverifikasi di sini. Lihat `docs/VERIFICATION.md`; jangan menganggap seluruh definition of done sudah terpenuhi.
+**Status:** implementasi Stitch V2 dan perbaikan regresi tersedia. Tes FastAPI, Laravel (SQLite dan MySQL), serta analisis dan tes Flutter telah dijalankan melalui GitHub Actions. Hasil build dan batas verifikasi dicatat di [VERIFICATION.md](docs/VERIFICATION.md); pemetaan desain dan keputusan implementasi ada di [STITCH_V2_AUDIT.md](docs/STITCH_V2_AUDIT.md).
 
 ## Arsitektur
 Flutter → Laravel/Sanctum → MySQL dan FastAPI internal. FastAPI → provider LLM dan Qdrant untuk dokumen terkurasi. Flutter tidak memegang internal service key atau API key LLM. FCM dipakai hanya untuk notifikasi perangkat yang diaktifkan pengguna.
@@ -19,13 +19,13 @@ Flutter → Laravel/Sanctum → MySQL dan FastAPI internal. FastAPI → provider
 | `docs` | Arsitektur, ERD, flow, kontrak, privasi, roadmap, verifikasi |
 
 ## Versi dan kebutuhan
-- PHP 8.4 target Docker; Laravel `^13.0`, Sanctum `^4.0`. Laravel 13 membutuhkan PHP minimal 8.3.
-- Flutter stable (dokumentasi resmi saat pemeriksaan menampilkan 3.47), Dart ≥3.10. Dependency penting: Riverpod `^3.4.3`, GoRouter `^18.0.2`, secure storage `^11.2.0`; versi final harus dikunci oleh `flutter pub get`.
+- PHP 8.4 target Docker/CI; Laravel 12.69.3 dan Sanctum 4.3.3 sesuai `backend/composer.lock` pada repository utama. Versi backend pengguna dipertahankan.
+- Flutter stable, Dart ≥3.10; minimum Flutter pada lockfile ≥3.44.0. Dependency penting: Riverpod `^3.4.3`, GoRouter `^18.0.2`, secure storage `^11.2.0`; versi terkunci ada di `mobile/pubspec.lock`.
 - Python 3.12; FastAPI 0.142.2, Pydantic 2.13.5 yang diuji, HTTPX 0.28.1, qdrant-client 1.19.1, OpenAI SDK 3.26.0. Lihat pyproject dan `ai-service/requirements-tested.txt`.
 - MySQL 8.4 LTS, Qdrant 1.19.2, Docker Engine/Desktop + Compose v2.
 - Android SDK/emulator untuk mobile; Xcode/macOS untuk iOS.
 
-Composer dan Flutter SDK belum tersedia pada environment pembuatan, sehingga `composer.lock` dan `pubspec.lock` belum dihasilkan. Setelah dependency berhasil di-resolve dan dites, commit keduanya. Jangan menganggap rentang dependency sebagai reproducible lockfile.
+`backend/composer.lock`, `mobile/pubspec.lock`, dan native runners Android/iOS/web sudah tersedia dari repository utama dan dipertahankan. Jalankan instalasi dari lockfile; evaluasi upgrade dependency secara terpisah.
 
 ## Mulai backend dengan Docker
 Dari root proyek:
@@ -56,9 +56,9 @@ flutter test
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 ```
 
-Bootstrap membuat runner Android/iOS menggunakan SDK lokal, mempertahankan source aplikasi, mengambil dependency, dan mengizinkan HTTP hanya pada manifest Android debug. APK release mensyaratkan `API_BASE_URL=https://...`. Pada iOS gunakan endpoint HTTPS pengembangan atau konfigurasikan pengecualian ATS khusus debug secara sengaja. Commit runner dan lockfile hasil bootstrap setelah build berhasil.
+Bootstrap membuat runner Android/iOS hanya bila direktori platform belum tersedia, mengambil dependency, dan mengizinkan HTTP hanya pada manifest Android debug. CI langsung menjalankan `flutter pub get` pada runner yang sudah ada. APK release mensyaratkan `API_BASE_URL=https://...`. Pada iOS gunakan endpoint HTTPS pengembangan atau konfigurasikan pengecualian ATS khusus debug secara sengaja.
 
-Aplikasi memakai Bahasa Indonesia, Material 3, tema hijau/mint/peach, kartu membulat, dan navigasi bawah dari Stitch. Logo sederhana dan inisial menggantikan aset gambar yang tidak tersedia. Screenshot bukan data pasien dan teks medis contoh tidak dipakai sebagai fakta.
+Aplikasi memakai Bahasa Indonesia, Material 3, tema biru/lavender Stitch V2, kartu membulat, dan navigasi Beranda / Perjalanan / Hopely AI / Insight / Profil. Onboarding, Tools Kesehatan, penerimaan undangan, dan detail pengingat dukungan telah ditambahkan. Ilustrasi ikon Flutter menggantikan aset gambar terpisah yang tidak tersedia. Screenshot bukan data pasien dan teks medis contoh tidak dipakai sebagai fakta.
 
 ## Laravel tanpa Docker
 Install PHP 8.3+, Composer, extension PDO MySQL/SQLite, mbstring, XML, tokenizer, ctype, fileinfo, zip. Sediakan MySQL sendiri. Salin variabel aplikasi/database/internal-service yang diperlukan ke `backend/.env`; buat APP_KEY lokal menggunakan Artisan.
@@ -121,16 +121,16 @@ docker compose exec backend vendor/bin/phpunit
 docker compose exec ai-service python -m pytest -q
 ```
 
-CI menyediakan job Python, Laravel SQLite, Flutter analyze/test/debug APK. Jalankan juga dengan MySQL/Docker dan perangkat sebelum menganggap MVP selesai. Skenario juri: `docs/DEMO.md`.
+CI menjalankan Python, Laravel pada SQLite dan MySQL 8.4, serta Flutter analyze/test/debug APK. Artifact `stitch-v2-screens` berisi render widget dengan data sintetis; `hopely-care-debug-apk` berisi APK untuk endpoint emulator `http://10.0.2.2:8000/api`. Uji alur lintas layanan dan perangkat tetap terpisah. Skenario juri: `docs/DEMO.md`.
 
 ## Batas implementasi yang masih harus diverifikasi
-- Belum ada bukti build/run Laravel + Flutter + Docker secara end-to-end pada workspace ini.
+- Rangkaian Flutter → Laravel → FastAPI melalui jaringan dan Docker Compose belum diuji end-to-end; pengujian tiap komponen dijalankan terpisah.
 - Tidak ada API key live, dokumen medis yang benar-benar disetujui, atau konfigurasi Firebase milik pengguna.
 - Belum ada uji klinis, pengukuran akurasi emosi, evaluasi krisis/parafrasa Bahasa Indonesia, ataupun validasi manfaat kesehatan.
-- Form edit/delete tersedia untuk inti pencatatan melalui API; UI memperlihatkan jalur utama, bukan semua operasi administratif. Riwayat daftar menggunakan halaman pertama (30 item); load-more dan pemilih sesi chat perlu ditambahkan sebelum penggunaan panjang.
+- Form edit/delete tersedia untuk inti pencatatan melalui API; UI memperlihatkan jalur utama, bukan semua operasi administratif. Jurnal memiliki navigasi halaman. Daftar lain masih mengambil halaman pertama (30 item), dan chat membuka sesi terbaru; navigasi riwayat panjang dapat dikembangkan berikutnya.
 - Notifikasi push belum memakai antrean retry persisten; in-app notification tetap disimpan. Job/queue dapat ditambahkan saat kebutuhan delivery jelas.
 - PDF tidak menyertakan otomatis isi jurnal/chat, diagnosis, dosis, atau informasi dokter yang tidak tercatat.
 - Community dan Meaningful Moments ditunda sesuai prioritas master.
 
 ## Sumber dokumentasi teknis
-Diperiksa 7 Oktober 2026: [Laravel 13](https://laravel.com/framework/docs/releases), [Flutter SDK](https://docs.flutter.dev/install/archive), [Riverpod](https://pub.dev/packages/flutter_riverpod), [GoRouter](https://pub.dev/packages/go_router), [Secure Storage](https://pub.dev/packages/flutter_secure_storage), [FCM setup](https://firebase.google.com/docs/flutter/setup), [Qdrant 1.19.2](https://github.com/qdrant/qdrant/releases/tag/v1.19.2), [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [Embedding model](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2).
+Referensi: [Laravel 12](https://laravel.com/docs/12.x), [Flutter SDK](https://docs.flutter.dev/install/archive), [Riverpod](https://pub.dev/packages/flutter_riverpod), [GoRouter](https://pub.dev/packages/go_router), [Secure Storage](https://pub.dev/packages/flutter_secure_storage), [FCM setup](https://firebase.google.com/docs/flutter/setup), [Qdrant](https://github.com/qdrant/qdrant), [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [Embedding model](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2). Untuk versi yang digunakan aplikasi, ikuti manifest dan lockfile repository.

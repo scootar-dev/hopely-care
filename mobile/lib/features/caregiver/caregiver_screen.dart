@@ -188,6 +188,7 @@ class _CaregiverConnectScreenState
                 decoration: const InputDecoration(
                   labelText: 'Tempel kode undangan',
                   helperText: 'Gunakan email akun yang diundang pasien.',
+                  helperMaxLines: 2,
                 ),
               ),
               const SizedBox(height: 18),

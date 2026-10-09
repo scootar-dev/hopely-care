@@ -325,7 +325,12 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Simpan Ringkasan'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.widgetWithText(FilledButton, 'Simpan Ringkasan'),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Simpan Ringkasan').hitTestable());
       await tester.pumpAndSettle();
       expect(api.writes.single.$1, '/checkins/checkin-1');
       expect(api.writes.single.$2['ai_analysis_allowed'], false);
@@ -373,6 +378,9 @@ void main() {
     testWidgets(
       'V2 $role routes render at phone width and produce review images',
       (tester) async {
+        final shadowsWereDisabled = debugDisableShadows;
+        debugDisableShadows = false;
+        addTearDown(() => debugDisableShadows = shadowsWereDisabled);
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
