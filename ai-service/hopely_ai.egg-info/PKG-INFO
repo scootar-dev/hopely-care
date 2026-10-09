@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: hopely-ai
+Version: 0.1.0
+Requires-Python: >=3.12
+Requires-Dist: fastapi==0.142.2
+Requires-Dist: pydantic<3,>=2.13
+Requires-Dist: pydantic-settings==2.15.0
+Requires-Dist: httpx[socks]==0.28.1
+Requires-Dist: uvicorn==0.54.0
+Requires-Dist: numpy<3,>=2.3
+Requires-Dist: pandas<3,>=2.2
+Requires-Dist: scikit-learn<2,>=1.8
+Requires-Dist: qdrant-client==1.19.1
+Requires-Dist: openai==3.26.0
+Requires-Dist: pypdf<7,>=6
+Provides-Extra: ml
+Requires-Dist: sentence-transformers<6,>=5; extra == "ml"
+Requires-Dist: transformers<6,>=4.50; extra == "ml"
+Provides-Extra: dev
+Requires-Dist: pytest==9.1.1; extra == "dev"
+Requires-Dist: ruff>=0.14; extra == "dev"
