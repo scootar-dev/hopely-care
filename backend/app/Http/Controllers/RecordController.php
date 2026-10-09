@@ -18,21 +18,22 @@ class RecordController extends Controller
             "items" => RecordResource::collection($items->items()),
             "page" => $items->currentPage(),
             "last_page" => $items->lastPage(),
+            "total" => $items->total()
         ]);
     }
     public function show(Request $r)
     {
         return $this->ok(
-            new RecordResource($this->records->owned($r->route("kind"), $r->route("id"))),
+            new RecordResource($this->records->owned($r->route("kind"), $r->route("id")))
         );
     }
     public function store(RecordRequest $r)
     {
         return $this->ok(
             new RecordResource(
-                $this->records->save($r->user()->id, $r->route("kind"), $r->validated()),
+                $this->records->save($r->user()->id, $r->route("kind"), $r->validated())
             ),
-            201,
+            201
         );
     }
     public function update(RecordRequest $r)
@@ -43,9 +44,9 @@ class RecordController extends Controller
                     $r->user()->id,
                     $r->route("kind"),
                     $r->validated(),
-                    $r->route("id"),
-                ),
-            ),
+                    $r->route("id")
+                )
+            )
         );
     }
     public function destroy(Request $r)

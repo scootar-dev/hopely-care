@@ -5,7 +5,8 @@ import '../../core/widgets/ui.dart';
 import '../../core/theme/theme.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.initialPrompt});
+  final String? initialPrompt;
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
@@ -20,6 +21,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    input.text = widget.initialPrompt == 'anxiety'
+        ? 'Aku sedang merasa cemas.'
+        : widget.initialPrompt == 'story'
+        ? 'Aku ingin bercerita tentang hari ini.'
+        : '';
     load();
   }
 
@@ -99,7 +105,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final allowed = ref
-        .read(sessionProvider)
+        .watch(sessionProvider)
         .consents
         .contains('AI_CHAT_CONTEXT');
     return Column(
@@ -121,14 +127,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Halo, aku Hopi',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                        'Hopely AI',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                      Text('Teman tenang dan sahabat AI'),
+                      Text('Teman cerita & pendamping'),
                     ],
                   ),
                 ),
-                Chip(label: Text('24/7 Siaga'), backgroundColor: skySoft),
               ],
             ),
           ),
@@ -179,6 +187,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   controller: scroll,
                   padding: const EdgeInsets.all(20),
                   children: [
+                    if (messages.isEmpty && allowed)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ActionChip(
+                            label: const Text('Aku merasa cemas'),
+                            onPressed: () => setState(
+                              () => input.text = 'Aku sedang merasa cemas.',
+                            ),
+                          ),
+                          ActionChip(
+                            label: const Text('Cerita hari ini'),
+                            onPressed: () => setState(
+                              () => input.text =
+                                  'Aku ingin bercerita tentang hari ini.',
+                            ),
+                          ),
+                        ],
+                      ),
                     if (messages.isEmpty)
                       const CareCard(
                         color: lavenderSoft,
@@ -197,7 +225,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: message['sender'] == 'user'
-                                ? Colors.white
+                                ? hopelyBlue
                                 : skySoft,
                             borderRadius: BorderRadius.only(
                               topLeft: const Radius.circular(24),
@@ -211,7 +239,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF25315F).withOpacity(0.06),
+                                color: const Color(
+                                  0xFF25315F,
+                                ).withValues(alpha: 0.06),
                                 blurRadius: 18,
                                 offset: const Offset(0, 8),
                               ),
@@ -219,10 +249,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ),
                           child: Text(
                             message['content'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               height: 1.5,
-                              color: ink,
+                              color: message['sender'] == 'user'
+                                  ? Colors.white
+                                  : ink,
                             ),
                           ),
                         ),
@@ -251,8 +283,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         decoration: const InputDecoration(
                           hintText: 'Ceritakan perasaanmu hari ini',
                           counterText: '',
-                          prefixIcon: Icon(Icons.mic_none),
-                          suffixIcon: Icon(Icons.mood_outlined),
+                          prefixIcon: Icon(Icons.chat_bubble_outline),
                         ),
                       ),
                     ),

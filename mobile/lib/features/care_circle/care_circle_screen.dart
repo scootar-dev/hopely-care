@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
+import '../../core/widgets/stitch.dart';
+import '../../core/theme/theme.dart';
 
 class CareCircleScreen extends ConsumerStatefulWidget {
   const CareCircleScreen({super.key});
@@ -54,7 +56,10 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Lingkar Dukungan')),
+    appBar: AppBar(
+      leading: const BackHomeButton(fallback: '/profile'),
+      title: const Text('Undang Kerabat'),
+    ),
     body: DataPage(
       key: ValueKey(version),
       load: () => ref.read(apiProvider).get('/caregivers'),
@@ -63,7 +68,7 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
         return PageBody(
           children: [
             const Heading(
-              'Kamu mengatur ruangmu',
+              'Dukungan dalam kendalimu',
               'Pendamping hanya melihat ringkasan yang kamu izinkan. Isi jurnal dan chat tetap pribadi.',
             ),
             const ActionLink('Atur persetujuan berbagi', '/privacy'),
@@ -94,22 +99,52 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
             ),
             if (error != null) ErrorNotice(error!),
             if (invitation != null)
-              CareCard(
+              BlueCard(
                 child: Column(
                   children: [
                     const Text(
                       'Berikan kode ini secara pribadi kepada pendamping. Berlaku 48 jam dan hanya dapat dipakai oleh email yang kamu undang.',
                     ),
                     const SizedBox(height: 8),
-                    SelectableText(invitation!['invitation_token']),
-                    TextButton.icon(
+                    const SoftLabel(
+                      'Kode Undangan Pribadi',
+                      inverse: true,
+                      icon: Icons.shield_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    SelectableText(
+                      invitation!['invitation_token'],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Berlaku hingga ${DateTime.parse(invitation!['expires_at']).toLocal().toString().substring(0, 16)}',
+                    ),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: hopelyBlue,
+                      ),
                       onPressed: () => Clipboard.setData(
                         ClipboardData(text: invitation!['invitation_token']),
                       ),
                       icon: const Icon(Icons.copy),
-                      label: const Text('Salin kode'),
+                      label: const Text('Salin Kode Undangan'),
                     ),
                   ],
+                ),
+              ),
+            SectionHeading(
+              'Kerabat Terhubung (${rows.where((r) => r['invitation_status'] == 'accepted').length})',
+            ),
+            if (rows.isEmpty)
+              const CareCard(
+                child: Text(
+                  'Belum ada undangan. Mulai dengan email orang yang kamu percaya.',
                 ),
               ),
             for (final row in rows)
@@ -121,8 +156,15 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                       row['relationship_label'],
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text(
-                      '${row['invited_email']} • ${row['invitation_status']}',
+                    Text(row['invited_email']),
+                    const SizedBox(height: 8),
+                    SoftLabel(
+                      const {
+                            'accepted': 'Terhubung',
+                            'pending': 'Menunggu diterima',
+                            'revoked': 'Akses dicabut',
+                          }[row['invitation_status']] ??
+                          row['invitation_status'],
                     ),
                     for (final e in const {
                       'can_view_wellbeing_summary': 'Ringkasan wellbeing',
@@ -131,36 +173,44 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                       'can_view_activity_status': 'Status aktivitas',
                       'can_receive_support_alert': 'Pengingat dukungan',
                     }.entries)
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(e.value),
-                        value: row['permissions'][e.key] == true,
-                        onChanged: (v) async {
-                          try {
-                            final p = Map<String, dynamic>.from(
-                              row['permissions'],
-                            );
-                            final payload = <String, dynamic>{
-                              for (final k in p.keys.where(
-                                (k) => k.startsWith('can_'),
-                              ))
-                                k: p[k],
-                            };
-                            payload[e.key] = v;
-                            await ref
-                                .read(apiProvider)
-                                .put(
-                                  '/caregivers/${row['id']}/permissions',
-                                  payload,
-                                );
-                            reload();
-                          } catch (e) {
-                            if (mounted) {
-                              setState(() => error = e);
-                            }
-                          }
-                        },
-                      ),
+                      if (row['invitation_status'] != 'revoked')
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(e.value),
+                          value: row['permissions'][e.key] == true,
+                          onChanged: busy
+                              ? null
+                              : (v) async {
+                                  setState(() => busy = true);
+                                  try {
+                                    final p = Map<String, dynamic>.from(
+                                      row['permissions'],
+                                    );
+                                    final payload = <String, dynamic>{
+                                      for (final k in p.keys.where(
+                                        (k) => k.startsWith('can_'),
+                                      ))
+                                        k: p[k],
+                                    };
+                                    payload[e.key] = v;
+                                    await ref
+                                        .read(apiProvider)
+                                        .put(
+                                          '/caregivers/${row['id']}/permissions',
+                                          payload,
+                                        );
+                                    reload();
+                                  } catch (e) {
+                                    if (mounted) {
+                                      setState(() => error = e);
+                                    }
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() => busy = false);
+                                    }
+                                  }
+                                },
+                        ),
                     if (row['invitation_status'] != 'revoked')
                       TextButton(
                         onPressed: () async {

@@ -9,7 +9,7 @@ class ConsentService
         "AI_JOURNAL_ANALYSIS",
         "AI_CHAT_CONTEXT",
         "CAREGIVER_WELLBEING_SHARE",
-        "CAREGIVER_ALERT",
+        "CAREGIVER_ALERT"
     ];
     public function active(string $id, string $type): bool
     {
@@ -25,7 +25,7 @@ class ConsentService
             "sha256",
             \App\Models\User::findOrFail($id)->consent_revision .
                 ":" .
-                Consent::where("user_id", $id)->orderBy("consent_type")->get()->toJson(),
+                Consent::where("user_id", $id)->orderBy("consent_type")->get()->toJson()
         );
     }
     public function withCurrent(string $id, string $fingerprint, \Closure $callback): mixed
@@ -43,10 +43,11 @@ class ConsentService
             $user->increment("consent_revision");
             $c = Consent::firstOrNew(["user_id" => $id, "consent_type" => $type]);
             $c->forceFill([
+                "user_id" => $id,
                 "accepted" => $accepted,
                 "accepted_at" => $accepted ? now() : null,
                 "revoked_at" => $accepted ? null : now(),
-                "consent_version" => "1.0",
+                "consent_version" => "1.0"
             ])->save();
             if (!$accepted) {
                 JournalAiInsight::where("user_id", $id)->delete();
@@ -57,7 +58,7 @@ class ConsentService
             app(AuditService::class)->record(
                 $id,
                 $accepted ? "consent.accepted" : "consent.revoked",
-                $type,
+                $type
             );
         });
     }

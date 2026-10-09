@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -8,7 +9,7 @@ const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'http://127.0.0.1:8000/api',
 );
-final sessionProvider = Provider<Session>((ref) => Session());
+final sessionProvider = ChangeNotifierProvider<Session>((ref) => Session());
 final apiProvider = Provider<Api>((ref) => Api(ref.read(sessionProvider)));
 
 class Session extends ChangeNotifier {
@@ -51,10 +52,14 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setAuth(Json result) async {
+  Future<void> setAuth(Json result, {bool remember = true}) async {
     token = result['token'] as String;
     user = result['user'] as Json;
-    await storage.write(key: 'hopely.token', value: token);
+    if (remember) {
+      await storage.write(key: 'hopely.token', value: token);
+    } else {
+      await storage.delete(key: 'hopely.token');
+    }
     await refresh();
   }
 

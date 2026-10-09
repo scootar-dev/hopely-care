@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/notifications/push_service.dart';
+import '../../core/widgets/stitch.dart';
+import '../../core/theme/theme.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
   const PrivacyScreen({super.key});
@@ -194,7 +196,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final s = ref.watch(sessionProvider);
     return PageBody(
       children: [
-        Heading(s.user?['name'] ?? 'Profil', 'Ruang pribadi dan pengaturanmu.'),
+        Center(
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 44,
+                backgroundColor: pillBlue,
+                child: Icon(Icons.person_outline, color: hopelyBlue, size: 46),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                s.profile?['display_name'] ?? s.user?['name'] ?? 'Profil',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 10),
+              SoftLabel(
+                s.caregiver ? 'Akun Kerabat' : 'Ruang Pribadimu',
+                icon: Icons.favorite_outline,
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+        const BlueCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Setiap langkahmu berarti.',
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Ada ruang untuk beristirahat, mencatat, dan melangkah sesuai kemampuanmu.',
+              ),
+            ],
+          ),
+        ),
+        if (!s.caregiver && !s.needsConsent) const ProfileStats(),
+        const SectionHeading('Pengaturan Cepat'),
         const CareCard(
           child: ActionLink(
             'Privasi & persetujuan',
@@ -212,7 +252,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const CareCard(
             child: ActionLink(
-              'Kelola pendamping',
+              'Undang & kelola kerabat',
               '/care-circle',
               icon: Icons.people_outline,
             ),
@@ -225,6 +265,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
         ],
+        if (!s.caregiver)
+          const CareCard(
+            child: ActionLink(
+              'Tools Kesehatan',
+              '/tools',
+              icon: Icons.health_and_safety_outlined,
+            ),
+          ),
         const CareCard(
           child: ActionLink(
             'Notifikasi',
@@ -237,7 +285,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onPressed: () async {
               try {
                 await PushService.enable(ref.read(apiProvider));
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Pengaturan pengingat diperbarui.'),
@@ -245,7 +293,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   );
                 }
               } catch (_) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -359,7 +407,12 @@ class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: const Text('Notifikasi')),
+    appBar: AppBar(
+      leading: BackHomeButton(
+        fallback: ref.read(sessionProvider).caregiver ? '/caregiver' : '/home',
+      ),
+      title: const Text('Notifikasi'),
+    ),
     body: DataPage(
       load: () => ref.read(apiProvider).get('/notifications'),
       builder: (data, reload) {
@@ -380,6 +433,12 @@ class NotificationsScreen extends ConsumerWidget {
                         : Icons.done,
                   ),
                   onTap: () async {
+                    if (n['notification_type'] == 'support_alert' &&
+                        ref.read(sessionProvider).caregiver) {
+                      await context.push('/caregiver/alerts/${n['id']}');
+                      reload();
+                      return;
+                    }
                     try {
                       await ref
                           .read(apiProvider)
@@ -399,5 +458,109 @@ class NotificationsScreen extends ConsumerWidget {
         );
       },
     ),
+  );
+}
+
+class ProfileStats extends ConsumerStatefulWidget {
+  const ProfileStats({super.key});
+  @override
+  ConsumerState<ProfileStats> createState() => _ProfileStatsState();
+}
+
+class _ProfileStatsState extends ConsumerState<ProfileStats> {
+  late final Future<List<dynamic>> stats = Future.wait([
+    ref.read(apiProvider).get('/journals'),
+    ref.read(apiProvider).get('/checkins'),
+    ref.read(apiProvider).get('/caregivers'),
+  ]);
+  @override
+  Widget build(BuildContext context) => FutureBuilder<List<dynamic>>(
+    future: stats,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return const CareCard(
+          child: Text(
+            'Ringkasan profil belum dapat dimuat. Pengaturan tetap tersedia.',
+          ),
+        );
+      }
+      if (!snapshot.hasData) {
+        return const LinearProgressIndicator();
+      }
+      final data = snapshot.data!;
+      final entries = [
+        (
+          'Jurnal',
+          (data[0]['total'] ?? items(data[0]).length).toString(),
+          Icons.edit_note,
+        ),
+        (
+          'Check-in',
+          (data[1]['total'] ?? items(data[1]).length).toString(),
+          Icons.sentiment_satisfied_outlined,
+        ),
+        (
+          'Kerabat',
+          items(data[2])
+              .where((r) => r['invitation_status'] == 'accepted')
+              .length
+              .toString(),
+          Icons.people_outline,
+        ),
+      ];
+      return Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final e in entries)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: CareCard(
+                      padding: 12,
+                      child: Column(
+                        children: [
+                          Icon(e.$3, color: hopelyBlue),
+                          const SizedBox(height: 12),
+                          Text(
+                            e.$2,
+                            style: const TextStyle(
+                              color: hopelyBlue,
+                              fontSize: 22,
+                            ),
+                          ),
+                          Text(e.$1, style: const TextStyle(fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          if (items(
+            data[2],
+          ).any((r) => r['invitation_status'] == 'accepted')) ...[
+            const SectionHeading('Kerabatku'),
+            for (final row in items(
+              data[2],
+            ).where((r) => r['invitation_status'] == 'accepted'))
+              CareCard(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const CircleAvatar(
+                    backgroundColor: lavender,
+                    child: Icon(Icons.person_outline, color: hopelyBlue),
+                  ),
+                  title: Text(row['relationship_label']),
+                  subtitle: Text(row['invited_email']),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/care-circle'),
+                ),
+              ),
+          ],
+        ],
+      );
+    },
   );
 }

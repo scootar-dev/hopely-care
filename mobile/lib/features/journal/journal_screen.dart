@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
+import '../../core/widgets/stitch.dart';
+import '../../core/theme/theme.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -10,10 +12,15 @@ class JournalScreen extends ConsumerStatefulWidget {
 }
 
 class _JournalScreenState extends ConsumerState<JournalScreen> {
-  int version = 0;
-  void edit([Json? entry]) async {
+  int version = 0, page = 1;
+  void edit([Json? entry, bool letter = false]) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => JournalEditor(entry: entry)),
+      MaterialPageRoute<void>(
+        builder: (_) => JournalEditor(
+          entry: entry,
+          initialTitle: letter ? 'Surat untuk diriku' : '',
+        ),
+      ),
     );
     if (mounted) {
       setState(() => version++);
@@ -22,22 +29,52 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Jurnal Pribadi')),
+    appBar: AppBar(
+      leading: const BackHomeButton(),
+      title: const Text('Jurnal Harian'),
+    ),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: edit,
       icon: const Icon(Icons.edit_outlined),
-      label: const Text('Tulis jurnal'),
+      label: const Text('Tulis Jurnal Baru'),
     ),
     body: DataPage(
-      key: ValueKey(version),
-      load: () => ref.read(apiProvider).get('/journals'),
+      key: ValueKey('$version-$page'),
+      load: () => ref.read(apiProvider).get('/journals?page=$page'),
       builder: (data, reload) {
         final rows = items(data);
         return PageBody(
           children: [
             const Heading(
-              'Ruang untuk ceritamu',
+              'Jurnal Harianku',
               'Isi jurnal hanya untukmu. Analisis AI selalu memerlukan izinmu.',
+            ),
+            const SoftLabel('Privat • Hanya Aku', icon: Icons.lock_outline),
+            const SizedBox(height: 20),
+            CareCard(
+              color: lavenderSoft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionHeading(
+                    'Untuk Kamu, Nanti',
+                    icon: Icons.mail_outline,
+                  ),
+                  const Text(
+                    'Tulis pesan penyemangat yang bisa kamu buka kembali saat membutuhkannya.',
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: () => edit(null, true),
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Tulis Surat untuk Diri Sendiri'),
+                  ),
+                ],
+              ),
+            ),
+            SectionHeading(
+              'Catatan Terakhir (${data['total'] ?? rows.length})',
+              icon: Icons.edit_note,
             ),
             if (rows.isEmpty)
               const CareCard(
@@ -54,15 +91,43 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                         ? row['title']
                         : 'Catatan ${row['journal_date']}',
                   ),
-                  subtitle: Text(
-                    row['content'],
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      SoftLabel(row['journal_date'], icon: Icons.lock_outline),
+                      const SizedBox(height: 12),
+                      Text(
+                        row['content'],
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => edit(row),
                 ),
               ),
+            if ((data['last_page'] as int? ?? 1) > 1)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: page > 1 ? () => setState(() => page--) : null,
+                    child: const Text('Sebelumnya'),
+                  ),
+                  Text('Halaman $page'),
+                  TextButton(
+                    onPressed: page < data['last_page']
+                        ? () => setState(() => page++)
+                        : null,
+                    child: const Text('Berikutnya'),
+                  ),
+                ],
+              ),
+            const PrivacyNote(
+              'Tidak ada kata yang salah dalam jurnalmu. Isi jurnal tidak dibagikan kepada kerabat. Analisis AI selalu memerlukan izinmu.',
+            ),
             const SizedBox(height: 80),
           ],
         );
@@ -72,8 +137,9 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 }
 
 class JournalEditor extends ConsumerStatefulWidget {
-  const JournalEditor({super.key, this.entry});
+  const JournalEditor({super.key, this.entry, this.initialTitle = ''});
   final Json? entry;
+  final String initialTitle;
   @override
   ConsumerState<JournalEditor> createState() => _JournalEditorState();
 }
@@ -87,7 +153,7 @@ class _JournalEditorState extends ConsumerState<JournalEditor> {
   @override
   void initState() {
     super.initState();
-    title.text = widget.entry?['title'] ?? '';
+    title.text = widget.entry?['title'] ?? widget.initialTitle;
     body.text = widget.entry?['content'] ?? '';
     analysis = widget.entry?['ai_analysis_allowed'] == true;
     id = widget.entry?['id'];
@@ -180,7 +246,7 @@ class _JournalEditorState extends ConsumerState<JournalEditor> {
   @override
   Widget build(BuildContext context) {
     final allowed = ref
-        .read(sessionProvider)
+        .watch(sessionProvider)
         .consents
         .contains('AI_JOURNAL_ANALYSIS');
     return Scaffold(

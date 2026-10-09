@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/stitch.dart';
 
 class InsightsScreen extends ConsumerStatefulWidget {
   const InsightsScreen({super.key});
@@ -11,7 +12,7 @@ class InsightsScreen extends ConsumerStatefulWidget {
 }
 
 class _InsightsScreenState extends ConsumerState<InsightsScreen> {
-  int days = 14;
+  int days = 7;
   @override
   Widget build(BuildContext context) => DataPage(
     key: ValueKey(days),
@@ -24,8 +25,9 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
           if (data['contains_mock_signals'] == true)
             const MockNotice({'mode': 'mock'}),
           const Heading(
-            'Tren Kesejahteraanmu',
-            'Melihat pola emosional dan fisik dari catatanmu.',
+            'Perjalanan Emosimu',
+            'Pola suasana hati dan kesejahteraan berdasarkan catatan harianmu.',
+            badge: 'Refleksi psiko-onkologi',
           ),
           SegmentedButton<int>(
             segments: const [
@@ -37,11 +39,33 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
           ),
           const SizedBox(height: 24),
           CareCard(
+            color: skySoft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SoftLabel(
+                  'Insight Pendamping',
+                  icon: Icons.auto_awesome_outlined,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  data['overall_direction'] == 'insufficient_data'
+                      ? 'Terus kenali dirimu, satu catatan pada satu waktu.'
+                      : 'Pola ini merangkum ${data['recorded_days']} hari yang kamu catat.',
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Gunakan catatan ini untuk membuka percakapan dengan tim perawatan. Perubahan skor tidak menetapkan diagnosis.',
+                ),
+              ],
+            ),
+          ),
+          CareCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Emosi dari hari ke hari',
+                  'Tren Suasana Hati',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -175,7 +199,7 @@ class TrendPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final grid = Paint()
-      ..color = const Color(0xFFE6ECE8)
+      ..color = pillBlue
       ..strokeWidth = 1;
     for (var v = 1; v <= 5; v++) {
       final y = 10 + (5 - v) / 4 * (size.height - 35);
@@ -192,7 +216,7 @@ class TrendPainter extends CustomPainter {
       sorted.last['checkin_date'],
     ).difference(first).inDays.clamp(1, 365);
     for (final entry in {
-      'anxiety_score': const Color(0xFFA94316),
+      'anxiety_score': const Color(0xFF8050CE),
       'sleep_score': Colors.blueGrey,
       'mood_score': forest,
     }.entries) {

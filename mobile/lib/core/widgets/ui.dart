@@ -8,7 +8,7 @@ class CareCard extends StatelessWidget {
     super.key,
     required this.child,
     this.color = Colors.white,
-    this.padding = 22,
+    this.padding = 20,
     this.radius = 24,
     this.borderColor,
   });
@@ -27,9 +27,9 @@ class CareCard extends StatelessWidget {
       border: Border.all(color: borderColor ?? const Color(0xFFEDEDFC)),
       boxShadow: [
         BoxShadow(
-          color: const Color(0xFF25315F).withOpacity(0.07),
-          blurRadius: 24,
-          offset: const Offset(0, 10),
+          color: const Color(0xFF25315F).withValues(alpha: 0.025),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
         ),
       ],
     ),
@@ -54,6 +54,7 @@ class PageBody extends StatelessWidget {
         ),
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
+          physics: const AlwaysScrollableScrollPhysics(),
           children: children,
         ),
       ),
@@ -92,7 +93,10 @@ class _SoftBadge extends StatelessWidget {
     decoration: const ShapeDecoration(color: lavender, shape: StadiumBorder()),
     child: Text(
       label,
-      style: const TextStyle(color: Color(0xFF351B8A), fontWeight: FontWeight.w800),
+      style: const TextStyle(
+        color: Color(0xFF351B8A),
+        fontWeight: FontWeight.w800,
+      ),
     ),
   );
 }
@@ -222,15 +226,17 @@ class MetricSelector extends StatelessWidget {
     required this.onChanged,
     this.highIsGood = true,
     this.icon = Icons.favorite_outline,
+    this.mood = false,
   });
   final String label;
   final int value;
   final ValueChanged<int> onChanged;
   final bool highIsGood;
   final IconData icon;
+  final bool mood;
   @override
   Widget build(BuildContext context) {
-    final activeColor = highIsGood ? lavender : warningSoft;
+    const activeColor = hopelyBlue;
     return CareCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +245,7 @@ class MetricSelector extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 21,
-                backgroundColor: activeColor,
+                backgroundColor: skySoft,
                 child: Icon(icon, size: 21, color: hopelyBlue),
               ),
               const SizedBox(width: 10),
@@ -270,13 +276,38 @@ class MetricSelector extends StatelessWidget {
                         child: SizedBox(
                           height: 58,
                           child: Center(
-                            child: Text(
-                              '${i + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: selected ? hopelyBlue : ink,
-                              ),
-                            ),
+                            child: mood
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        const [
+                                          Icons.sentiment_very_dissatisfied,
+                                          Icons.sentiment_dissatisfied,
+                                          Icons.sentiment_neutral,
+                                          Icons.sentiment_satisfied,
+                                          Icons.sentiment_very_satisfied,
+                                        ][i],
+                                        size: 22,
+                                        color: selected ? Colors.white : ink,
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        '${i + 1}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: selected ? Colors.white : ink,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    '${i + 1}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: selected ? Colors.white : ink,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -287,11 +318,18 @@ class MetricSelector extends StatelessWidget {
             }),
           ),
           const SizedBox(height: 10),
-          Text(
-            highIsGood
-                ? '1: Sangat rendah                 5: Sangat baik'
-                : '1: Tidak ada                        5: Sangat tinggi',
-            style: Theme.of(context).textTheme.bodySmall,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                highIsGood ? 'Sangat rendah' : 'Tidak ada',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                highIsGood ? 'Sangat baik' : 'Sangat tinggi',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           ),
         ],
       ),

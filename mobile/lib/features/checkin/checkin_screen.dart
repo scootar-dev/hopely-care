@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
+import '../../core/widgets/stitch.dart';
+import '../../core/theme/theme.dart';
 
 class CheckinScreen extends ConsumerStatefulWidget {
   const CheckinScreen({super.key, this.symptoms = false});
@@ -115,7 +117,7 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
         }
       }
       if (mounted) {
-        context.pop();
+        context.pushReplacement('/checkin/saved');
       }
     } catch (e) {
       if (mounted) {
@@ -143,24 +145,39 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
       'sleep_quality': 'Kualitas Tidur',
     };
     final allowAI = ref
-        .read(sessionProvider)
+        .watch(sessionProvider)
         .consents
         .contains('AI_JOURNAL_ANALYSIS');
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.symptoms ? 'Keluhan Fisik' : 'Check-In Emosional'),
+        leading: const BackHomeButton(),
+        title: Text(widget.symptoms ? 'Catat Gejala' : 'Check-in Harian'),
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : PageBody(
               children: [
                 Heading(
-                  widget.symptoms ? 'Dengarkan tubuhmu' : 'Check-in Hari Ini',
-                  'Kenali kondisi yang kamu rasakan, tanpa penilaian.',
+                  widget.symptoms
+                      ? 'Dengarkan tubuhmu'
+                      : 'Bagaimana keadaanmu hari ini?',
+                  'Tidak apa-apa jika hari ini terasa berat. Catat sesuai apa yang kamu rasakan.',
+                  badge: 'Refleksi harian • skala 1–5',
                 ),
                 for (final k in scores.keys)
                   MetricSelector(
-                    label: labels[k]!,
+                    label:
+                        '${scores.keys.toList().indexOf(k) + 1}. ${labels[k]!}',
+                    mood: k == 'mood',
+                    icon:
+                        const {
+                          'mood': Icons.sentiment_satisfied_outlined,
+                          'anxiety': Icons.psychology_outlined,
+                          'energy': Icons.bolt_outlined,
+                          'sleep': Icons.nightlight_outlined,
+                          'pain': Icons.healing_outlined,
+                        }[k] ??
+                        Icons.monitor_heart_outlined,
                     value: scores[k]!,
                     highIsGood: [
                       'mood',
@@ -207,19 +224,54 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                     ),
                   ),
                 const CareCard(
-                  color: Color(0xFFE4F6F1),
+                  color: skySoft,
                   child: Text(
-                    'Kamu telah meluangkan waktu untuk mendengarkan dirimu.',
+                    'Catatanmu bersifat pribadi. Ringkasan hanya dapat dibagikan sesuai pengaturan izinmu.',
                   ),
                 ),
                 if (error != null) ErrorNotice(error!),
                 FilledButton(
                   onPressed: busy ? null : save,
-                  child: Text(busy ? 'Menyimpan…' : 'Simpan & Lanjutkan'),
+                  child: Text(busy ? 'Menyimpan…' : 'Simpan Ringkasan'),
                 ),
                 const SizedBox(height: 24),
               ],
             ),
     );
   }
+}
+
+class CheckinSavedScreen extends StatelessWidget {
+  const CheckinSavedScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      leading: const BackHomeButton(),
+      title: const Text('Catatan Tersimpan'),
+    ),
+    body: PageBody(
+      children: [
+        const CareHero(compact: true),
+        const Heading(
+          'Terima kasih sudah mendengarkan dirimu.',
+          'Catatanmu telah tersimpan. Tidak perlu memaksakan langkah berikutnya.',
+        ),
+        FilledButton(
+          onPressed: () => context.go('/home'),
+          child: const Text('Kembali ke Beranda'),
+        ),
+        const SizedBox(height: 18),
+        const ActionLink(
+          'Lihat pola catatanku',
+          '/insights',
+          icon: Icons.show_chart,
+        ),
+        const ActionLink(
+          'Lanjut menulis jurnal',
+          '/journal',
+          icon: Icons.edit_note,
+        ),
+      ],
+    ),
+  );
 }

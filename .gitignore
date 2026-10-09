@@ -21,3 +21,6 @@ mobile/android/key.properties
 *.jks
 *-service-account.json
 mobile/lib/firebase_options.dart
+
+# Local visual test captures; uploaded by CI for review.
+mobile/test-output/

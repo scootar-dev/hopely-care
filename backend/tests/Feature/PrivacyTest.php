@@ -16,14 +16,14 @@ class PrivacyTest extends TestCase
             "name" => "Synthetic Test",
             "email" => bin2hex(random_bytes(8)) . "@test.invalid",
             "password" => bin2hex(random_bytes(16)),
-            "role" => $role,
+            "role" => $role
         ])->save();
         return $u;
     }
     private function consent(
         User $u,
         string $type = "HEALTH_DATA_PROCESSING",
-        bool $accept = true,
+        bool $accept = true
     ): void {
         app(ConsentService::class)->set($u->id, $type, $accept);
     }
@@ -31,13 +31,37 @@ class PrivacyTest extends TestCase
     {
         $this->getJson("/api/journals")->assertUnauthorized();
     }
+    public function test_consent_is_saved_for_authenticated_owner_and_can_be_revoked(): void
+    {
+        $patient = $this->user();
+        $other = $this->user();
+        Sanctum::actingAs($patient);
+        $this->putJson("/api/consents", [
+            "consent_type" => "HEALTH_DATA_PROCESSING",
+            "accepted" => true,
+            "user_id" => $other->id
+        ])->assertOk();
+        $this->assertTrue(
+            app(ConsentService::class)->active($patient->id, "HEALTH_DATA_PROCESSING")
+        );
+        $this->assertFalse(
+            app(ConsentService::class)->active($other->id, "HEALTH_DATA_PROCESSING")
+        );
+        $this->putJson("/api/consents", [
+            "consent_type" => "HEALTH_DATA_PROCESSING",
+            "accepted" => false
+        ])->assertOk();
+        $this->assertFalse(
+            app(ConsentService::class)->active($patient->id, "HEALTH_DATA_PROCESSING")
+        );
+    }
     public function test_users_cannot_register_as_admin(): void
     {
         $this->postJson("/api/auth/register", [
             "name" => "x",
             "email" => "x@test.invalid",
             "password" => bin2hex(random_bytes(20)),
-            "role" => "ADMIN",
+            "role" => "ADMIN"
         ])->assertUnprocessable();
     }
     public function test_patient_cannot_read_another_journal(): void
@@ -49,7 +73,7 @@ class PrivacyTest extends TestCase
         $j->forceFill([
             "user_id" => $a->id,
             "content" => "private",
-            "journal_date" => today()->toDateString(),
+            "journal_date" => today()->toDateString()
         ])->save();
         Sanctum::actingAs($b);
         $this->getJson("/api/journals/" . $j->id)->assertForbidden();
@@ -71,7 +95,7 @@ class PrivacyTest extends TestCase
             "anxiety_score" => 2,
             "energy_score" => 2,
             "sleep_score" => 2,
-            "pain_score" => 2,
+            "pain_score" => 2
         ])->assertUnprocessable();
     }
     public function test_checkin_is_unique_per_patient_date(): void
@@ -85,7 +109,7 @@ class PrivacyTest extends TestCase
             "anxiety_score" => 4,
             "energy_score" => 2,
             "sleep_score" => 2,
-            "pain_score" => 3,
+            "pain_score" => 3
         ];
         $this->postJson("/api/checkins", $data)->assertCreated();
         $this->postJson("/api/checkins", $data)->assertUnprocessable();
@@ -101,7 +125,7 @@ class PrivacyTest extends TestCase
             "user_id" => $u->id,
             "content" => "private",
             "journal_date" => today()->toDateString(),
-            "ai_analysis_allowed" => true,
+            "ai_analysis_allowed" => true
         ])->save();
         $this->postJson("/api/journals/" . $j->id . "/analyze")->assertForbidden();
         $this->consent($u, "AI_JOURNAL_ANALYSIS");
@@ -123,7 +147,7 @@ class PrivacyTest extends TestCase
                 "caregiver_user_id" => $c->id,
                 "invited_email" => $c->email,
                 "relationship_label" => "family",
-                "invitation_status" => "accepted",
+                "invitation_status" => "accepted"
             ])
             ->save();
         $perm = new CaregiverPermission();
@@ -163,7 +187,7 @@ class PrivacyTest extends TestCase
             "energy_score" => 2,
             "sleep_score" => 2,
             "pain_score" => 3,
-            "emotion_signal" => ["scores" => ["fear" => 0.8]],
+            "emotion_signal" => ["scores" => ["fear" => 0.8]]
         ])->save();
         $this->consent($p, "AI_JOURNAL_ANALYSIS", false);
         $this->assertNull($c->fresh()->emotion_signal);

@@ -4,48 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/theme/theme.dart';
-
-class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: PageBody(
-        children: [
-          const SizedBox(height: 64),
-          const CircleAvatar(
-            radius: 44,
-            backgroundColor: mint,
-            child: Icon(Icons.spa_outlined, size: 44, color: forest),
-          ),
-          const SizedBox(height: 32),
-          const Heading(
-            'Kamu tidak harus\nmelewati ini sendiri.',
-            'Hopely Care menemani kamu mencatat perasaan, memahami perubahan, dan menyiapkan percakapan dengan tim perawatan.',
-          ),
-          const CareCard(
-            child: Text(
-              'Catatanmu tetap pribadi. Kamu yang memilih kapan AI boleh membantu dan apa yang boleh dilihat pendamping.',
-            ),
-          ),
-          FilledButton(
-            onPressed: () => context.go('/role'),
-            child: const Text('Mulai perjalanan'),
-          ),
-          TextButton(
-            onPressed: () => context.go('/login'),
-            child: const Text('Sudah punya akun? Masuk'),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Pendamping wellbeing, bukan pengganti dokter atau psikolog.',
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ),
-  );
-}
+import '../../core/widgets/stitch.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({
@@ -66,7 +25,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       confirm = TextEditingController();
   final form = GlobalKey<FormState>();
   String role = 'PATIENT';
-  bool busy = false;
+  bool busy = false, obscured = true, remember = true;
   Object? error;
   @override
   void initState() {
@@ -103,7 +62,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           },
         },
       );
-      await ref.read(sessionProvider).setAuth(data as Json);
+      await ref.read(sessionProvider).setAuth(data as Json, remember: remember);
       if (mounted) {
         context.go(
           ref.read(sessionProvider).caregiver ? '/caregiver' : '/home',
@@ -122,12 +81,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Hopely Care')),
+    appBar: AppBar(
+      leading: const BackHomeButton(fallback: '/welcome'),
+      title: Text(widget.register ? 'Daftar' : 'Masuk'),
+    ),
     body: PageBody(
       children: [
+        const CareCard(
+          color: skySoft,
+          padding: 16,
+          child: Row(
+            children: [
+              HopelyMark(),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text('HOPELY CARE\nRuang ramah untuk perjalananmu'),
+              ),
+            ],
+          ),
+        ),
         Heading(
           widget.register ? 'Mari berkenalan' : 'Selamat datang kembali',
-          'Ruang tenang untuk perjalananmu.',
+          'Masuk ke ruang pribadimu untuk melanjutkan perjalanan.',
         ),
         Form(
           key: form,
@@ -161,7 +136,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 TextFormField(
                   controller: email,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  autofillHints: const [AutofillHints.email],
+                  decoration: const InputDecoration(
+                    labelText: 'Alamat Email',
+                    prefixIcon: Icon(Icons.alternate_email),
+                  ),
                   validator: (v) => v == null || !v.contains('@')
                       ? 'Isi email yang sesuai'
                       : null,
@@ -169,11 +148,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: password,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Kata sandi'),
+                  obscureText: obscured,
+                  autofillHints: [
+                    widget.register
+                        ? AutofillHints.newPassword
+                        : AutofillHints.password,
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Kata Sandi',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      tooltip: obscured
+                          ? 'Tampilkan kata sandi'
+                          : 'Sembunyikan kata sandi',
+                      onPressed: () => setState(() => obscured = !obscured),
+                      icon: Icon(
+                        obscured
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                    ),
+                  ),
                   validator: (v) =>
                       v == null || v.length < (widget.register ? 12 : 1)
-                      ? 'Gunakan minimal 12 karakter'
+                      ? (widget.register
+                            ? 'Gunakan minimal 12 karakter'
+                            : 'Isi kata sandi')
                       : null,
                 ),
                 if (widget.register) ...[
@@ -192,6 +192,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ),
         ),
+        if (!widget.register)
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Ingat saya di perangkat ini'),
+            value: remember,
+            onChanged: busy
+                ? null
+                : (v) => setState(() => remember = v ?? false),
+          ),
         if (error != null) ErrorNotice(error!),
         FilledButton(
           onPressed: busy ? null : submit,
@@ -203,8 +213,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 : 'Masuk',
           ),
         ),
+        const SizedBox(height: 12),
+        const PrivacyNote(
+          'Kamu mengatur izin penggunaan data. Isi jurnal dan percakapan AI tetap pribadi.',
+        ),
         TextButton(
-          onPressed: () => context.go(widget.register ? '/login' : '/register'),
+          onPressed: () => context.go(widget.register ? '/login' : '/role'),
           child: Text(widget.register ? 'Sudah punya akun' : 'Buat akun baru'),
         ),
       ],
