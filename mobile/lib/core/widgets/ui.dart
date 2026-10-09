@@ -8,19 +8,30 @@ class CareCard extends StatelessWidget {
     super.key,
     required this.child,
     this.color = Colors.white,
-    this.padding = 20,
+    this.padding = 22,
+    this.radius = 24,
+    this.borderColor,
   });
   final Widget child;
   final Color color;
   final double padding;
+  final double radius;
+  final Color? borderColor;
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 16),
+    margin: const EdgeInsets.only(bottom: 18),
     padding: EdgeInsets.all(padding),
     decoration: BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: const Color(0xFFF0F2F0)),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: borderColor ?? const Color(0xFFEDEDFC)),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF25315F).withOpacity(0.07),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
+        ),
+      ],
     ),
     child: child,
   );
@@ -32,25 +43,56 @@ class PageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 600),
-      child: ListView(padding: const EdgeInsets.all(20), children: children),
+      constraints: const BoxConstraints(maxWidth: 620),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [canvas, Color(0xFFF8F6FF), canvas],
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
+          children: children,
+        ),
+      ),
     ),
   );
 }
 
 class Heading extends StatelessWidget {
-  const Heading(this.title, this.subtitle, {super.key});
+  const Heading(this.title, this.subtitle, {super.key, this.badge});
   final String title, subtitle;
+  final String? badge;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 24),
+    padding: const EdgeInsets.only(bottom: 22),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (badge != null) ...[
+          _SoftBadge(label: badge!),
+          const SizedBox(height: 12),
+        ],
         Text(title, style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 8),
         Text(subtitle, style: Theme.of(context).textTheme.bodyLarge),
       ],
+    ),
+  );
+}
+
+class _SoftBadge extends StatelessWidget {
+  const _SoftBadge({required this.label});
+  final String label;
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+    decoration: const ShapeDecoration(color: lavender, shape: StadiumBorder()),
+    child: Text(
+      label,
+      style: const TextStyle(color: Color(0xFF351B8A), fontWeight: FontWeight.w800),
     ),
   );
 }
@@ -67,8 +109,13 @@ class ActionLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton.icon(
     onPressed: () => context.push(route),
-    icon: Icon(icon, size: 20),
+    icon: Icon(icon, size: 19),
     label: Text(label),
+    style: TextButton.styleFrom(
+      backgroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      shape: const StadiumBorder(),
+    ),
   );
 }
 
@@ -79,10 +126,19 @@ class MockNotice extends StatelessWidget {
   Widget build(BuildContext context) =>
       metadata is Map && metadata['mode'] == 'mock'
       ? const CareCard(
-          color: peach,
-          padding: 12,
-          child: Text(
-            'Mode demo offline • Respons simulasi, bukan hasil AI nyata.',
+          color: warningSoft,
+          padding: 14,
+          radius: 18,
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: hopelyBlue),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Mode demo offline - respons simulasi, bukan hasil AI nyata.',
+                ),
+              ),
+            ],
           ),
         )
       : const SizedBox.shrink();
@@ -94,12 +150,22 @@ class ErrorNotice extends StatelessWidget {
   final VoidCallback? retry;
   @override
   Widget build(BuildContext context) => CareCard(
-    color: peach,
+    color: warningSoft,
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(friendlyError(error)),
-        if (retry != null)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.error_outline, color: Color(0xFFD33131)),
+            const SizedBox(width: 10),
+            Expanded(child: Text(friendlyError(error))),
+          ],
+        ),
+        if (retry != null) ...[
+          const SizedBox(height: 12),
           TextButton(onPressed: retry, child: const Text('Coba lagi')),
+        ],
       ],
     ),
   );
@@ -137,6 +203,7 @@ class _DataPageState extends State<DataPage> {
         );
       }
       return RefreshIndicator(
+        color: hopelyBlue,
         onRefresh: () async {
           reload();
           await future;
@@ -163,6 +230,7 @@ class MetricSelector extends StatelessWidget {
   final IconData icon;
   @override
   Widget build(BuildContext context) {
+    final activeColor = highIsGood ? lavender : warningSoft;
     return CareCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,11 +238,11 @@ class MetricSelector extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                radius: 18,
-                backgroundColor: highIsGood ? mint : peach,
-                child: Icon(icon, size: 20, color: forest),
+                radius: 21,
+                backgroundColor: activeColor,
+                child: Icon(icon, size: 21, color: hopelyBlue),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
@@ -183,30 +251,30 @@ class MetricSelector extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Row(
             children: List.generate(5, (i) {
+              final selected = value == i + 1;
               return Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Semantics(
-                    selected: value == i + 1,
+                    selected: selected,
                     label: '$label, ${i + 1} dari 5',
                     child: Material(
-                      color: value == i + 1
-                          ? (highIsGood ? mint : peach)
-                          : const Color(0xFFF1F4F2),
-                      borderRadius: BorderRadius.circular(12),
+                      color: selected ? activeColor : const Color(0xFFF5F6FE),
+                      borderRadius: BorderRadius.circular(16),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         onTap: () => onChanged(i + 1),
                         child: SizedBox(
-                          height: 56,
+                          height: 58,
                           child: Center(
                             child: Text(
                               '${i + 1}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: selected ? hopelyBlue : ink,
                               ),
                             ),
                           ),
@@ -218,7 +286,7 @@ class MetricSelector extends StatelessWidget {
               );
             }),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             highIsGood
                 ? '1: Sangat rendah                 5: Sangat baik'

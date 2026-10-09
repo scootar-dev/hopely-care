@@ -34,19 +34,64 @@ class HomeScreen extends ConsumerWidget {
         return PageBody(
           children: [
             Heading(
-              'Selamat datang, ${session.profile?['display_name'] ?? session.user?['name'] ?? ''}',
-              'Luangkan waktu sejenak untuk mendengarkan tubuh dan hatimu.',
+              'Halo, ${session.profile?['display_name'] ?? session.user?['name'] ?? ''}',
+              'Semangat hari ini, langkah kecilmu sangat berarti.',
+              badge: 'Ruang tenang pribadimu',
+            ),
+            const CareCard(
+              color: hopelyBlue,
+              borderColor: hopelyBlue,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Chip(
+                    avatar: Icon(Icons.lightbulb_outline, size: 16),
+                    label: Text('Kata penyemangat hari ini'),
+                    backgroundColor: Color(0xFF4E82F2),
+                    labelStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    side: BorderSide.none,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Setiap langkah kecil adalah kemenangan besar. Istirahatlah saat lelah, tapi jangan ragu bahwa kamu sangat berani.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 21,
+                      height: 1.45,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 18),
+                  Text(
+                    '- Tim Hopely Care',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (upcoming.isNotEmpty)
               CareCard(
+                color: skySoft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Chip(
-                      label: Text('Perawatan berikutnya'),
-                      backgroundColor: peach,
-                      side: BorderSide.none,
+                    const Row(
+                      children: [
+                        Icon(Icons.circle, color: Color(0xFFD33131), size: 10),
+                        SizedBox(width: 8),
+                        Text(
+                          'Jadwal perawatan terdekat',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 14),
                     Text(
                       upcoming.first['title'],
                       style: Theme.of(context).textTheme.titleLarge,
@@ -56,6 +101,7 @@ class HomeScreen extends ConsumerWidget {
                         upcoming.first['scheduled_at'],
                       ).toLocal().toString().substring(0, 16),
                     ),
+                    const SizedBox(height: 8),
                     const ActionLink(
                       'Lihat perjalanan perawatan',
                       '/treatment',
@@ -69,8 +115,8 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Chip(
-                    label: Text('Check-in Harian • ± 1 menit'),
-                    backgroundColor: mint,
+                    label: Text('Refleksi hati - sekitar 1 menit'),
+                    backgroundColor: lavender,
                     side: BorderSide.none,
                   ),
                   Text(
@@ -83,9 +129,9 @@ class HomeScreen extends ConsumerWidget {
                   Text(
                     today == null
                         ? 'Tidak ada jawaban yang salah. Mulai dari apa yang terasa sekarang.'
-                        : 'Suasana hati ${today['mood_score']}/5 • Energi ${today['energy_score']}/5',
+                        : 'Suasana hati ${today['mood_score']}/5 - Energi ${today['energy_score']}/5',
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
@@ -105,19 +151,21 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             CareCard(
-              color: const Color(0xFFFFEEE5),
+              color: lavenderSoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Hopely siap mendengarkan',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  const CircleAvatar(
+                    backgroundColor: lavender,
+                    child: Icon(Icons.auto_awesome, color: hopelyBlue),
                   ),
+                  const SizedBox(height: 12),
+                  Text('Halo, aku Hopi', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
                   const Text(
-                    'Ceritakan apa yang ingin kamu bagikan, tanpa terburu-buru.',
+                    'Teman tenang untuk mendengarkan ceritamu tanpa menghakimi.',
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   FilledButton.icon(
                     onPressed: () => context.go('/chat'),
                     icon: const Icon(Icons.chat_bubble_outline),
@@ -126,41 +174,54 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const CareCard(
+            CareCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Ruang kecil untuk dirimu',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                  ActionLink(
-                    'Aktivitas dukungan personal',
-                    '/activities',
-                    icon: Icons.spa_outlined,
-                  ),
-                  ActionLink(
-                    'Tulis jurnal pribadi',
-                    '/journal',
-                    icon: Icons.edit_note,
-                  ),
-                  ActionLink(
-                    'Catat keluhan fisik',
-                    '/symptoms',
-                    icon: Icons.monitor_heart_outlined,
+                  Text('Teman perjalanan', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 14),
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: _HomeShortcut(
+                          label: 'Aktivitas',
+                          subtitle: 'Dukungan',
+                          route: '/activities',
+                          icon: Icons.spa_outlined,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: _HomeShortcut(
+                          label: 'Jurnal',
+                          subtitle: 'Catat rasa',
+                          route: '/journal',
+                          icon: Icons.edit_note,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: _HomeShortcut(
+                          label: 'Gejala',
+                          subtitle: 'Kesehatan',
+                          route: '/symptoms',
+                          icon: Icons.monitor_heart_outlined,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const HomeSignals(),
             const CareCard(
-              color: Color(0xFFF0F4F1),
+              color: skySoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Pola emosimu dari hari ke hari',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
                   SizedBox(height: 8),
                   Text('Lihat perubahan dari catatan yang sudah kamu buat.'),
@@ -172,21 +233,66 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const ActionLink(
-              'Atur pendamping tepercaya',
-              '/care-circle',
-              icon: Icons.people_outline,
-            ),
-            const ActionLink(
-              'Informasi dari sumber terkurasi',
-              '/knowledge',
-              icon: Icons.menu_book_outlined,
+            const CareCard(
+              child: Column(
+                children: [
+                  ActionLink(
+                    'Atur pendamping tepercaya',
+                    '/care-circle',
+                    icon: Icons.people_outline,
+                  ),
+                  ActionLink(
+                    'Informasi dari sumber terkurasi',
+                    '/knowledge',
+                    icon: Icons.menu_book_outlined,
+                  ),
+                ],
+              ),
             ),
           ],
         );
       },
     );
   }
+}
+
+class _HomeShortcut extends StatelessWidget {
+  const _HomeShortcut({
+    required this.label,
+    required this.subtitle,
+    required this.route,
+    required this.icon,
+  });
+  final String label, subtitle, route;
+  final IconData icon;
+  @override
+  Widget build(BuildContext context) => InkWell(
+    borderRadius: BorderRadius.circular(20),
+    onTap: () => context.push(route),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7FF),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFEDEDFC)),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            backgroundColor: lavender,
+            child: Icon(icon, color: hopelyBlue),
+          ),
+          const SizedBox(height: 10),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class HomeSignals extends ConsumerStatefulWidget {
@@ -224,7 +330,7 @@ class _HomeSignalsState extends ConsumerState<HomeSignals> {
           }
           final data = snapshot.data;
           return CareCard(
-            color: mint,
+            color: skySoft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -276,7 +382,7 @@ class _HomeSignalsState extends ConsumerState<HomeSignals> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Text(
-                  '${row['activity']['duration_minutes']} menit • ${row['reason']}',
+                  '${row['activity']['duration_minutes']} menit - ${row['reason']}',
                 ),
                 const ActionLink(
                   'Lihat aktivitas dukungan',

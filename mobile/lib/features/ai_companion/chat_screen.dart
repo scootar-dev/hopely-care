@@ -105,12 +105,50 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Column(
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+          padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
           child: CareCard(
-            color: Color(0xFFF0F4F1),
-            padding: 12,
-            child: Text(
-              'Hopely adalah pendamping emosional, bukan pengganti dokter atau psikolog.',
+            color: Colors.white,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: lavender,
+                  child: Icon(Icons.favorite, color: hopelyBlue, size: 30),
+                ),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Halo, aku Hopi',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                      ),
+                      Text('Teman tenang dan sahabat AI'),
+                    ],
+                  ),
+                ),
+                Chip(label: Text('24/7 Siaga'), backgroundColor: skySoft),
+              ],
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: CareCard(
+            color: skySoft,
+            padding: 14,
+            radius: 18,
+            child: Row(
+              children: [
+                Icon(Icons.verified_user_outlined, color: hopelyBlue),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Ruang aman tanpa penghakiman. Hopely bukan pengganti dokter atau psikolog.',
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -118,6 +156,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: CareCard(
+              color: warningSoft,
               child: Column(
                 children: [
                   Text(
@@ -142,6 +181,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   children: [
                     if (messages.isEmpty)
                       const CareCard(
+                        color: lavenderSoft,
                         child: Text(
                           'Aku di sini untuk mendengarkan. Apa yang ingin kamu ceritakan?',
                         ),
@@ -157,18 +197,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: message['sender'] == 'user'
-                                ? forest
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(22),
+                                ? Colors.white
+                                : skySoft,
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(24),
+                              topRight: const Radius.circular(24),
+                              bottomLeft: Radius.circular(
+                                message['sender'] == 'user' ? 24 : 6,
+                              ),
+                              bottomRight: Radius.circular(
+                                message['sender'] == 'user' ? 6 : 24,
+                              ),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF25315F).withOpacity(0.06),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
                           ),
                           child: Text(
                             message['content'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               height: 1.5,
-                              color: message['sender'] == 'user'
-                                  ? Colors.white
-                                  : ink,
+                              color: ink,
                             ),
                           ),
                         ),
@@ -195,13 +249,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         maxLines: 5,
                         maxLength: 4000,
                         decoration: const InputDecoration(
-                          hintText: 'Ketik apa yang kamu rasakan…',
+                          hintText: 'Ceritakan perasaanmu hari ini',
                           counterText: '',
+                          prefixIcon: Icon(Icons.mic_none),
+                          suffixIcon: Icon(Icons.mood_outlined),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     IconButton.filled(
+                      style: IconButton.styleFrom(
+                        backgroundColor: hopelyBlue,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(56, 56),
+                      ),
                       onPressed: allowed && !busy ? send : null,
                       icon: const Icon(Icons.send_outlined),
                       tooltip: 'Kirim pesan',

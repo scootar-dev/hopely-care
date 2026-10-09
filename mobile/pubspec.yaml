@@ -24,3 +24,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fonts/DejaVuSans.ttf
+  fonts:
+    - family: DejaVuSans
+      fonts:
+        - asset: assets/fonts/DejaVuSans.ttf

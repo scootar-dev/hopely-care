@@ -152,13 +152,13 @@ class AppShell extends ConsumerWidget {
                 icon: const Icon(Icons.arrow_back),
               )
             : const Padding(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.all(10),
                 child: CircleAvatar(
-                  backgroundColor: mint,
-                  child: Icon(Icons.spa_outlined, color: forest),
+                  backgroundColor: lavender,
+                  child: Icon(Icons.favorite, color: hopelyBlue),
                 ),
               ),
-        title: const Text('Hopely Care'),
+        title: const Text('Hopely\nCare'),
         actions: [
           IconButton(
             onPressed: () => context.push('/notifications'),
@@ -187,7 +187,7 @@ class AppShell extends ConsumerWidget {
                   label: 'Hopely AI',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.insights_outlined),
+                  icon: Icon(Icons.health_and_safety_outlined),
                   label: 'Wawasan',
                 ),
                 NavigationDestination(
