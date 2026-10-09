@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hopely_care/main.dart';
@@ -198,6 +199,18 @@ Future<void> savePreview(
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    // Use the shipped typeface and icons instead of the test-only Ahem font,
+    // so layout checks and review images exercise the actual text metrics.
+    await (FontLoader(
+      'DejaVuSans',
+    )..addFont(rootBundle.load('assets/fonts/DejaVuSans.ttf'))).load();
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+  });
+
   testWidgets('onboarding completes and skip both reach role selection', (
     tester,
   ) async {
