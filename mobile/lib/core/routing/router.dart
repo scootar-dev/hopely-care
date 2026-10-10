@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../api/api.dart';
 import '../theme/theme.dart';
+import '../widgets/stitch.dart';
+import 'navigation.dart';
+import '../../features/auth/onboarding_screen.dart';
+import '../../features/activities/tools_screen.dart';
+import '../../features/caregiver/support_alert_screen.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/checkin/checkin_screen.dart';
@@ -16,10 +21,11 @@ import '../../features/care_circle/care_circle_screen.dart';
 import '../../features/caregiver/caregiver_screen.dart';
 import '../../features/knowledge/knowledge_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/settings/profile_photo.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final session = ref.watch(sessionProvider);
-  return GoRouter(
+  final session = ref.read(sessionProvider);
+  final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: session,
     redirect: (context, state) {
@@ -34,6 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       final public = [
         '/welcome',
+        '/onboarding',
         '/login',
         '/register',
         '/role',
@@ -52,31 +59,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           !['/profile', '/privacy', '/notifications'].contains(path)) {
         return '/caregiver';
       }
-      if (!session.caregiver && path.startsWith('/caregiver/')) {
+      if (!session.caregiver &&
+          (path == '/caregiver' || path.startsWith('/caregiver/'))) {
         return '/home';
       }
       return null;
     },
     routes: [
+      GoRoute(path: '/splash', builder: (_, s) => const SplashScreen()),
+      GoRoute(path: '/onboarding', builder: (_, s) => const OnboardingScreen()),
+      GoRoute(path: '/tools', builder: (_, s) => const ToolsScreen()),
       GoRoute(
-        path: '/splash',
-        builder: (_, s) => const Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.spa_outlined, size: 56, color: forest),
-                SizedBox(height: 16),
-                Text(
-                  'Hopely Care',
-                  style: TextStyle(fontSize: 28, color: forest),
-                ),
-                SizedBox(height: 24),
-                CircularProgressIndicator(),
-              ],
-            ),
-          ),
-        ),
+        path: '/caregiver/connect',
+        builder: (_, s) => const CaregiverConnectScreen(),
+      ),
+      GoRoute(
+        path: '/caregiver/alerts/:id',
+        builder: (_, s) =>
+            SupportAlertScreen(notificationId: s.pathParameters['id']!),
       ),
       GoRoute(path: '/welcome', builder: (_, s) => const WelcomeScreen()),
       GoRoute(path: '/role', builder: (_, s) => const RoleSelectionScreen()),
@@ -91,6 +91,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: '/privacy', builder: (_, s) => const PrivacyScreen()),
+      GoRoute(
+        path: '/checkin/saved',
+        builder: (_, s) => const CheckinSavedScreen(),
+      ),
       GoRoute(path: '/checkin', builder: (_, s) => const CheckinScreen()),
       GoRoute(
         path: '/symptoms',
@@ -127,13 +131,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/treatment',
             builder: (_, s) => const TreatmentScreen(),
           ),
-          GoRoute(path: '/chat', builder: (_, s) => const ChatScreen()),
+          GoRoute(
+            path: '/chat',
+            builder: (_, s) =>
+                ChatScreen(initialPrompt: s.uri.queryParameters['prompt']),
+          ),
           GoRoute(path: '/insights', builder: (_, s) => const InsightsScreen()),
           GoRoute(path: '/profile', builder: (_, s) => const SettingsScreen()),
         ],
       ),
     ],
   );
+  ref.onDispose(router.dispose);
+  return router;
 });
 
 class AppShell extends ConsumerWidget {
@@ -142,28 +152,44 @@ class AppShell extends ConsumerWidget {
   final Widget child;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const paths = ['/home', '/treatment', '/chat', '/insights', '/profile'];
+    const paths = patientTabPaths;
     final caregiver = ref.watch(sessionProvider).caregiver;
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         leading: caregiver
-            ? IconButton(
-                onPressed: () => context.go('/caregiver'),
-                icon: const Icon(Icons.arrow_back),
-              )
-            : const Padding(
-                padding: EdgeInsets.all(10),
-                child: CircleAvatar(
-                  backgroundColor: lavender,
-                  child: Icon(Icons.favorite, color: hopelyBlue),
-                ),
-              ),
-        title: const Text('Hopely\nCare'),
+            ? const BackHomeButton(fallback: '/caregiver')
+            : const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Hopely Care',
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              const {
+                    '/home': 'Beranda',
+                    '/treatment': 'Perjalanan',
+                    '/chat': 'Hopely AI',
+                    '/insights': 'Insight',
+                    '/profile': 'Profil',
+                  }[path] ??
+                  '',
+              style: const TextStyle(fontSize: 11, color: mutedInk),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             onPressed: () => context.push('/notifications'),
             icon: const Icon(Icons.notifications_none),
             tooltip: 'Notifikasi',
+          ),
+          IconButton(
+            onPressed: () => context.go('/profile'),
+            icon: const ProfileAvatar(radius: 16),
+            tooltip: 'Profil',
           ),
         ],
       ),
@@ -188,7 +214,7 @@ class AppShell extends ConsumerWidget {
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.health_and_safety_outlined),
-                  label: 'Wawasan',
+                  label: 'Insight',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),

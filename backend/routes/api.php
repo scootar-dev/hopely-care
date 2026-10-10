@@ -7,7 +7,8 @@ use App\Http\Controllers\{
     AiController,
     CaregiverController,
     NotificationController,
-    AdminController
+    AdminController,
+    ProfilePhotoController
 };
 Route::middleware("throttle:auth")->group(function () {
     Route::post("auth/register", [AuthController::class, "register"]);
@@ -15,6 +16,9 @@ Route::middleware("throttle:auth")->group(function () {
 });
 Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     Route::get("me", [AuthController::class, "me"]);
+    Route::get("me/avatar", [ProfilePhotoController::class, "show"]);
+    Route::post("me/avatar", [ProfilePhotoController::class, "store"]);
+    Route::delete("me/avatar", [ProfilePhotoController::class, "destroy"]);
     Route::post("auth/logout", [AuthController::class, "logout"]);
     Route::delete("me", [AuthController::class, "destroy"]);
     Route::get("consents", [ConsentController::class, "index"]);

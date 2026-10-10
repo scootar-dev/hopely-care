@@ -1,45 +1,58 @@
-# Verification record — 8 October 2026
+# Verification record — 9 October 2026 (UTC)
 
-This record distinguishes executed checks from source that still requires its native runtime. No feature is claimed end-to-end complete solely because its screen or endpoint source exists.
+This update supersedes the initial ZIP's verification record. Work continued from the actual GitHub repository at main commit `4c3a5d5fd6898bd4c93c34785e75a649ca7bd99c`, including its Flutter runners, Laravel 12 lockfile and existing FastAPI implementation.
+
+Final code/test evidence: [GitHub Actions run 37999672063](https://github.com/scootar-dev/hopely-care/actions/runs/37999672063), commit `932f11e50c33807f6b1a5c8ffd3ef87545af04f2`. Subsequent verification-document edits do not change application or test code.
 
 | Check | Result | Scope |
 |---|---|---|
-| FastAPI pytest suite | **37 passed** | Actual local execution, Python 3.12 |
-| Ruff check | **Passed** | Python application, tests and ingestion CLI |
-| Python source compilation / parsing | **Passed** | Python source files |
-| PHP syntax-tree parsing | **62 files, no parse errors** | Tree-sitter; does not replace PHP lint, Composer or Laravel execution |
-| Dart syntax-tree parsing | **20 files, no parse errors** | Tree-sitter and Dart formatter; does not type-check Flutter APIs |
-| JSON / YAML / PHPUnit XML parsing | **Passed** | Manifests, Compose, pubspec, CI and test configuration |
-| Service exposure/configuration inspection | **Passed** | No published MySQL/Qdrant/FastAPI ports; DB secrets absent from AI environment; LLM key absent from Laravel environment |
-| Real `.env` file in deliverable | **Absent** | Only `.env.example`; configure.py generates unique local secrets |
-| Laravel tests / migrations / MySQL integration | **Not executed** | PHP, Composer, MySQL and Docker are unavailable in this workspace |
-| Flutter analyze / widget tests / APK / device visual QA | **Not executed** | Flutter/Dart SDK and Android/iOS runtime are unavailable |
-| Docker Compose startup | **Not executed** | Docker unavailable |
-| Real LLM inference | **Not executed** | No user provider key/model configured |
-| Real embedding weights + networked Qdrant | **Not executed** | RAG tests use in-memory Qdrant and a deterministic test embedder |
-| FCM delivery / native PDF export | **Not executed** | Requires native build, device and user configuration |
-| GitHub Actions | **Workflow provided; not executed** | No remote repository was supplied or created |
+| FastAPI pytest | **37 passed** | Python 3.12, existing AI/RAG/consent/safety test suite |
+| Ruff | **Passed** | AI application and tests |
+| Laravel + SQLite | **11 tests, 25 assertions passed** | Migrations and privacy/feature tests, PHP 8.4 |
+| Laravel + MySQL | **11 tests, 25 assertions passed** | Same suite against the CI MySQL 8.4 service |
+| Flutter analyze | **Passed, no issues** | Flutter stable 3.47.7 |
+| Flutter tests | **11 passed** | Existing tests plus V2 navigation, check-in, invitation, reactive consent and layout checks |
+| Android debug APK | **Built successfully** | Existing native runner; emulator API endpoint, no live provider/FCM calls |
+| V2 visual review | **17 route captures inspected** | 390×844 widget renders, synthetic data, shipped DejaVuSans and Material icons; natural shadows |
+| Native bootstrap preservation | **Passed** | Temporary-file check: existing runners are retained, debug manifest attributes/metadata survive, cleartext enabled only in debug |
+| Diff / configuration checks | **Passed** | Diff whitespace, Python syntax and Android manifest XML |
 
-## What the 37 Python tests establish
-- Every internal AI POST rejects missing service authentication.
-- Longitudinal trends distinguish declining, stable and insufficient data, reject duplicate/future dates, and preserve missing days.
-- Health/AI consent is checked in the typed AI boundary; unapproved emotional context is rejected.
-- Extra journal/chat fields are rejected in caregiver context and validation errors do not echo their values.
-- Mock outputs and mock-derived emotional signals are explicitly labeled.
-- An urgent cue receives a human-support response; no unverified emergency number is inserted.
-- Recommendation IDs outside the supplied catalog are rejected.
-- Invalid provider behavior does not silently switch a live operation to mock output.
-- RAG refuses empty evidence, preserves source metadata, replaces stale source chunks, and rejects invented citation IDs.
-- Report concerns come from explicit patient input; sleep hours and private narrative are not invented.
-- Oversized bodies and invalid timezones are rejected safely.
+Artifacts: [stitch-v2-screens](https://github.com/scootar-dev/hopely-care/actions/runs/37999672063/artifacts/11648364165) and [hopely-care-debug-apk](https://github.com/scootar-dev/hopely-care/actions/runs/37999672063/artifacts/11648836177). The debug APK targets `http://10.0.2.2:8000/api`; it needs a running development backend accessible from an Android emulator. It is not a signed production release.
 
-These tests do **not** establish clinical accuracy, live LLM safety, real-world retrieval quality, or server-side Laravel permission enforcement in execution. The Laravel privacy tests are supplied to check the latter once PHP is available.
+Visual inspection used [the 17 captures from the preceding run](https://github.com/scootar-dev/hopely-care/actions/runs/37999356569/artifacts/11648128506) at `552e477`. The final run retains identical application UI code and fixes test cleanup only; its images were regenerated successfully.
 
-## Remaining completion gates
-1. Resolve Composer and Flutter dependencies, generate native runner files, and commit lockfiles.
-2. Run the Laravel feature/privacy suite and migrations under both SQLite tests and the MySQL development service.
-3. Run Flutter analysis/tests/build, then verify the five Stitch reference screens on an actual device/emulator.
-4. Run the nine-scene synthetic patient/caregiver demo across Flutter → Laravel → FastAPI.
-5. Configure real provider, approved knowledge sources and Firebase only for the environments where they are needed; evaluate them separately.
+## Regressions resolved
 
-The source package contains a coherent implementation to continue from, not evidence that these remaining gates have passed.
+- The main-branch Laravel suite initially failed because a newly created consent record lost its guarded `user_id`. The fix assigns the authenticated owner server-side. A regression test attempts to spoof another owner's ID and verifies both acceptance and revocation.
+- Native Flutter tests found a Material/ListTile rendering assertion and chat overflow in a short viewport. Cards now provide a Material ancestor and chat content scrolls above its composer.
+- Session changes notify consent-dependent UI without recreating the router. The test revokes AI chat consent and verifies that the composer disables immediately.
+- Form interaction tests wait for keyboard dismissal and scrolling to settle before tapping. Review captures load real fonts; control styles explicitly use the bundled typeface. Temporary painting debug settings are restored before Flutter's binding invariants.
+
+## What these tests establish
+
+The Laravel suite executes anonymous/role/owner access checks, health consent, 1–5 validation, duplicate daily check-in rejection, both journal-analysis consent gates, linked caregiver field filtering, unlinked caregiver denial and removal of derived signals after withdrawal.
+
+The Flutter suite executes onboarding completion/skip, caregiver route isolation and invitation acceptance, check-in saving with 1–5 values and analysis opt-out, reactive chat consent, error redaction/retry, metric selection and mock disclosure. It renders the guest, patient and caregiver V2 routes with a fixture API; those fixtures never contact Laravel, Firebase or an LLM. Captures are viewport reviews, not full-length golden comparisons or physical-device screenshots.
+
+The 37 Python tests cover internal service authentication, typed consent boundaries, caregiver context exclusions, longitudinal trends and missing data, explicit mock labeling, provider failure behavior, support routing, catalog-bound recommendation IDs, RAG evidence/citations, patient-supplied report concerns, body limits and timezone validation. RAG tests use in-memory Qdrant and a deterministic test embedder.
+
+## Still not executed
+
+- Full networked Flutter → Laravel → FastAPI demo and complete Docker Compose startup.
+- Live LLM inference, downloaded embedding/emotion weights, or retrieval against an approved populated knowledge base.
+- Physical-device Android/iOS behavior, signed release builds, FCM delivery and native PDF export.
+- Clinical accuracy, live-provider safety and real-world retrieval-quality evaluation.
+
+These limits do not negate the executed component tests, but component tests and an APK build do not establish an end-to-end production deployment. Design decisions and the 15-reference mapping are recorded in [STITCH_V2_AUDIT.md](STITCH_V2_AUDIT.md).
+
+## Navigation regression — 10 October 2026
+
+A user-reported Navigator/GlobalKey error exposed a gap in the initial widget tests: those tests opened most routes independently with `go`, rather than following all in-app links with an existing navigation stack.
+
+[Diagnostic run 38025341920](https://github.com/scootar-dev/hopely-care/actions/runs/38025341920) reproduced a duplicate-page-key assertion on the previous application code by tapping Home → Tools Kesehatan → Jadwal Perawatan. The original patient shell remained below Tools; pushing a destination in that same shell attempted to place its page/navigator key in the root stack a second time. Later exceptions in that failed test run are not treated as independently proven defects.
+
+`openAppDestination` now uses `go` for the five main tabs and `push` for secondary screens. Both the Tools links and the shared `ActionLink` follow this rule, covering the same pattern at Check-in saved → Lihat pola catatanku. Main-tab paths are shared with the bottom navigation bar. Backend, database, authentication and consent rules are unchanged by this fix.
+
+Four regression flows are added in `mobile/test/navigation_flow_test.dart`: Home → Tools → treatment → Home; Home → check-in → save → Insight; journal editor → privacy → Home; caregiver profile → privacy → dashboard. The tests check actual taps, exceptions, selected tabs and a single surviving application shell, alongside the 11 existing tests. The PR's subsequent Actions checks report the result for the revised code.
+
+To run the update locally, stop the running Flutter process, fetch/pull `codex/stitch-v2-completion`, run `flutter pub get` in `mobile`, and start `flutter run` again with the same API endpoint used previously. A full restart reconstructs the navigation stack after this routing change.

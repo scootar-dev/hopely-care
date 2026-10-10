@@ -6,7 +6,7 @@ Success HTTP 200 (create record/register/invite: 201):
 ```json
 {"success":true,"message":"OK","data":{}}
 ```
-Collections of core records return `data.items`, `data.page`, `data.last_page`, 30 items/page. Pass `?page=2` to paginate. Other list endpoints return arrays in `data`. Delete/logout return `data:null`.
+Collections of core records return `data.items`, `data.page`, `data.last_page`, and `data.total` (the authenticated owner's total record count), 30 items/page. Pass `?page=2` to paginate. `total` is an additive field used for accurate profile and journal counts. Other list endpoints return arrays in `data`. Delete/logout return `data:null`.
 
 Errors: 401 unauthenticated, 403 role/ownership/consent denial, 404 missing or unlinked resource, 409 concurrent change/invitation conflict, 422 field validation, 429 throttled, 503 AI unavailable, 500 generic internal failure. Error bodies contain no input echo or trace.
 ```json

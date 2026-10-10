@@ -5,7 +5,8 @@ import '../../core/widgets/ui.dart';
 import '../../core/theme/theme.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.initialPrompt});
+  final String? initialPrompt;
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
@@ -20,6 +21,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    input.text = widget.initialPrompt == 'anxiety'
+        ? 'Aku sedang merasa cemas.'
+        : widget.initialPrompt == 'story'
+        ? 'Aku ingin bercerita tentang hari ini.'
+        : '';
     load();
   }
 
@@ -99,146 +105,179 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final allowed = ref
-        .read(sessionProvider)
+        .watch(sessionProvider)
         .consents
         .contains('AI_CHAT_CONTEXT');
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
-          child: CareCard(
-            color: Colors.white,
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: lavender,
-                  child: Icon(Icons.favorite, color: hopelyBlue, size: 30),
-                ),
-                SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Halo, aku Hopi',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                      ),
-                      Text('Teman tenang dan sahabat AI'),
-                    ],
-                  ),
-                ),
-                Chip(label: Text('24/7 Siaga'), backgroundColor: skySoft),
-              ],
-            ),
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: CareCard(
-            color: skySoft,
-            padding: 14,
-            radius: 18,
-            child: Row(
-              children: [
-                Icon(Icons.verified_user_outlined, color: hopelyBlue),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Ruang aman tanpa penghakiman. Hopely bukan pengganti dokter atau psikolog.',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (!allowed)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: CareCard(
-              color: warningSoft,
-              child: Column(
-                children: [
-                  Text(
-                    'Izinkan penggunaan konteks AI sebelum memulai percakapan.',
-                  ),
-                  ActionLink('Atur izin AI', '/privacy'),
-                ],
-              ),
-            ),
-          ),
-        if (metadata != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: MockNotice(metadata),
-          ),
-        Expanded(
-          child: loading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView(
-                  controller: scroll,
-                  padding: const EdgeInsets.all(20),
-                  children: [
-                    if (messages.isEmpty)
-                      const CareCard(
-                        color: lavenderSoft,
-                        child: Text(
-                          'Aku di sini untuk mendengarkan. Apa yang ingin kamu ceritakan?',
-                        ),
-                      ),
-                    for (final message in messages)
-                      Align(
-                        alignment: message['sender'] == 'user'
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 420),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: message['sender'] == 'user'
-                                ? Colors.white
-                                : skySoft,
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(24),
-                              topRight: const Radius.circular(24),
-                              bottomLeft: Radius.circular(
-                                message['sender'] == 'user' ? 24 : 6,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 620),
+        child: Column(
+          children: [
+            Expanded(
+              child: loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      controller: scroll,
+                      padding: const EdgeInsets.all(20),
+                      children: [
+                        const CareCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: pillBlue,
+                                    child: Icon(
+                                      Icons.auto_awesome_outlined,
+                                      color: hopelyBlue,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Hopely AI',
+                                          style: TextStyle(
+                                            fontSize: 21,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Teman cerita & pendamping',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              bottomRight: Radius.circular(
-                                message['sender'] == 'user' ? 6 : 24,
-                              ),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF25315F).withOpacity(0.06),
-                                blurRadius: 18,
-                                offset: const Offset(0, 8),
+                              SizedBox(height: 14),
+                              Text(
+                                'Hopely AI mendampingi secara emosional, bukan pengganti dokter atau psikolog.',
+                                style: TextStyle(fontSize: 12),
                               ),
                             ],
                           ),
-                          child: Text(
-                            message['content'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.5,
-                              color: ink,
+                        ),
+                        if (!allowed)
+                          const CareCard(
+                            color: warningSoft,
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Izinkan penggunaan konteks AI sebelum memulai percakapan.',
+                                ),
+                                ActionLink('Atur izin AI', '/privacy'),
+                              ],
                             ),
                           ),
-                        ),
-                      ),
-                    if (busy) const LinearProgressIndicator(),
-                    if (error != null) ErrorNotice(error!),
-                  ],
-                ),
-        ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Column(
-              children: [
-                Row(
+                        if (metadata != null) MockNotice(metadata),
+                        if (messages.isEmpty)
+                          const CareCard(
+                            color: skySoft,
+                            child: Text(
+                              'Aku di sini untuk mendengarkan. Apa yang ingin kamu ceritakan?',
+                            ),
+                          ),
+                        if (messages.isEmpty && allowed)
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              ActionChip(
+                                label: const Text('Aku merasa cemas'),
+                                onPressed: () => setState(
+                                  () => input.text = 'Aku sedang merasa cemas.',
+                                ),
+                              ),
+                              ActionChip(
+                                label: const Text('Cerita hari ini'),
+                                onPressed: () => setState(
+                                  () => input.text =
+                                      'Aku ingin bercerita tentang hari ini.',
+                                ),
+                              ),
+                            ],
+                          ),
+                        for (final message in messages)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                              crossAxisAlignment: message['sender'] == 'user'
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  message['sender'] == 'user'
+                                      ? 'Kamu'
+                                      : 'Hopely AI',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: mutedInk,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Align(
+                                  alignment: message['sender'] == 'user'
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft,
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 460,
+                                    ),
+                                    margin: EdgeInsets.only(
+                                      left: message['sender'] == 'user'
+                                          ? 28
+                                          : 0,
+                                      right: message['sender'] == 'user'
+                                          ? 0
+                                          : 20,
+                                    ),
+                                    padding: const EdgeInsets.all(19),
+                                    decoration: BoxDecoration(
+                                      color: message['sender'] == 'user'
+                                          ? hopelyBlue
+                                          : skySoft,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(22),
+                                        topRight: const Radius.circular(22),
+                                        bottomLeft: Radius.circular(
+                                          message['sender'] == 'user' ? 22 : 5,
+                                        ),
+                                        bottomRight: Radius.circular(
+                                          message['sender'] == 'user' ? 5 : 22,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      message['content'],
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        height: 1.5,
+                                        color: message['sender'] == 'user'
+                                            ? Colors.white
+                                            : ink,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (busy) const LinearProgressIndicator(),
+                        if (error != null) ErrorNotice(error!),
+                      ],
+                    ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
@@ -246,13 +285,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         controller: input,
                         enabled: allowed && !busy,
                         minLines: 1,
-                        maxLines: 5,
+                        maxLines: 4,
                         maxLength: 4000,
                         decoration: const InputDecoration(
-                          hintText: 'Ceritakan perasaanmu hari ini',
+                          hintText: 'Ketik ceritamu di sini…',
                           counterText: '',
-                          prefixIcon: Icon(Icons.mic_none),
-                          suffixIcon: Icon(Icons.mood_outlined),
+                          fillColor: Colors.white,
                         ),
                       ),
                     ),
@@ -261,7 +299,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       style: IconButton.styleFrom(
                         backgroundColor: hopelyBlue,
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(56, 56),
+                        minimumSize: const Size(52, 52),
                       ),
                       onPressed: allowed && !busy ? send : null,
                       icon: const Icon(Icons.send_outlined),
@@ -269,16 +307,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Percakapan pribadi, tanpa penilaian.',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

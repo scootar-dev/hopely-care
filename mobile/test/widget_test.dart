@@ -50,7 +50,7 @@ void main() {
         home: Scaffold(
           body: DataPage(
             load: () => Future.error(Exception('PRIVATE PAYLOAD')),
-            builder: (_, __) => const Text('Loaded'),
+            builder: (_, _) => const Text('Loaded'),
           ),
         ),
       ),

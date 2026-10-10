@@ -1,14 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 typedef Json = Map<String, dynamic>;
-const apiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://127.0.0.1:8000/api',
-);
-final sessionProvider = Provider<Session>((ref) => Session());
+const _configuredApiBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+// Android Emulator reaches the development computer through 10.0.2.2.
+// Physical devices and hosted APIs still need an explicit API_BASE_URL.
+String get apiBaseUrl => _configuredApiBaseUrl.isNotEmpty
+    ? _configuredApiBaseUrl
+    : !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+    ? 'http://10.0.2.2:8000/api'
+    : 'http://127.0.0.1:8000/api';
+final sessionProvider = ChangeNotifierProvider<Session>((ref) => Session());
 final apiProvider = Provider<Api>((ref) => Api(ref.read(sessionProvider)));
 
 class Session extends ChangeNotifier {
@@ -51,10 +57,14 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setAuth(Json result) async {
+  Future<void> setAuth(Json result, {bool remember = true}) async {
     token = result['token'] as String;
     user = result['user'] as Json;
-    await storage.write(key: 'hopely.token', value: token);
+    if (remember) {
+      await storage.write(key: 'hopely.token', value: token);
+    } else {
+      await storage.delete(key: 'hopely.token');
+    }
     await refresh();
   }
 
@@ -107,6 +117,14 @@ class Api {
       (await dio.post<dynamic>(path, data: data)).data['data'];
   Future<dynamic> put(String path, Json data) async =>
       (await dio.put<dynamic>(path, data: data)).data['data'];
+  Future<void> uploadProfilePhoto(List<int> bytes) async {
+    await dio.post<dynamic>(
+      '/me/avatar',
+      data: FormData.fromMap({
+        'photo': MultipartFile.fromBytes(bytes, filename: 'profile-photo'),
+      }),
+    );
+  }
   Future<void> delete(String path, [Json data = const {}]) async {
     await dio.delete<dynamic>(path, data: data);
   }
@@ -115,6 +133,41 @@ class Api {
 String friendlyError(Object error) {
   if (error is DioException) {
     final code = error.response?.statusCode;
+    final path = Uri.tryParse(error.requestOptions.path)?.path ?? '';
+    final login = path.endsWith('/auth/login');
+    final register = path.endsWith('/auth/register');
+    if (path.endsWith('/me/avatar')) {
+      if (code == 413 || code == 422) {
+        return 'Pilih foto JPG, PNG, atau WebP maksimal 2 MB dan 4096 × 4096 piksel.';
+      }
+      if (code != null && code >= 500) {
+        return 'Foto profil belum dapat disimpan atau dimuat. Silakan coba lagi.';
+      }
+    }
+    if (path.endsWith('/caregivers/invite')) {
+      if (code == 422) {
+        return 'Periksa email dan hubungan pendamping. Gunakan email akun Kerabat atau email yang belum terdaftar, bukan akun Pasien.';
+      }
+      if (code == 409) {
+        return 'Kerabat ini sudah terhubung. Atur izinnya pada daftar kerabat.';
+      }
+    }
+    if (path.endsWith('/caregivers/accept') && code == 404) {
+      return 'Kode tidak cocok, sudah dipakai, atau kedaluwarsa. Gunakan akun Kerabat dengan email yang diundang pasien.';
+    }
+    if (login || register) {
+      if (code == 401) {
+        return 'Email atau kata sandi belum sesuai. Gunakan akun yang sudah terdaftar di Hopely Care.';
+      }
+      if (code == 422) {
+        return register
+            ? 'Periksa nama, email, dan konfirmasi kata sandi. Gunakan minimal 12 karakter; email mungkin sudah terdaftar.'
+            : 'Periksa format email dan isi kata sandi.';
+      }
+      if (code != null && code >= 500) {
+        return 'Layanan akun sedang bermasalah. Silakan coba lagi nanti.';
+      }
+    }
     if (code == 403) {
       return 'Izin belum aktif. Periksa pengaturan privasi atau izin pendamping.';
     }

@@ -1,17 +1,14 @@
-# hopely_care
+# Hopely Care — Flutter
 
-A new Flutter project.
+Jalankan Laravel dan database terlebih dahulu. Panduan backend, akun demo, AI mock/live, serta penanganan login ada di [README proyek](../README.md).
 
-## Getting Started
+Untuk Android Emulator, dari folder ini:
 
-This project is a starting point for a Flutter application.
+```sh
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
+```
 
-A few resources to get you started if this is your first Flutter project:
+Chrome pada komputer backend memakai `http://127.0.0.1:8000/api`. HP fisik memerlukan endpoint yang dapat dijangkau HP; untuk Android USB, gunakan `adb reverse tcp:8000 tcp:8000` dan URL `http://127.0.0.1:8000/api` pada build debug.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Login menggunakan akun yang terdaftar di Hopely Care. Menjalankan Flutter tidak otomatis membuat akun atau menyalakan backend. Hentikan dan jalankan kembali Flutter setelah mengubah alamat API.
