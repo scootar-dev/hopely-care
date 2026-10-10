@@ -44,3 +44,15 @@ The 37 Python tests cover internal service authentication, typed consent boundar
 - Clinical accuracy, live-provider safety and real-world retrieval-quality evaluation.
 
 These limits do not negate the executed component tests, but component tests and an APK build do not establish an end-to-end production deployment. Design decisions and the 15-reference mapping are recorded in [STITCH_V2_AUDIT.md](STITCH_V2_AUDIT.md).
+
+## Navigation regression — 10 October 2026
+
+A user-reported Navigator/GlobalKey error exposed a gap in the initial widget tests: those tests opened most routes independently with `go`, rather than following all in-app links with an existing navigation stack.
+
+[Diagnostic run 38025341920](https://github.com/scootar-dev/hopely-care/actions/runs/38025341920) reproduced a duplicate-page-key assertion on the previous application code by tapping Home → Tools Kesehatan → Jadwal Perawatan. The original patient shell remained below Tools; pushing a destination in that same shell attempted to place its page/navigator key in the root stack a second time. Later exceptions in that failed test run are not treated as independently proven defects.
+
+`openAppDestination` now uses `go` for the five main tabs and `push` for secondary screens. Both the Tools links and the shared `ActionLink` follow this rule, covering the same pattern at Check-in saved → Lihat pola catatanku. Main-tab paths are shared with the bottom navigation bar. Backend, database, authentication and consent rules are unchanged by this fix.
+
+Four regression flows are added in `mobile/test/navigation_flow_test.dart`: Home → Tools → treatment → Home; Home → check-in → save → Insight; journal editor → privacy → Home; caregiver profile → privacy → dashboard. The tests check actual taps, exceptions, selected tabs and a single surviving application shell, alongside the 11 existing tests. The PR's subsequent Actions checks report the result for the revised code.
+
+To run the update locally, stop the running Flutter process, fetch/pull `codex/stitch-v2-completion`, run `flutter pub get` in `mobile`, and start `flutter run` again with the same API endpoint used previously. A full restart reconstructs the navigation stack after this routing change.

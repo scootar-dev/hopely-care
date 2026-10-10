@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
+import '../../core/routing/navigation.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
@@ -140,7 +141,7 @@ class _Tool extends StatelessWidget {
     child: CareCard(
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => context.push(route),
+        onTap: () => openAppDestination(context, route),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

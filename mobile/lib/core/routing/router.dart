@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../api/api.dart';
 import '../theme/theme.dart';
 import '../widgets/stitch.dart';
+import 'navigation.dart';
 import '../../features/auth/onboarding_screen.dart';
 import '../../features/activities/tools_screen.dart';
 import '../../features/caregiver/support_alert_screen.dart';
@@ -150,7 +151,7 @@ class AppShell extends ConsumerWidget {
   final Widget child;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const paths = ['/home', '/treatment', '/chat', '/insights', '/profile'];
+    const paths = patientTabPaths;
     final caregiver = ref.watch(sessionProvider).caregiver;
     return Scaffold(
       appBar: AppBar(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../routing/navigation.dart';
 import '../theme/theme.dart';
 import '../api/api.dart';
 
@@ -113,7 +113,7 @@ class ActionLink extends StatelessWidget {
   final IconData icon;
   @override
   Widget build(BuildContext context) => TextButton.icon(
-    onPressed: () => context.push(route),
+    onPressed: () => openAppDestination(context, route),
     icon: Icon(icon, size: 19),
     label: Text(label),
     style: TextButton.styleFrom(
