@@ -32,6 +32,9 @@ class FixtureApi extends Api {
   };
   @override
   Future<dynamic> get(String path) async {
+    if (path == '/me/avatar') {
+      return null;
+    }
     if (path.startsWith('/checkins')) {
       return page([checkin]);
     }
@@ -161,6 +164,13 @@ class FixtureApi extends Api {
   @override
   Future<dynamic> post(String path, [Json data = const {}]) async {
     writes.add((path, data));
+    if (path == '/caregivers/invite') {
+      return {
+        'id': 'invitation-1',
+        'invitation_token': 'synthetic-invitation',
+        'expires_at': DateTime.now().add(const Duration(hours: 48)).toUtc().toIso8601String(),
+      };
+    }
     return {'id': 'checkin-1', ...data};
   }
 }

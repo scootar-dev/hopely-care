@@ -117,6 +117,14 @@ class Api {
       (await dio.post<dynamic>(path, data: data)).data['data'];
   Future<dynamic> put(String path, Json data) async =>
       (await dio.put<dynamic>(path, data: data)).data['data'];
+  Future<void> uploadProfilePhoto(List<int> bytes) async {
+    await dio.post<dynamic>(
+      '/me/avatar',
+      data: FormData.fromMap({
+        'photo': MultipartFile.fromBytes(bytes, filename: 'profile-photo'),
+      }),
+    );
+  }
   Future<void> delete(String path, [Json data = const {}]) async {
     await dio.delete<dynamic>(path, data: data);
   }
@@ -128,6 +136,25 @@ String friendlyError(Object error) {
     final path = Uri.tryParse(error.requestOptions.path)?.path ?? '';
     final login = path.endsWith('/auth/login');
     final register = path.endsWith('/auth/register');
+    if (path.endsWith('/me/avatar')) {
+      if (code == 413 || code == 422) {
+        return 'Pilih foto JPG, PNG, atau WebP maksimal 2 MB dan 4096 × 4096 piksel.';
+      }
+      if (code != null && code >= 500) {
+        return 'Foto profil belum dapat disimpan atau dimuat. Silakan coba lagi.';
+      }
+    }
+    if (path.endsWith('/caregivers/invite')) {
+      if (code == 422) {
+        return 'Periksa email dan hubungan pendamping. Gunakan email akun Kerabat atau email yang belum terdaftar, bukan akun Pasien.';
+      }
+      if (code == 409) {
+        return 'Kerabat ini sudah terhubung. Atur izinnya pada daftar kerabat.';
+      }
+    }
+    if (path.endsWith('/caregivers/accept') && code == 404) {
+      return 'Kode tidak cocok, sudah dipakai, atau kedaluwarsa. Gunakan akun Kerabat dengan email yang diundang pasien.';
+    }
     if (login || register) {
       if (code == 401) {
         return 'Email atau kata sandi belum sesuai. Gunakan akun yang sudah terdaftar di Hopely Care.';

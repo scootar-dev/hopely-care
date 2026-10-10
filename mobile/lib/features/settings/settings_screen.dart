@@ -6,6 +6,7 @@ import '../../core/widgets/ui.dart';
 import '../../core/notifications/push_service.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import 'profile_photo.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
   const PrivacyScreen({super.key});
@@ -199,11 +200,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Center(
           child: Column(
             children: [
-              const CircleAvatar(
-                radius: 44,
-                backgroundColor: pillBlue,
-                child: Icon(Icons.person_outline, color: hopelyBlue, size: 46),
-              ),
+              const ProfilePhotoControls(),
               const SizedBox(height: 16),
               Text(
                 s.profile?['display_name'] ?? s.user?['name'] ?? 'Profil',

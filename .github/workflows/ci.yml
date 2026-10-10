@@ -57,6 +57,11 @@ jobs:
         with: {channel: stable}
       - run: flutter pub get
         working-directory: mobile
+      - name: Report resolved dependencies and formatting
+        run: |
+          dart format lib test
+          git diff -- pubspec.lock lib test
+        working-directory: mobile
       - run: flutter analyze
         working-directory: mobile
       - run: flutter test

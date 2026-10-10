@@ -57,6 +57,32 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
 
+  for (final origin in ['home', 'profile']) {
+    testWidgets('invite from $origin creates a private invitation code', (tester) async {
+      final container = await openApp(tester);
+      if (origin == 'profile') {
+        container.read(routerProvider).go('/profile');
+        await tester.pumpAndSettle();
+      }
+      await tapLabel(tester, origin == 'home' ? 'Undang kerabat tepercaya' : 'Undang & kelola kerabat');
+      expect(find.text('Undang Kerabat'), findsOneWidget);
+      await tester.enterText(find.byType(TextFormField).at(0), 'relative@test.invalid');
+      await tester.enterText(find.byType(TextFormField).at(1), 'Keluarga');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tapLabel(tester, 'Buat undangan');
+      await tester.scrollUntilVisible(
+        find.text('Kode Undangan Pribadi'), 200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('synthetic-invitation'), findsOneWidget);
+      final api = container.read(apiProvider) as FixtureApi;
+      expect(api.writes.single.$1, '/caregivers/invite');
+      expect(api.writes.single.$2['email'], 'relative@test.invalid');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('home to Tools to treatment does not duplicate a navigator', (
     tester,
   ) async {

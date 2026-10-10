@@ -5,6 +5,7 @@ use App\Services\{CaregiverService, AiClient, ConsentService};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 class CaregiverController extends Controller
 {
     public function invite(Request $r)
@@ -13,7 +14,12 @@ class CaregiverController extends Controller
             "email" => "required|email|max:254",
             "relationship_label" => "required|string|max:80",
         ]);
-        abort_if(strtolower($v["email"]) === $r->user()->email, 422);
+        $recipient = User::where("email", strtolower($v["email"]))->first();
+        if ($recipient && $recipient->role !== "CAREGIVER") {
+            throw ValidationException::withMessages([
+                "email" => "Gunakan email akun Kerabat atau email yang belum terdaftar. Akun Pasien tidak dapat menerima undangan pendamping.",
+            ]);
+        }
         $token = Str::random(48);
         $link = DB::transaction(function () use ($r, $v, $token) {
             $link = CaregiverLink::firstOrNew([

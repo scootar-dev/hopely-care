@@ -13,6 +13,7 @@ class CareCircleScreen extends ConsumerStatefulWidget {
 }
 
 class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
+  final formKey = GlobalKey<FormState>();
   final email = TextEditingController(), relationship = TextEditingController();
   int version = 0;
   bool busy = false;
@@ -26,9 +27,13 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
   }
 
   Future<void> invite() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
     setState(() {
       busy = true;
       error = null;
+      invitation = null;
     });
     try {
       final data =
@@ -73,18 +78,41 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
             ),
             const ActionLink('Atur persetujuan berbagi', '/privacy'),
             CareCard(
-              child: Column(
+              child: Form(
+                key: formKey,
+                child: Column(
                 children: [
-                  TextField(
+                  const Text(
+                    'Pendamping menerima undangan melalui akun Kerabat dengan email yang kamu masukkan. Setelah kode dibuat, salin dan kirimkan sendiri secara pribadi.',
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
                     controller: email,
+                    enabled: !busy,
                     keyboardType: TextInputType.emailAddress,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      final address = value?.trim().toLowerCase() ?? '';
+                      if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(address)) {
+                        return 'Masukkan email pendamping yang valid.';
+                      }
+                      if (address == ref.read(sessionProvider).user?['email']) {
+                        return 'Gunakan email pendamping, bukan email akunmu sendiri.';
+                      }
+                      return null;
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Email pendamping',
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  TextFormField(
                     controller: relationship,
+                    enabled: !busy,
+                    maxLength: 80,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Isi hubungan atau panggilan pendamping.'
+                        : null,
                     decoration: const InputDecoration(
                       labelText: 'Hubungan / panggilan',
                     ),
@@ -95,6 +123,7 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                     child: Text(busy ? 'Membuat undangan…' : 'Buat undangan'),
                   ),
                 ],
+                ),
               ),
             ),
             if (error != null) ErrorNotice(error!),
@@ -129,9 +158,16 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                         backgroundColor: Colors.white,
                         foregroundColor: hopelyBlue,
                       ),
-                      onPressed: () => Clipboard.setData(
-                        ClipboardData(text: invitation!['invitation_token']),
-                      ),
+                      onPressed: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: invitation!['invitation_token']),
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Kode disalin. Kirimkan secara pribadi kepada kerabat.')),
+                          );
+                        }
+                      },
                       icon: const Icon(Icons.copy),
                       label: const Text('Salin Kode Undangan'),
                     ),

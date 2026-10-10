@@ -4,6 +4,8 @@ MVP pendamping wellbeing pasien kanker, dilanjutkan dari repository utama dan di
 
 **Status:** implementasi Stitch V2 dan perbaikan regresi tersedia. Tes FastAPI, Laravel (SQLite dan MySQL), serta analisis dan tes Flutter telah dijalankan melalui GitHub Actions. Hasil build dan batas verifikasi dicatat di [VERIFICATION.md](docs/VERIFICATION.md); pemetaan desain dan keputusan implementasi ada di [STITCH_V2_AUDIT.md](docs/STITCH_V2_AUDIT.md).
 
+Status komunitas, pengelola Tools Kesehatan, undangan kerabat, foto profil, dan provider AI dijelaskan di [FEATURE_STATUS.md](docs/FEATURE_STATUS.md). Foto profil dapat dipilih/diganti/dihapus dari Profil; gunakan `flutter pub get` dan restart penuh karena ada plugin galeri baru. Android minimum SDK 24. Backend perlu diperbarui bersamaan; fitur foto tidak menambah migrasi database.
+
 ## Arsitektur
 Flutter → Laravel/Sanctum → MySQL dan FastAPI internal. FastAPI → provider LLM dan Qdrant untuk dokumen terkurasi. Flutter tidak memegang internal service key atau API key LLM. FCM dipakai hanya untuk notifikasi perangkat yang diaktifkan pengguna.
 

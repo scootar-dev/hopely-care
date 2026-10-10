@@ -21,6 +21,7 @@ import '../../features/care_circle/care_circle_screen.dart';
 import '../../features/caregiver/caregiver_screen.dart';
 import '../../features/knowledge/knowledge_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/settings/profile_photo.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final session = ref.read(sessionProvider);
@@ -187,11 +188,7 @@ class AppShell extends ConsumerWidget {
           ),
           IconButton(
             onPressed: () => context.go('/profile'),
-            icon: const CircleAvatar(
-              radius: 16,
-              backgroundColor: pillBlue,
-              child: Icon(Icons.person_outline, size: 20, color: hopelyBlue),
-            ),
+            icon: const ProfileAvatar(radius: 16),
             tooltip: 'Profil',
           ),
         ],

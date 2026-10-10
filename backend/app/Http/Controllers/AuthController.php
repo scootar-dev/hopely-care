@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\{User, PatientProfile};
+use App\Services\ProfilePhotoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Hash, DB};
 use Illuminate\Validation\Rules\Password;
@@ -68,11 +69,12 @@ class AuthController extends Controller
         $r->user()->currentAccessToken()?->delete();
         return $this->ok();
     }
-    public function destroy(Request $r)
+    public function destroy(Request $r, ProfilePhotoService $photos)
     {
         $v = $r->validate(["password" => "required|string"]);
         abort_unless(Hash::check($v["password"], $r->user()->password), 403);
-        DB::transaction(function () use ($r) {
+        DB::transaction(function () use ($r, $photos) {
+            $photos->delete($r->user());
             $r->user()->tokens()->delete();
             $r->user()->delete();
         });
