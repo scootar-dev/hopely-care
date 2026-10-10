@@ -58,6 +58,27 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 
 Bootstrap membuat runner Android/iOS hanya bila direktori platform belum tersedia, mengambil dependency, dan mengizinkan HTTP hanya pada manifest Android debug. CI langsung menjalankan `flutter pub get` pada runner yang sudah ada. APK release mensyaratkan `API_BASE_URL=https://...`. Pada iOS gunakan endpoint HTTPS pengembangan atau konfigurasikan pengecualian ATS khusus debug secara sengaja.
 
+Alamat default tanpa `--dart-define` mengikuti lingkungan pengembangan: Android memakai `http://10.0.2.2:8000/api` untuk Android Emulator; desktop/web memakai `http://127.0.0.1:8000/api`. `API_BASE_URL` eksplisit selalu diprioritaskan. HP fisik memerlukan pengaturan endpoint sendiri; alamat emulator tidak berlaku untuk HP fisik.
+
+## Jika login email gagal
+
+`flutter run` hanya menyalakan aplikasi Flutter. Laravel dan database harus berjalan terpisah. Login menerima email dan kata sandi **akun Hopely Care** yang sudah didaftarkan lewat **Buat akun baru**. Ini bukan login Google/Gmail, OTP email, atau kata sandi kotak masuk email. Registrasi memerlukan kata sandi minimal 12 karakter. Akun demo baru tersedia setelah seeder dijalankan; kata sandinya adalah `DEMO_PASSWORD` pada konfigurasi lokal saat pertama kali di-seed.
+
+1. Periksa `http://localhost:8000/up` di browser komputer. Jika belum dapat dibuka, periksa proses Laravel atau `docker compose ps -a`. Health ini menunjukkan aplikasi Laravel hidup; keberhasilan login juga memerlukan koneksi database dan migration.
+2. Gunakan alamat sesuai perangkat:
+
+   | Perangkat | Perintah dari folder `mobile` |
+   |---|---|
+   | Android Emulator | `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api` |
+   | Chrome pada komputer backend | `flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:8000/api` |
+   | HP Android tersambung USB | Jalankan `adb reverse tcp:8000 tcp:8000`, lalu `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api` |
+
+   Untuk HP tanpa USB, gunakan endpoint HTTPS pengembangan yang dapat dicapai HP. Mapping Docker bawaan hanya membuka port pada loopback komputer; mengganti URL Flutter ke IP Wi-Fi saja tidak membuka port tersebut. Bila beberapa perangkat terhubung, pilih perangkat yang sama pada `adb -s <id> reverse ...` dan `flutter run -d <id> ...`.
+3. Hentikan Flutter dan jalankan ulang setelah mengubah `--dart-define`; alamat API ditentukan saat build. Jangan menghapus database untuk mencoba memperbaiki login.
+4. Pesan email/kata sandi tidak sesuai menunjukkan respons 401. Pesan validasi menunjukkan 422. Gangguan layanan akun menunjukkan respons 5xx. Jika belum terhubung, periksa proses backend, alamat API, dan jaringan perangkat. Kirim pesan error, jenis perangkat, dan perintah menjalankan aplikasi untuk diagnosis; jangan kirim kata sandi, token, API key, atau isi `.env`.
+
+AI tidak diperlukan oleh endpoint login. Pada Docker Compose, startup backend memang menunggu service AI sehat; konfigurasi AI yang gagal saat startup dapat membuat backend belum mulai. Periksa status semua container jika health Laravel belum tersedia.
+
 Aplikasi memakai Bahasa Indonesia, Material 3, tema biru/lavender Stitch V2, kartu membulat, dan navigasi Beranda / Perjalanan / Hopely AI / Insight / Profil. Onboarding, Tools Kesehatan, penerimaan undangan, dan detail pengingat dukungan telah ditambahkan. Ilustrasi ikon Flutter menggantikan aset gambar terpisah yang tidak tersedia. Screenshot bukan data pasien dan teks medis contoh tidak dipakai sebagai fakta.
 
 ## Laravel tanpa Docker
@@ -123,8 +144,10 @@ docker compose exec ai-service python -m pytest -q
 
 CI menjalankan Python, Laravel pada SQLite dan MySQL 8.4, serta Flutter analyze/test/debug APK. Artifact `stitch-v2-screens` berisi render widget dengan data sintetis; `hopely-care-debug-apk` berisi APK untuk endpoint emulator `http://10.0.2.2:8000/api`. Uji alur lintas layanan dan perangkat tetap terpisah. Skenario juri: `docs/DEMO.md`.
 
+Job `stack-smoke` menyalakan Docker Compose dengan secret baru dan database kosong, lalu menjalankan `python scripts/smoke_stack.py`. Uji ini menggunakan HTTP nyata untuk preflight browser, daftar, login, token, profil, izin, serta chat Laravel → FastAPI **mode mock** dan penyimpanannya di MySQL. Akun sintetis dihapus setelah uji. Hasilnya harus dilihat pada run CI untuk commit yang dipakai; uji ini tidak membuktikan provider LLM live atau jaringan perangkat pengguna. Jangan menjalankan smoke test pada deployment produksi.
+
 ## Batas implementasi yang masih harus diverifikasi
-- Rangkaian Flutter → Laravel → FastAPI melalui jaringan dan Docker Compose belum diuji end-to-end; pengujian tiap komponen dijalankan terpisah.
+- Rangkaian Flutter pada perangkat pengguna → Laravel → FastAPI belum diuji end-to-end. CI kini memiliki uji HTTP stack Docker terpisah; periksa status job `stack-smoke` sebelum menganggap alur layanan tersebut lulus.
 - Tidak ada API key live, dokumen medis yang benar-benar disetujui, atau konfigurasi Firebase milik pengguna.
 - Belum ada uji klinis, pengukuran akurasi emosi, evaluasi krisis/parafrasa Bahasa Indonesia, ataupun validasi manfaat kesehatan.
 - Form edit/delete tersedia untuk inti pencatatan melalui API; UI memperlihatkan jalur utama, bukan semua operasi administratif. Jurnal memiliki navigasi halaman. Daftar lain masih mengambil halaman pertama (30 item), dan chat membuka sesi terbaru; navigasi riwayat panjang dapat dikembangkan berikutnya.

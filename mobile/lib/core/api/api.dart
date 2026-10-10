@@ -5,10 +5,15 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 typedef Json = Map<String, dynamic>;
-const apiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://127.0.0.1:8000/api',
-);
+const _configuredApiBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+// Android Emulator reaches the development computer through 10.0.2.2.
+// Physical devices and hosted APIs still need an explicit API_BASE_URL.
+String get apiBaseUrl => _configuredApiBaseUrl.isNotEmpty
+    ? _configuredApiBaseUrl
+    : !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+    ? 'http://10.0.2.2:8000/api'
+    : 'http://127.0.0.1:8000/api';
 final sessionProvider = ChangeNotifierProvider<Session>((ref) => Session());
 final apiProvider = Provider<Api>((ref) => Api(ref.read(sessionProvider)));
 
@@ -120,6 +125,22 @@ class Api {
 String friendlyError(Object error) {
   if (error is DioException) {
     final code = error.response?.statusCode;
+    final path = Uri.tryParse(error.requestOptions.path)?.path ?? '';
+    final login = path.endsWith('/auth/login');
+    final register = path.endsWith('/auth/register');
+    if (login || register) {
+      if (code == 401) {
+        return 'Email atau kata sandi belum sesuai. Gunakan akun yang sudah terdaftar di Hopely Care.';
+      }
+      if (code == 422) {
+        return register
+            ? 'Periksa nama, email, dan konfirmasi kata sandi. Gunakan minimal 12 karakter; email mungkin sudah terdaftar.'
+            : 'Periksa format email dan isi kata sandi.';
+      }
+      if (code != null && code >= 500) {
+        return 'Layanan akun sedang bermasalah. Silakan coba lagi nanti.';
+      }
+    }
     if (code == 403) {
       return 'Izin belum aktif. Periksa pengaturan privasi atau izin pendamping.';
     }
