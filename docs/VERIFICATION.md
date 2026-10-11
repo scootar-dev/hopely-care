@@ -38,7 +38,7 @@ The 37 Python tests cover internal service authentication, typed consent boundar
 
 ## Still not executed
 
-- Full networked Flutter → Laravel → FastAPI demo and complete Docker Compose startup.
+- Full networked Flutter on a physical device → Laravel → FastAPI demo. Docker Compose startup and separate HTTP service flows are now verified below.
 - Live LLM inference, downloaded embedding/emotion weights, or retrieval against an approved populated knowledge base.
 - Physical-device Android/iOS behavior, signed release builds, FCM delivery and native PDF export.
 - Clinical accuracy, live-provider safety and real-world retrieval-quality evaluation.
@@ -56,3 +56,18 @@ A user-reported Navigator/GlobalKey error exposed a gap in the initial widget te
 Four regression flows are added in `mobile/test/navigation_flow_test.dart`: Home → Tools → treatment → Home; Home → check-in → save → Insight; journal editor → privacy → Home; caregiver profile → privacy → dashboard. The tests check actual taps, exceptions, selected tabs and a single surviving application shell, alongside the 11 existing tests. The PR's subsequent Actions checks report the result for the revised code.
 
 To run the update locally, stop the running Flutter process, fetch/pull `codex/stitch-v2-completion`, run `flutter pub get` in `mobile`, and start `flutter run` again with the same API endpoint used previously. A full restart reconstructs the navigation stack after this routing change.
+
+## Profile photos and invitations — 11 October 2026 (Asia/Jakarta)
+
+[Actions run 38072203173](https://github.com/scootar-dev/hopely-care/actions/runs/38072203173) passed for application commit `33e7f94`. All five jobs succeeded:
+
+- Flutter analyze: no issues. **23 Flutter tests** passed. Both Home and Profile invitation entry points were tapped through to creation/display of a synthetic private invitation token. Photo tests cover explicit preview confirmation, upload, replacement, leaving/reopening Profile, removal, cancellation, and account switching without displaying another account's photo.
+- Laravel: **19 tests / 79 assertions** on each of MySQL and SQLite. New tests verify authenticated photo ownership, attempted owner-ID spoofing, encrypted private storage, invalid/oversized uploads, replacement/removal, and account-deletion cleanup. Invitation tests exercise real API creation, correct patient ownership, email binding, single-use acceptance, revocation, and private defaults. Existing Patient accounts cannot be invited as caregivers; an unregistered email can be invited before registration.
+- FastAPI: the existing 37 tests and Ruff check passed; no AI provider behavior changed.
+- Docker HTTP smoke: startup, email registration/login, logout/token revocation, consent checks, Laravel → FastAPI mock chat, persisted messages and cleanup passed. This smoke does not exercise the OS photo picker.
+- Debug APK built successfully: [APK artifact](https://github.com/scootar-dev/hopely-care/actions/runs/38072203173/artifacts/11677785024). The APK uses the **Android Emulator** URL `http://10.0.2.2:8000/api`. For a physical phone over USB, build locally with `API_BASE_URL=http://127.0.0.1:8000/api` and `adb reverse tcp:8000 tcp:8000`.
+- Synthetic route render artifacts: [stitch-v2-screens](https://github.com/scootar-dev/hopely-care/actions/runs/38072203173/artifacts/11677054140). These are widget captures, not photos/screenshots from the user's phone.
+
+The following bookkeeping commit records the exact Flutter dependency lockfile and formatter output used by the successful build, updates the API contract/status documentation, and removes the temporary CI formatting report. It does not change feature behavior.
+
+Physical Android/iOS gallery access, Android activity recovery, and registration/login on the user's Windows/XAMPP setup remain separate device checks. Live AI, FCM, and an approved RAG corpus remain unverified. No community or admin dashboard is claimed implemented. The specific report that Home's invitation button fails has not reproduced in these tests; form validation and error messages have been made actionable without claiming a confirmed device-specific root cause.

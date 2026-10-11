@@ -21,12 +21,17 @@ Date-only values: `YYYY-MM-DD` in patient timezone. Instants: ISO 8601 UTC. All 
 | POST `/auth/login` | email,password → `{user,token}` | Public, 8/min/IP |
 | POST `/auth/logout` | none → null; revokes current token | Auth |
 | GET `/me` | `{user,profile}` | Auth |
+| GET `/me/avatar` | null or `{mime_type,base64}`; private, no-store | Auth; own photo only |
+| POST `/me/avatar` | multipart `photo`: JPG/PNG/WebP ≤2 MB, dimensions ≤4096×4096; replaces current photo | Auth; own photo only |
+| DELETE `/me/avatar` | removes own photo → null | Auth |
 | DELETE `/me` | password → null; cascades account-owned data | Auth |
 | PUT `/profile` | display_name,timezone; optional birth_year,cancer_context,treatment_phase,onboarding_completed | Patient + health consent |
 | GET `/consents` | array of current consent states | Auth |
 | PUT `/consents` | consent_type,accepted:boolean | Auth |
 
 Consent types: HEALTH_DATA_PROCESSING, AI_JOURNAL_ANALYSIS, AI_CHAT_CONTEXT, CAREGIVER_WELLBEING_SHARE, CAREGIVER_ALERT. Consent version is server-owned `1.0`. Revocation invalidates stored derived analysis; analysis persistence checks the consent revision under a user-row lock. No ADMIN registration route.
+
+Profile photos are optional account data for both Patient and Caregiver roles. Identity comes only from the authenticated session. Photos are encrypted with APP_KEY on Laravel's private local disk, have no public URL, and are removed when the account is deleted. Photo upload uses multipart rather than the JSON request default above; let the HTTP client generate its multipart boundary. No photo data is included in AI context or caregiver summaries.
 
 ## Patient records
 Each of `/checkins`, `/symptoms`, `/treatments`, `/journals` supports GET collection, POST create, GET `/{id}`, PUT `/{id}` partial update, DELETE `/{id}`. Patient role + health processing consent + server owner policy required. `id` and `user_id` cannot be set by caller. Read responses include resource data and timestamps, but omit `user_id`.
@@ -77,6 +82,8 @@ Chat requires AI_CHAT_CONTEXT. No journal text is added to companion context; on
 | GET `/caregiver/patients` | accepted patients: patient_id,name,relationship_label | Caregiver |
 | GET `/caregiver/patients/{id}/summary` | allowed fields only | Accepted caregiver + patient consent |
 | POST `/caregiver/patients/{id}/coach` | message≤2000 → support_message,communication_tip,suggested_action,metadata | Same; context filtered before FastAPI |
+
+Invitation recipients must have a Caregiver account or an email not yet registered. Existing Patient/Admin accounts are rejected with 422. Patients manually share the generated private token; automatic email delivery is not implemented. Tokens expire after 48 hours, are bound to the invited email, and can be accepted only once.
 
 All flags default false: `can_view_wellbeing_summary`, `can_view_treatment_schedule`, `can_receive_support_alert`, `can_view_symptom_summary`, `can_view_activity_status`. Summary requires current HEALTH_DATA_PROCESSING and CAREGIVER_WELLBEING_SHARE. Flags add `wellbeing_summary`, `treatment_schedule`, `symptom_summary`, `activity_status`; forbidden fields are absent, not merely hidden by Flutter. Alerts separately require CAREGIVER_ALERT and can_receive_support_alert. No endpoint exposes journals/chats to caregivers.
 

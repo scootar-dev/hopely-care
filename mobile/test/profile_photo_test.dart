@@ -25,7 +25,9 @@ class PhotoApi extends FixtureApi {
   Future<dynamic> get(String path) async {
     if (path == '/me/avatar') {
       final bytes = photos[session.user!['id']];
-      return bytes == null ? null : {'base64': base64Encode(bytes), 'mime_type': 'image/png'};
+      return bytes == null
+          ? null
+          : {'base64': base64Encode(bytes), 'mime_type': 'image/png'};
     }
     return super.get(path);
   }
@@ -44,7 +46,11 @@ class PhotoApi extends FixtureApi {
 }
 
 class FixturePhotoPicker extends ImagePicker {
-  XFile? selection = XFile.fromData(photoBytes, name: 'profile.png', mimeType: 'image/png');
+  XFile? selection = XFile.fromData(
+    photoBytes,
+    name: 'profile.png',
+    mimeType: 'image/png',
+  );
 
   @override
   Future<XFile?> pickImage({
@@ -57,17 +63,23 @@ class FixturePhotoPicker extends ImagePicker {
   }) async => selection;
 }
 
-Future<(ProviderContainer, PhotoApi, FixturePhotoPicker)> openProfile(WidgetTester tester) async {
+Future<(ProviderContainer, PhotoApi, FixturePhotoPicker)> openProfile(
+  WidgetTester tester,
+) async {
   final session = fixtureSession();
   final api = PhotoApi(session);
   final picker = FixturePhotoPicker();
-  final container = ProviderContainer(overrides: [
-    sessionProvider.overrideWith((ref) => session),
-    apiProvider.overrideWithValue(api),
-    photoPickerProvider.overrideWithValue(picker),
-  ]);
+  final container = ProviderContainer(
+    overrides: [
+      sessionProvider.overrideWith((ref) => session),
+      apiProvider.overrideWithValue(api),
+      photoPickerProvider.overrideWithValue(picker),
+    ],
+  );
   addTearDown(container.dispose);
-  await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const HopelyApp()));
+  await tester.pumpWidget(
+    UncontrolledProviderScope(container: container, child: const HopelyApp()),
+  );
   await tester.pumpAndSettle();
   container.read(routerProvider).go('/profile');
   await tester.pumpAndSettle();
@@ -75,7 +87,9 @@ Future<(ProviderContainer, PhotoApi, FixturePhotoPicker)> openProfile(WidgetTest
 }
 
 void main() {
-  testWidgets('photo is confirmed, uploaded, replaced, reloaded and removed', (tester) async {
+  testWidgets('photo is confirmed, uploaded, replaced, reloaded and removed', (
+    tester,
+  ) async {
     final (container, api, _) = await openProfile(tester);
     for (var attempt = 1; attempt <= 2; attempt++) {
       await tester.tap(find.text('Pilih foto'));
@@ -102,7 +116,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('cancelled selection or preview never uploads a photo', (tester) async {
+  testWidgets('cancelled selection or preview never uploads a photo', (
+    tester,
+  ) async {
     final (_, api, picker) = await openProfile(tester);
     await tester.tap(find.text('Pilih foto'));
     await tester.pumpAndSettle();
@@ -115,7 +131,9 @@ void main() {
     expect(api.photos, isEmpty);
   });
 
-  testWidgets('changing account does not display the previous profile photo', (tester) async {
+  testWidgets('changing account does not display the previous profile photo', (
+    tester,
+  ) async {
     final (container, api, _) = await openProfile(tester);
     api.photos['user-1'] = photoBytes;
     container.invalidate(profilePhotoProvider('user-1'));

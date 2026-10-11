@@ -12,12 +12,11 @@ import '../../core/theme/theme.dart';
 final photoPickerProvider = Provider<ImagePicker>((ref) => ImagePicker());
 final recoveredPhotoProvider = StateProvider<XFile?>((ref) => null);
 // Separate caches by account so a changed session never displays another photo.
-final profilePhotoProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
-  (ref, userId) async {
-    final data = await ref.read(apiProvider).get('/me/avatar');
-    return data == null ? null : base64Decode(data['base64'] as String);
-  },
-);
+final profilePhotoProvider = FutureProvider.autoDispose
+    .family<Uint8List?, String>((ref, userId) async {
+      final data = await ref.read(apiProvider).get('/me/avatar');
+      return data == null ? null : base64Decode(data['base64'] as String);
+    });
 
 class ProfileAvatar extends ConsumerWidget {
   const ProfileAvatar({super.key, this.radius = 44});
@@ -25,7 +24,9 @@ class ProfileAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final id = ref.watch(sessionProvider.select((s) => s.user?['id'] as String?));
+    final id = ref.watch(
+      sessionProvider.select((s) => s.user?['id'] as String?),
+    );
     final bytes = id == null ? null : ref.watch(profilePhotoProvider(id)).value;
     return CircleAvatar(
       radius: radius,
@@ -54,7 +55,8 @@ class ProfilePhotoControls extends ConsumerStatefulWidget {
   const ProfilePhotoControls({super.key});
 
   @override
-  ConsumerState<ProfilePhotoControls> createState() => _ProfilePhotoControlsState();
+  ConsumerState<ProfilePhotoControls> createState() =>
+      _ProfilePhotoControlsState();
 }
 
 class _ProfilePhotoControlsState extends ConsumerState<ProfilePhotoControls> {
@@ -90,13 +92,17 @@ class _ProfilePhotoControlsState extends ConsumerState<ProfilePhotoControls> {
       message = null;
     });
     try {
-      final file = recovered ?? await ref.read(photoPickerProvider).pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-        requestFullMetadata: false,
-      );
+      final file =
+          recovered ??
+          await ref
+              .read(photoPickerProvider)
+              .pickImage(
+                source: ImageSource.gallery,
+                maxWidth: 1024,
+                maxHeight: 1024,
+                imageQuality: 80,
+                requestFullMetadata: false,
+              );
       if (file == null) {
         return;
       }
@@ -139,9 +145,11 @@ class _ProfilePhotoControlsState extends ConsumerState<ProfilePhotoControls> {
           ],
         ),
       );
-      if (!mounted || confirmed != true || ref.read(sessionProvider).user?['id'] != owner) {
-      return;
-    }
+      if (!mounted ||
+          confirmed != true ||
+          ref.read(sessionProvider).user?['id'] != owner) {
+        return;
+      }
       await ref.read(apiProvider).uploadProfilePhoto(bytes);
       if (!mounted) {
         return;
@@ -181,7 +189,9 @@ class _ProfilePhotoControlsState extends ConsumerState<ProfilePhotoControls> {
         ],
       ),
     );
-    if (!mounted || confirmed != true || ref.read(sessionProvider).user?['id'] != owner) {
+    if (!mounted ||
+        confirmed != true ||
+        ref.read(sessionProvider).user?['id'] != owner) {
       return;
     }
     setState(() {
@@ -208,7 +218,9 @@ class _ProfilePhotoControlsState extends ConsumerState<ProfilePhotoControls> {
 
   @override
   Widget build(BuildContext context) {
-    final id = ref.watch(sessionProvider.select((s) => s.user?['id'] as String?));
+    final id = ref.watch(
+      sessionProvider.select((s) => s.user?['id'] as String?),
+    );
     final photo = id == null ? null : ref.watch(profilePhotoProvider(id));
     return Column(
       children: [

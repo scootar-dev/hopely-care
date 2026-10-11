@@ -125,6 +125,7 @@ class Api {
       }),
     );
   }
+
   Future<void> delete(String path, [Json data = const {}]) async {
     await dio.delete<dynamic>(path, data: data);
   }

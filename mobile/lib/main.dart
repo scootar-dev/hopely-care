@@ -18,8 +18,10 @@ void main() async {
     // Recover a selection for preview only; never upload it without confirmation.
     try {
       final lost = await container.read(photoPickerProvider).retrieveLostData();
-      if (container.read(sessionProvider).loggedIn && lost.files?.isNotEmpty == true) {
-        container.read(recoveredPhotoProvider.notifier).state = lost.files!.first;
+      if (container.read(sessionProvider).loggedIn &&
+          lost.files?.isNotEmpty == true) {
+        container.read(recoveredPhotoProvider.notifier).state =
+            lost.files!.first;
         container.read(routerProvider).go('/profile');
       }
     } catch (_) {

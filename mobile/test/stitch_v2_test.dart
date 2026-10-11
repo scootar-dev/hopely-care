@@ -168,7 +168,10 @@ class FixtureApi extends Api {
       return {
         'id': 'invitation-1',
         'invitation_token': 'synthetic-invitation',
-        'expires_at': DateTime.now().add(const Duration(hours: 48)).toUtc().toIso8601String(),
+        'expires_at': DateTime.now()
+            .add(const Duration(hours: 48))
+            .toUtc()
+            .toIso8601String(),
       };
     }
     return {'id': 'checkin-1', ...data};
