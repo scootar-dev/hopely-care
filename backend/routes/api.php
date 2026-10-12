@@ -15,6 +15,7 @@ Route::middleware("throttle:auth")->group(function () {
     Route::post("auth/login", [AuthController::class, "login"]);
 });
 Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
+    require __DIR__ . "/community.php";
     Route::get("me", [AuthController::class, "me"]);
     Route::get("me/avatar", [ProfilePhotoController::class, "show"]);
     Route::post("me/avatar", [ProfilePhotoController::class, "store"]);
@@ -36,13 +37,13 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
                     ["post", "", "store"],
                     ["get", "/{id}", "show"],
                     ["put", "/{id}", "update"],
-                    ["delete", "/{id}", "destroy"],
+                    ["delete", "/{id}", "destroy"]
                 ]
                 as [$verb, $suffix, $action]
             ) {
                 Route::$verb($kind . $suffix, [RecordController::class, $action])->defaults(
                     "kind",
-                    $kind,
+                    $kind
                 );
             }
         }
@@ -70,7 +71,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
         Route::get("caregiver/patients/{id}/summary", [CaregiverController::class, "summary"]);
         Route::post("caregiver/patients/{id}/coach", [
             CaregiverController::class,
-            "coach",
+            "coach"
         ])->middleware("throttle:ai");
     });
     Route::middleware("role:ADMIN")->group(function () {

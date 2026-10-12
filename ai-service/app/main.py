@@ -10,6 +10,12 @@ from app.core.config import get_settings
 from app.emotion.service import EmotionService
 from app.llm.provider import ProviderError, make_provider
 from app.rag.service import RAGService
+from app.schemas.community import (
+    CommunityModerationRequest,
+    CommunityModerationResponse,
+    CommunityRecommendationRequest,
+    CommunityRecommendationResponse,
+)
 from app.schemas.contracts import (
     CaregiverRequest,
     CaregiverResponse,
@@ -27,6 +33,7 @@ from app.schemas.contracts import (
     SummaryResponse,
     TrendResponse,
 )
+from app.services.community import CommunityAI
 from app.services.engine import AIEngine
 
 settings = get_settings()
@@ -34,6 +41,7 @@ provider = make_provider(settings)
 engine = AIEngine(provider, settings)
 emotion = EmotionService(provider, settings)
 rag = RAGService(provider, settings)
+community_ai = CommunityAI(provider, settings)
 app = FastAPI(
     title="Hopely Internal AI", version="0.1.0", docs_url=None, redoc_url=None, openapi_url=None
 )
@@ -95,6 +103,16 @@ async def health():
 
 
 protect = [Depends(authenticate)]
+
+
+@app.post("/v1/ai/community/moderate", response_model=CommunityModerationResponse, dependencies=protect)
+async def community_moderate(req: CommunityModerationRequest):
+    return await community_ai.moderate(req)
+
+
+@app.post("/v1/ai/community/recommend", response_model=CommunityRecommendationResponse, dependencies=protect)
+async def community_recommend(req: CommunityRecommendationRequest):
+    return community_ai.recommend(req)
 
 
 @app.post("/v1/ai/companion", response_model=CompanionResponse, dependencies=protect)
