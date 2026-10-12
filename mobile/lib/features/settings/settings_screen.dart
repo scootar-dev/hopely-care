@@ -277,6 +277,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.notifications_none,
           ),
         ),
+        const CareCard(
+          child: ActionLink(
+            'Support Circle • Komunitas',
+            '/community',
+            icon: Icons.diversity_1_outlined,
+          ),
+        ),
         CareCard(
           child: TextButton.icon(
             onPressed: () async {
@@ -409,6 +416,13 @@ class NotificationsScreen extends ConsumerWidget {
         fallback: ref.read(sessionProvider).caregiver ? '/caregiver' : '/home',
       ),
       title: const Text('Notifikasi'),
+      actions: [
+        IconButton(
+          tooltip: 'Preferensi notifikasi komunitas',
+          onPressed: () => context.push('/community/preferences'),
+          icon: const Icon(Icons.tune),
+        ),
+      ],
     ),
     body: DataPage(
       load: () => ref.read(apiProvider).get('/notifications'),
@@ -440,6 +454,17 @@ class NotificationsScreen extends ConsumerWidget {
                       await ref
                           .read(apiProvider)
                           .put('/notifications/${n['id']}/read', {});
+                      if (context.mounted &&
+                          (n['notification_type'] as String).startsWith(
+                            'community_',
+                          )) {
+                        await context.push(
+                          n['notification_type'] == 'community_report_update'
+                              ? '/community/safety'
+                              : '/community/feed?mine=1',
+                        );
+                      }
+                      if (!context.mounted) return;
                       reload();
                     } catch (e) {
                       if (context.mounted) {

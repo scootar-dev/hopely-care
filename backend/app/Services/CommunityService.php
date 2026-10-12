@@ -58,14 +58,18 @@ class CommunityService
 
     public function posts(User $user): Builder
     {
-        return CommunityPost::whereHas(
-            "community",
-            fn($q) => $q
-                ->where("is_active", true)
-                ->whereDoesntHave(
-                    "members",
-                    fn($m) => $m->where("user_id", $user->id)->where("status", "banned")
+        return CommunityPost::where(
+            fn($scope) => $scope
+                ->whereHas(
+                    "community",
+                    fn($q) => $q
+                        ->where("is_active", true)
+                        ->whereDoesntHave(
+                            "members",
+                            fn($m) => $m->where("user_id", $user->id)->where("status", "banned")
+                        )
                 )
+                ->orWhere("user_id", $user->id)
         )
             ->whereNotIn("user_id", $this->blockedIds($user))
             ->where(
@@ -74,7 +78,7 @@ class CommunityService
                     ->orWhere(
                         fn($own) => $own
                             ->where("user_id", $user->id)
-                            ->whereIn("moderation_status", ["pending", "flagged"])
+                            ->whereIn("moderation_status", ["pending", "flagged", "removed"])
                     )
             );
     }

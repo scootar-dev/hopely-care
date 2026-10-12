@@ -29,6 +29,7 @@ class CommunityTest extends TestCase
             "services.ai.key" => "synthetic-internal-key",
             "services.ai.url" => "http://ai.test"
         ]);
+        Http::swap(new \Illuminate\Http\Client\Factory());
         Http::fake([
             "*community/moderate" => Http::response([
                 "status" => "safe",
@@ -197,11 +198,13 @@ class CommunityTest extends TestCase
             ]
             as $result
         ) {
+            Http::swap(new \Illuminate\Http\Client\Factory());
             Http::fake(["*" => Http::response($result)]);
             $this->postJson("/api/communities/$c->id/posts", $this->text())
                 ->assertCreated()
                 ->assertJsonPath("data.moderation_status", "pending");
         }
+        Http::swap(new \Illuminate\Http\Client\Factory());
         Http::fake(["*" => Http::response([], 503)]);
         $p = $this->postJson("/api/communities/$c->id/posts", $this->text())
             ->assertCreated()
@@ -439,6 +442,7 @@ class CommunityTest extends TestCase
                 "support_preferences" => ["dukungan emosional"]
             ]
         ])->assertOk();
+        Http::swap(new \Illuminate\Http\Client\Factory());
         Http::fake([
             "*" => Http::response([
                 "recommendations" => [

@@ -57,6 +57,12 @@ jobs:
         with: {channel: stable}
       - run: flutter pub get
         working-directory: mobile
+      - name: Report native Dart fixes for source review
+        run: |
+          dart fix --apply
+          dart format lib test
+          git diff -- lib test
+        working-directory: mobile
       - run: flutter analyze
         working-directory: mobile
       - run: flutter test
