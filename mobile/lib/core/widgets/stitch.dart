@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../theme/theme.dart';
 import 'ui.dart';
 
@@ -15,11 +16,7 @@ class HopelyMark extends StatelessWidget {
       shape: BoxShape.circle,
       border: Border.all(color: pillBlue),
     ),
-    child: Icon(
-      Icons.health_and_safety_outlined,
-      color: hopelyBlue,
-      size: size * .6,
-    ),
+    child: Icon(Icons.spa_outlined, color: hopelyBlue, size: size * .6),
   );
 }
 

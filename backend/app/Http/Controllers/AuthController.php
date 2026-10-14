@@ -10,6 +10,7 @@ class AuthController extends Controller
 {
     public function register(Request $r)
     {
+        $r->merge(["email" => strtolower(trim((string) $r->input("email")))]);
         $v = $r->validate([
             "name" => "required|string|max:100",
             "email" => "required|email|max:254|unique:users",

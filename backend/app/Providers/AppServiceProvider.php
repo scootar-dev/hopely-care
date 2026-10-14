@@ -8,6 +8,13 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(
+            fn($user, string $token) => rtrim(config("app.url"), "/") .
+                "/reset-password/" .
+                rawurlencode($token) .
+                "?" .
+                http_build_query(["email" => $user->getEmailForPasswordReset()])
+        );
         Gate::policy(\App\Models\OwnedRecord::class, \App\Policies\OwnedRecordPolicy::class);
         Gate::policy(\App\Models\Community::class, \App\Policies\CommunityPolicy::class);
         Gate::policy(\App\Models\CommunityPost::class, \App\Policies\CommunityPostPolicy::class);

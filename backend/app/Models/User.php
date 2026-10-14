@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
-    use HasApiTokens, HasUuids;
+    use HasApiTokens, HasUuids, \Illuminate\Notifications\Notifiable;
     protected $guarded = ["id", "role"];
     protected $hidden = ["password", "remember_token", "consent_revision"];
     public function communityProfile()

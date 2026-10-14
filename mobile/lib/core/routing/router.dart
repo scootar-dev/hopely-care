@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../api/api.dart';
 import '../theme/theme.dart';
 import '../widgets/stitch.dart';
@@ -9,6 +10,7 @@ import '../../features/auth/onboarding_screen.dart';
 import '../../features/activities/tools_screen.dart';
 import '../../features/caregiver/support_alert_screen.dart';
 import '../../features/auth/auth_screen.dart';
+import '../../features/auth/password_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/checkin/checkin_screen.dart';
 import '../../features/journal/journal_screen.dart';
@@ -47,6 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/welcome',
         '/onboarding',
         '/login',
+        '/forgot-password',
         '/register',
         '/role',
       ].contains(path);
@@ -87,6 +90,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/welcome', builder: (_, s) => const WelcomeScreen()),
       GoRoute(path: '/role', builder: (_, s) => const RoleSelectionScreen()),
       GoRoute(path: '/login', builder: (_, s) => const AuthScreen()),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (_, s) => const PasswordScreen(),
+      ),
       GoRoute(
         path: '/register',
         builder: (_, s) => AuthScreen(

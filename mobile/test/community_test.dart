@@ -251,8 +251,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await (FontLoader(
-      'DejaVuSans',
-    )..addFont(rootBundle.load('assets/fonts/DejaVuSans.ttf'))).load();
+      'PlusJakartaSans',
+    )..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'))).load();
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
@@ -490,18 +490,27 @@ void main() {
     expect(find.text('Belum mengikuti komunitas'), findsOneWidget);
   });
 
-  testWidgets('moderator submits a decision and clears the queue', (tester) async {
+  testWidgets('moderator submits a decision and clears the queue', (
+    tester,
+  ) async {
     final (container, api) = await setupCommunity(tester, joined: true);
     container.read(routerProvider).go('/community/moderation');
     await tester.pumpAndSettle();
     await tapVisible(tester, find.text('Terbitkan'));
-    await tester.enterText(find.byType(TextFormField), 'Cerita sudah ditinjau.');
+    await tester.enterText(
+      find.byType(TextFormField),
+      'Cerita sudah ditinjau.',
+    );
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
     await tester.tap(find.text('Simpan keputusan'));
     await tester.pumpAndSettle();
     expect(api.writes.single.$1, '/community/moderation/post/held-1');
-    expect(api.writes.single.$2, {'action': 'approve', 'revision': 1, 'note': 'Cerita sudah ditinjau.'});
+    expect(api.writes.single.$2, {
+      'action': 'approve',
+      'revision': 1,
+      'note': 'Cerita sudah ditinjau.',
+    });
     expect(find.text('Antrean sudah bersih'), findsOneWidget);
   });
 

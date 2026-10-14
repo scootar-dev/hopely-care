@@ -50,8 +50,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await (FontLoader(
-      'DejaVuSans',
-    )..addFont(rootBundle.load('assets/fonts/DejaVuSans.ttf'))).load();
+      'PlusJakartaSans',
+    )..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'))).load();
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();

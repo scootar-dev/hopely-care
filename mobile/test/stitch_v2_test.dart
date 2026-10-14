@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -217,8 +218,8 @@ void main() {
     // Use the shipped typeface and icons instead of the test-only Ahem font,
     // so layout checks and review images exercise the actual text metrics.
     await (FontLoader(
-      'DejaVuSans',
-    )..addFont(rootBundle.load('assets/fonts/DejaVuSans.ttf'))).load();
+      'PlusJakartaSans',
+    )..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'))).load();
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
@@ -240,34 +241,34 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Mulai Sekarang'),
+      find.text('Mulai Sekarang  →'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Mulai Sekarang'));
+    await tester.tap(find.text('Mulai Sekarang  →'));
     await tester.pumpAndSettle();
     for (var i = 0; i < 2; i++) {
       await tester.scrollUntilVisible(
-        find.text('Lanjutkan'),
+        find.text('Lanjut  →'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Lanjutkan'));
+      await tester.tap(find.text('Lanjut  →'));
       await tester.pumpAndSettle();
     }
     await tester.scrollUntilVisible(
-      find.text('Mulai Perjalanan'),
+      find.text('Mulai Sekarang  →'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Mulai Perjalanan'));
+    await tester.tap(find.text('Mulai Sekarang  →'));
     await tester.pumpAndSettle();
-    expect(find.text('Lanjut sebagai pasien'), findsOneWidget);
+    expect(find.text('Pasien'), findsOneWidget);
     container.read(routerProvider).go('/onboarding');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Lewati'));
     await tester.pumpAndSettle();
-    expect(find.text('Lanjut sebagai pendamping'), findsOneWidget);
+    expect(find.text('Pendamping'), findsOneWidget);
   });
 
   testWidgets(
@@ -421,7 +422,14 @@ void main() {
           );
           await tester.pumpAndSettle();
           final routes = role == 'guest'
-              ? ['/welcome', '/onboarding', '/login', '/role', '/register']
+              ? [
+                  '/welcome',
+                  '/onboarding',
+                  '/login',
+                  '/role',
+                  '/register',
+                  '/forgot-password',
+                ]
               : role == 'patient'
               ? [
                   '/home',

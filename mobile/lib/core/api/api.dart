@@ -222,6 +222,9 @@ String friendlyError(Object error) {
     if (code == 429) {
       return 'Jeda sebentar, lalu coba lagi.';
     }
+    if (path.endsWith('/auth/forgot-password') && code != null && code >= 500) {
+      return 'Email pemulihan belum dapat dikirim. Coba lagi setelah layanan email tersedia.';
+    }
     if (code == 503) {
       return 'Layanan AI belum tersedia. Catatan yang sudah disimpan tetap tersedia.';
     }

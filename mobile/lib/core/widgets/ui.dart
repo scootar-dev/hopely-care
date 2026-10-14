@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../routing/navigation.dart';
 import '../theme/theme.dart';
 import '../api/api.dart';
@@ -9,7 +10,7 @@ class CareCard extends StatelessWidget {
     required this.child,
     this.color = Colors.white,
     this.padding = 20,
-    this.radius = 24,
+    this.radius = 20,
     this.borderColor,
   });
   final Widget child;
@@ -24,7 +25,9 @@ class CareCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: borderColor ?? const Color(0xFFEDEDFC)),
+      border: Border.all(
+        color: borderColor ?? Colors.white.withValues(alpha: .45),
+      ),
       boxShadow: [
         BoxShadow(
           color: const Color(0xFF25315F).withValues(alpha: 0.025),
@@ -49,12 +52,12 @@ class PageBody extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [canvas, Color(0xFFF8F6FF), canvas],
+            colors: [canvas, canvas, canvas],
           ),
         ),
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           physics: const AlwaysScrollableScrollPhysics(),
           children: children,
         ),

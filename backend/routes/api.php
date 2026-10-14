@@ -13,6 +13,11 @@ use App\Http\Controllers\{
 Route::middleware("throttle:auth")->group(function () {
     Route::post("auth/register", [AuthController::class, "register"]);
     Route::post("auth/login", [AuthController::class, "login"]);
+    Route::post("auth/forgot-password", [
+        \App\Http\Controllers\PasswordController::class,
+        "forgot"
+    ]);
+    Route::post("auth/reset-password", [\App\Http\Controllers\PasswordController::class, "reset"]);
 });
 Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     require __DIR__ . "/community.php";

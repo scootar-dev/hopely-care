@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-const hopelyBlue = Color(0xFF004BD6);
-const hopelyBlueDark = Color(0xFF0647C7);
+const hopelyBlue = Color(0xFF004AC6);
+const hopelyBlueDark = Color(0xFF2563EB);
 const lavender = Color(0xFFE8E3FF);
 const lavenderSoft = Color(0xFFF6F2FF);
-const skySoft = Color(0xFFEFF3FF);
+const skySoft = Color(0xFFEFF4FF);
 const pillBlue = Color(0xFFDDE7FF);
 const warningSoft = Color(0xFFFFE2DC);
-const canvas = Color(0xFFF9F8FF);
-const ink = Color(0xFF12172B);
-const mutedInk = Color(0xFF697089);
+const canvas = Color(0xFFF8F9FF);
+const ink = Color(0xFF0B1C30);
+const mutedInk = Color(0xFF526079);
 
 const forest = hopelyBlue;
 const mint = pillBlue;
@@ -25,17 +25,17 @@ ThemeData hopelyTheme() => ThemeData(
     error: const Color(0xFFD33131),
   ),
   scaffoldBackgroundColor: canvas,
-  fontFamily: 'DejaVuSans',
+  fontFamily: 'PlusJakartaSans',
   textTheme: const TextTheme(
     headlineMedium: TextStyle(
-      fontSize: 27,
+      fontSize: 24,
       height: 1.14,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.8,
       color: ink,
     ),
     titleLarge: TextStyle(
-      fontSize: 23,
+      fontSize: 22,
       height: 1.22,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.35,
@@ -54,23 +54,23 @@ ThemeData hopelyTheme() => ThemeData(
   appBarTheme: const AppBarTheme(
     backgroundColor: canvas,
     foregroundColor: ink,
-    centerTitle: true,
+    centerTitle: false,
     elevation: 0,
     scrolledUnderElevation: 0,
     titleTextStyle: TextStyle(
       color: ink,
-      fontSize: 24,
-      height: 1.08,
+      fontSize: 18,
+      height: 1.3,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.4,
-      fontFamily: 'DejaVuSans',
+      fontFamily: 'PlusJakartaSans',
     ),
   ),
   chipTheme: ChipThemeData(
     backgroundColor: lavender,
     selectedColor: hopelyBlue,
     labelStyle: const TextStyle(
-      fontFamily: 'DejaVuSans',
+      fontFamily: 'PlusJakartaSans',
       color: ink,
       fontWeight: FontWeight.w700,
     ),
@@ -79,14 +79,14 @@ ThemeData hopelyTheme() => ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: const Color(0xFFF4F6FF),
+    fillColor: Colors.white,
     border: OutlineInputBorder(
       borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(14),
     ),
     focusedBorder: OutlineInputBorder(
       borderSide: const BorderSide(color: hopelyBlue, width: 1.4),
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(14),
     ),
     contentPadding: const EdgeInsets.all(18),
   ),
@@ -97,9 +97,9 @@ ThemeData hopelyTheme() => ThemeData(
       minimumSize: const Size(48, 56),
       elevation: 2,
       shadowColor: hopelyBlue.withValues(alpha: 0.28),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       textStyle: const TextStyle(
-        fontFamily: 'DejaVuSans',
+        fontFamily: 'PlusJakartaSans',
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
@@ -109,7 +109,7 @@ ThemeData hopelyTheme() => ThemeData(
     style: TextButton.styleFrom(
       foregroundColor: hopelyBlue,
       textStyle: const TextStyle(
-        fontFamily: 'DejaVuSans',
+        fontFamily: 'PlusJakartaSans',
         fontWeight: FontWeight.w700,
       ),
     ),
@@ -121,7 +121,7 @@ ThemeData hopelyTheme() => ThemeData(
     shadowColor: Colors.black.withValues(alpha: 0.08),
     labelTextStyle: const WidgetStatePropertyAll(
       TextStyle(
-        fontFamily: 'DejaVuSans',
+        fontFamily: 'PlusJakartaSans',
         fontSize: 12,
         color: ink,
         fontWeight: FontWeight.w600,
