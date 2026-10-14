@@ -22,6 +22,11 @@ import '../../features/caregiver/caregiver_screen.dart';
 import '../../features/knowledge/knowledge_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/settings/profile_photo.dart';
+import '../../features/community/presentation/community_home.dart';
+import '../../features/community/presentation/community_detail.dart';
+import '../../features/community/presentation/community_compose.dart';
+import '../../features/community/presentation/community_post_detail.dart';
+import '../../features/community/presentation/community_safety.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final session = ref.read(sessionProvider);
@@ -56,6 +61,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       if (session.caregiver &&
           !path.startsWith('/caregiver') &&
+          !path.startsWith('/community') &&
           !['/profile', '/privacy', '/notifications'].contains(path)) {
         return '/caregiver';
       }
@@ -91,6 +97,51 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: '/privacy', builder: (_, s) => const PrivacyScreen()),
+      GoRoute(
+        path: '/community',
+        builder: (_, s) => const CommunityHomeScreen(),
+      ),
+      GoRoute(
+        path: '/community/discover',
+        builder: (_, s) => const CommunityDiscoveryScreen(),
+      ),
+      GoRoute(
+        path: '/community/mine',
+        builder: (_, s) => const MyCommunitiesScreen(),
+      ),
+      GoRoute(
+        path: '/community/feed',
+        builder: (_, s) =>
+            CommunityFeedScreen(mine: s.uri.queryParameters['mine'] == '1'),
+      ),
+      GoRoute(
+        path: '/community/groups/:id',
+        builder: (_, s) => CommunityDetailScreen(id: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/community/compose',
+        builder: (_, s) => CommunityComposeScreen(
+          communityId: s.uri.queryParameters['community'],
+          postId: s.uri.queryParameters['post'],
+        ),
+      ),
+      GoRoute(
+        path: '/community/posts/:id',
+        builder: (_, s) =>
+            CommunityPostDetailScreen(id: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/community/safety',
+        builder: (_, s) => const CommunitySafetyScreen(),
+      ),
+      GoRoute(
+        path: '/community/preferences',
+        builder: (_, s) => const CommunityPreferencesScreen(),
+      ),
+      GoRoute(
+        path: '/community/moderation',
+        builder: (_, s) => const CommunityModerationScreen(),
+      ),
       GoRoute(
         path: '/checkin/saved',
         builder: (_, s) => const CheckinSavedScreen(),

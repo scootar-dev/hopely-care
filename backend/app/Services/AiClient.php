@@ -3,11 +3,11 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 class AiClient
 {
-    public function post(string $path, array $payload): array
+    public function post(string $path, array $payload, int $timeout = 45): array
     {
         abort_unless(config("services.ai.key"), 503);
         try {
-            $r = Http::timeout(45)
+            $r = Http::timeout($timeout)
                 ->connectTimeout(5)
                 ->withHeaders(["X-Internal-Service-Key" => config("services.ai.key")])
                 ->post(rtrim(config("services.ai.url"), "/") . $path, $payload);

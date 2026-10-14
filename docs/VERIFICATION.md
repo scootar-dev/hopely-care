@@ -1,4 +1,34 @@
-# Verification record — 9 October 2026 (UTC)
+# Verification record — 14 October 2026 (Asia/Jakarta)
+
+## Support Circle — latest application verification
+
+[Actions run 38498665800](https://github.com/scootar-dev/hopely-care/actions/runs/38498665800) completed successfully for application/test commit `da3cb0493eb11b8a80b45bc991ad78aaf6e01d4c` on `feature/support-circle`. All five jobs passed. [PR #2](https://github.com/scootar-dev/hopely-care/pull/2) includes the earlier Stitch V2, login, invitation and photo fixes as well as the new community feature; main has not been changed.
+
+| Check | Result | Executed scope |
+|---|---|---|
+| Laravel + MySQL 8.4 | **31 tests, 202 assertions passed** | Existing privacy/photo/invitation tests and 12 community tests |
+| Laravel + SQLite | **31 tests, 202 assertions passed** | Same API/migration/authorization suite |
+| FastAPI pytest | **50 passed** | Existing 37 tests plus 13 community moderation/recommendation cases |
+| Ruff | **Passed** | AI application and tests |
+| Flutter analyze | **No issues found** | Native Flutter stable 3.47.7; no automatic source fixes in this final application run |
+| Flutter widget tests | **37 passed** | Existing 23 tests and 14 community interaction/state/layout tests |
+| Android debug APK | **Built successfully** | Existing runner and dependencies, emulator API endpoint |
+| Docker HTTP smoke | **Passed** | Actual Laravel → MySQL → FastAPI endpoints, synthetic accounts only |
+| Visual review | **Four community viewport captures inspected** | Home, detail, compose, safety at 390×844; all ten community routes render without exceptions |
+
+Artifacts: [route renders](https://github.com/scootar-dev/hopely-care/actions/runs/38498665800/artifacts/11865366063) and [debug APK](https://github.com/scootar-dev/hopely-care/actions/runs/38498665800/artifacts/11865216273). The APK targets `http://10.0.2.2:8000/api` for Android Emulator. On a physical HP over USB, build locally with `API_BASE_URL=http://127.0.0.1:8000/api` and `adb reverse tcp:8000 tcp:8000`; use [SUPPORT_CIRCLE.md](SUPPORT_CIRCLE.md).
+
+The community tests execute anonymous/non-member denial, chosen public alias and explicit sharing, ownership, stale revisions, fail-closed publication when AI is mock/unavailable/uncertain, moderator scope and independent review, report history, two-way blocking, reaction uniqueness, generic notification/deduplication/opt-out, private encrypted images, account cleanup, metadata consent and catalogue-ID validation. Catalogue seeding is tested without creating demo users.
+
+The HTTP smoke uses real network/database calls: register/login/token revocation, core consent and mock chat persistence, community join, pending story with an actual FastAPI `manual_review` result, scoped human approval, comment approval, support reaction, generic notification, report resolution/history, notification opt-out, two-way block, and deletion/leave. Both temporary accounts and their owned records are removed. It runs only in a disposable local/testing Compose stack.
+
+A newly created comment originally returned a null revision because its database default had not been refreshed in memory. The networked approval flow reproduced HTTP 409. The response now reloads the persisted comment, and a regression test checks revision 1, denial when the parent is pending, successful approval, revision 2 and the resulting comment notification. The Flutter comment test also scrolls to its composer before typing, matching the actual scrollable screen.
+
+Native Dart fixes were reviewed and committed before this run. Four captures from the preceding `10175da` run were visually inspected; Flutter application/test files are identical at `da3cb04`. The final captures were regenerated successfully. The following documentation/workflow housekeeping removes the temporary base64 image logging; it does not change application or test code. Normal screenshot artifact upload remains enabled.
+
+Limits: widget tests use fixtures confined to `mobile/test`; they are not physical-phone network tests. No live LLM inference, moderation-quality calibration, real FCM delivery, Android/iOS gallery/activity recovery, approved RAG-corpus evaluation, or signed production release is claimed verified. Recommendations deliberately use explicit-interest metadata matching, not embeddings or an LLM. Image moderation requires a human. Public deployment requires actual moderators; no diagnosis verification or clinical certification is claimed. Retention of soft-deleted/removed content is documented in SUPPORT_CIRCLE.md.
+
+## Earlier verification history — 9 October 2026 (UTC)
 
 This update supersedes the initial ZIP's verification record. Work continued from the actual GitHub repository at main commit `4c3a5d5fd6898bd4c93c34785e75a649ca7bd99c`, including its Flutter runners, Laravel 12 lockfile and existing FastAPI implementation.
 

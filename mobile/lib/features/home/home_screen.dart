@@ -290,6 +290,38 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SectionHeading('Ruang Dukungan', icon: Icons.spa_outlined),
+            CareCard(
+              color: const Color(0xFFDBEAFE),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.diversity_1_outlined,
+                        color: Color(0xFF1E40AF),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Support Circle',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Temukan orang-orang yang memahami perjalananmu.'),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: () => context.push('/community'),
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Lihat Komunitas'),
+                  ),
+                ],
+              ),
+            ),
             const HomeRecommendation(),
             const CareCard(
               child: Column(

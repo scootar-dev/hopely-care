@@ -14,7 +14,7 @@ class AuthController extends Controller
             "name" => "required|string|max:100",
             "email" => "required|email|max:254|unique:users",
             "password" => ["required", "confirmed", Password::min(12)],
-            "role" => ["required", Rule::in(["PATIENT", "CAREGIVER"])],
+            "role" => ["required", Rule::in(["PATIENT", "CAREGIVER"])]
         ]);
         $u = DB::transaction(function () use ($v) {
             $u = new User();
@@ -22,14 +22,14 @@ class AuthController extends Controller
                 "name" => $v["name"],
                 "email" => strtolower($v["email"]),
                 "password" => $v["password"],
-                "role" => $v["role"],
+                "role" => $v["role"]
             ])->save();
             if ($u->role === "PATIENT") {
                 $p = new PatientProfile();
                 $p->forceFill([
                     "user_id" => $u->id,
                     "display_name" => $u->name,
-                    "timezone" => "Asia/Jakarta",
+                    "timezone" => "Asia/Jakarta"
                 ])->save();
             }
             return $u;
@@ -47,7 +47,7 @@ class AuthController extends Controller
     {
         return $this->ok([
             "user" => $r->user(),
-            "profile" => PatientProfile::where("user_id", $r->user()->id)->first(),
+            "profile" => PatientProfile::where("user_id", $r->user()->id)->first()
         ]);
     }
     public function profile(Request $r)
@@ -58,7 +58,7 @@ class AuthController extends Controller
             "cancer_context" => "nullable|string|max:1000",
             "treatment_phase" => "nullable|string|max:100",
             "timezone" => "required|timezone",
-            "onboarding_completed" => "sometimes|boolean",
+            "onboarding_completed" => "sometimes|boolean"
         ]);
         $p = PatientProfile::where("user_id", $r->user()->id)->firstOrFail();
         $p->fill($v)->save();
@@ -75,6 +75,7 @@ class AuthController extends Controller
         abort_unless(Hash::check($v["password"], $r->user()->password), 403);
         DB::transaction(function () use ($r, $photos) {
             $photos->delete($r->user());
+            app(\App\Services\CommunityMediaService::class)->deleteForUser($r->user());
             $r->user()->tokens()->delete();
             $r->user()->delete();
         });

@@ -6,7 +6,7 @@ Success HTTP 200 (create record/register/invite: 201):
 ```json
 {"success":true,"message":"OK","data":{}}
 ```
-Collections of core records return `data.items`, `data.page`, `data.last_page`, and `data.total` (the authenticated owner's total record count), 30 items/page. Pass `?page=2` to paginate. `total` is an additive field used for accurate profile and journal counts. Other list endpoints return arrays in `data`. Delete/logout return `data:null`.
+Collections of core records return `data.items`, `data.page`, `data.last_page`, and `data.total` (the authenticated owner's total record count), 30 items/page. Pass `?page=2` to paginate. `total` is an additive field used for accurate profile and journal counts. Community collections have pagination described below; other list endpoints return arrays in `data`. Delete/logout return `data:null`.
 
 Errors: 401 unauthenticated, 403 role/ownership/consent denial, 404 missing or unlinked resource, 409 concurrent change/invitation conflict, 422 field validation, 429 throttled, 503 AI unavailable, 500 generic internal failure. Error bodies contain no input echo or trace.
 ```json
@@ -102,3 +102,7 @@ Knowledge metadata: source_id, title, publisher, document_version, reviewed_by, 
 
 ## Internal FastAPI boundary
 `/health` is public within the private service network. POST `/v1/ai/companion`, `/emotion/analyze` under `/v1/ai`, `/trend/analyze`, `/recommendations`, `/doctor-summary`, `/caregiver-coach`; plus `/v1/rag/query` and `/v1/knowledge/ingest`. All POSTs require constant-time internal key authentication and strict Pydantic schemas (`extra=forbid`). See full paths in AI_OPENAPI.json. Errors: `{success:false,error:{code,fields?}}`; body/PHI is never included.
+
+## Support Circle
+
+See [COMMUNITY_API.md](COMMUNITY_API.md) for the authenticated community endpoints, ownership/membership rules, moderation states, private media and internal FastAPI contracts. [SUPPORT_CIRCLE.md](SUPPORT_CIRCLE.md) documents migration and operator setup.
