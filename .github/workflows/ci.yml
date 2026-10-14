@@ -61,18 +61,6 @@ jobs:
         working-directory: mobile
       - run: flutter test
         working-directory: mobile
-      - name: Capture community visual review
-        if: always()
-        run: |
-          python - <<'PY'
-          import base64
-          from pathlib import Path
-          for name in ['home', 'detail', 'compose', 'safety']:
-              file = Path('test-output') / f'community-{name}.png'
-              if file.exists():
-                  print('HOPELY_PREVIEW:' + file.name + ':' + base64.b64encode(file.read_bytes()).decode())
-          PY
-        working-directory: mobile
       - run: flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
         working-directory: mobile
       - uses: actions/upload-artifact@v4

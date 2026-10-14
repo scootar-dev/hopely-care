@@ -32,7 +32,7 @@ Base `/api`, authenticated Sanctum token, existing `{success,message,data}` enve
 
 Community, membership and story pages use 20/page and `{items,page,last_page,total}`. Report/queue pages use `{items,page,last_page}`. Community IDs, counts and aliases are real database data; private profile fields, account names/emails and image paths are omitted.
 
-Story authors may remove their own submissions after leaving or membership restriction. Only approved stories are public to other signed-in users; pending/flagged/removed submissions are visible to their author and to authorized review paths. Blocks filter story authors, comments, reaction counts and subsequent interaction notifications. Medical data never enters these payloads automatically.
+Story authors may remove their own submissions after leaving or membership restriction. Only approved stories are public to other signed-in users; pending/flagged/removed submissions are visible to their author and to authorized review paths. Authors also receive `moderation_source` (model/rules/manual_review/unavailable/human/synthetic_seed) for their own stories; raw reviewer notes are not returned. Blocks filter story authors, comments, reaction counts and subsequent interaction notifications. Medical data never enters these payloads automatically.
 
 ## Internal FastAPI
 
