@@ -93,15 +93,27 @@ class WelcomeScreen extends StatelessWidget {
     body: SafeArea(
       child: PageBody(
         children: [
-          const Row(
+          const Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
-              HopelyMark(size: 32),
-              SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'HopelyCare',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  HopelyMark(size: 32),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'HopelyCare',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SoftLabel('Ruang Teduh', icon: Icons.circle),
             ],
@@ -189,11 +201,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       children: [
                         HopelyMark(size: 28),
                         SizedBox(width: 4),
-                        Text(
-                          'Hopely Care',
-                          style: TextStyle(
-                            color: hopelyBlue,
-                            fontWeight: FontWeight.w700,
+                        Flexible(
+                          child: Text(
+                            'Hopely Care',
+                            style: TextStyle(
+                              color: hopelyBlue,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],

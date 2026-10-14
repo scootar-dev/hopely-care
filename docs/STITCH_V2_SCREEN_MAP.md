@@ -45,13 +45,13 @@ All 57 PNGs and 12 HTML exports were inspected. Status records the baseline, not
 | `44._notifications/screen.png` | `settings/settings_screen.dart` | `/notifications` | perlu diperbaiki | me, profile, avatar, consents |
 | `45._profile_main/screen.png` | `settings/settings_screen.dart` | `/profile` | perlu diperbaiki | me, profile, avatar, consents |
 | `46._edit_profile/screen.png` | `settings/settings_screen.dart` | `/edit-profile` | perlu diperbaiki | me, profile, avatar, consents |
-| `47._treatment_profile/screen.png` | `settings/settings_screen.dart` | `/treatment-profile` | belum ada | treatments CRUD; detail route missing |
+| `47._treatment_profile/screen.png` | `settings/settings_screen.dart` | `/treatment-profile` | belum ada | GET me profile and PUT profile; treatment phase/context |
 | `48._privacy_ai_settings/screen.png` | `settings/settings_screen.dart` | `/privacy` | perlu diperbaiki | me, profile, avatar, consents |
 | `49._notification_settings/screen.png` | `settings/settings_screen.dart` | `/notification-settings` | belum ada | me, profile, avatar, consents |
 | `5. Login.png` | `auth/auth_screen.dart` | `/login` | perlu diperbaiki | auth/register, auth/login; password reset missing |
 | `50._data_account/screen.png` | `settings/settings_screen.dart` | `/data-account` | belum ada | me, profile, avatar, consents |
 | `6. Register.png` | `auth/auth_screen.dart` | `/register` | perlu diperbaiki | auth/register, auth/login; password reset missing |
-| `7. Forgot Password.png` | `auth/auth_screen.dart` | `/forgot-password` | belum ada | auth/register, auth/login; password reset missing |
+| `7. Forgot Password.png` | `auth/password_screen.dart` | `/forgot-password` | perlu diperbaiki | auth/forgot-password, auth/reset-password; real SMTP required |
 | `8. Privacy & Consent.png` | `settings/settings_screen.dart` | `/privacy` | perlu diperbaiki | me, profile, avatar, consents |
 | `9. Patient Home.png` | `home/home_screen.dart` | `/home` | perlu diperbaiki | checkins, treatments, activities |
 | `Beranda Mode Pendamping (Caregiver Dashboard).png` | `care_circle/care_circle_screen.dart` | `/caregiver` | perlu diperbaiki | caregivers invite/accept/permissions; scoped caregiver summary/coach |
@@ -77,3 +77,17 @@ All 57 PNGs and 12 HTML exports were inspected. Status records the baseline, not
 ## Verification
 
 Record checks after execution on changed code. Baseline green CI does not validate new work. Physical-device networking, live AI, email delivery and push need their configured services and separate evidence.
+
+## Implementation checkpoint — 14 October 2026
+
+Branch: `codex/stitch-v2-completion`; no changes to main.
+
+- Native welcome/onboarding/role/auth screens, bundled Plus Jakarta Sans and shared blue-white tokens are implemented. Decorative artwork uses supplied exports; controls and forms are native widgets.
+- Password recovery uses Laravel's expiring, single-use reset broker, a CSRF-protected browser form and a real email transport. Reset revokes existing API tokens. SMTP failure is not reported as successful delivery. Clean-checkout view/session directories are tracked.
+- Patient home now follows check-in → upcoming schedule → AI → recommended activity → Support Circle. Real user/treatment/activity data is retained. Journal, tools, insight and caregiver invitations remain accessible. Recommended activity opens its actual detail and completion API.
+- Check-in and symptom scales use native numeric 1–5 controls, wrapping touch targets and endpoint labels. Check-in initial-load failure blocks saving and offers retry. AI consent and real saved-result navigation are preserved.
+- Guest forms have wrapping role/password controls; regression tests cover narrow screens and enlarged text. This is not a claim of pixel-perfect visual completion.
+
+The table remains a baseline/gap map. History, treatment details, reflections, insight details, profile/settings modules and remaining visual alignment still require implementation. Voice and curated article detail remain conditional on real integrations/content. Do not treat this checkpoint as completion of all 51 modules.
+
+Verification must be read against the exact commit/run. GitHub run 38586353161 verified Laravel on both MySQL and SQLite (35 tests, 222 assertions each), AI (50 tests) and stack smoke. Its Flutter analyzer passed; its recovery widget test failed and was subsequently corrected. Later commits add navigation, load-retry and accessibility checks; use their CI results before merging. Live email delivery, paid AI providers, physical-device USB networking and production push have not been verified in this environment.
