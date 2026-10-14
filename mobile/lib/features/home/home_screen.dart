@@ -6,6 +6,7 @@ import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import '../activities/activities_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -39,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
             session.profile?['display_name'] ?? session.user?['name'] ?? '';
         return PageBody(
           children: [
-            Heading('Halo, $name', 'Bagaimana keadaanmu hari ini?'),
+            Heading('Halo, $name', 'Senang bertemu denganmu hari ini.'),
             if (session.profile?['treatment_phase']?.toString().isNotEmpty ==
                 true)
               Padding(
@@ -49,111 +50,47 @@ class HomeScreen extends ConsumerWidget {
                   icon: Icons.eco_outlined,
                 ),
               ),
-            BlueCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      const SoftLabel('Check-in Harian', inverse: true),
-                      SoftLabel(
-                        today == null
-                            ? 'Belum diisi hari ini'
-                            : 'Tersimpan hari ini',
-                        inverse: true,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Refleksi Tubuh & Pikiran',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    today == null
-                        ? 'Luangkan waktu untuk mencatat perasaan dan fisikmu dengan lembut.'
-                        : 'Terima kasih sudah mendengarkan dirimu. Suasana hati ${today['mood_score']}/5 • Energi ${today['energy_score']}/5.',
-                  ),
-                  const SizedBox(height: 22),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: hopelyBlue,
-                      ),
-                      onPressed: () async {
-                        await context.push('/checkin');
-                        reload();
-                      },
-                      icon: const Icon(Icons.favorite_outline),
-                      label: Text(
-                        today == null
-                            ? 'Mulai Check-In Sekarang'
-                            : 'Perbarui Check-In',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             CareCard(
               color: skySoft,
+              padding: 24,
+              radius: 28,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      HopelyMark(),
-                      SizedBox(width: 12),
+                      Icon(Icons.favorite_outline, color: hopelyBlue, size: 32),
+                      SizedBox(width: 16),
                       Expanded(
                         child: Text(
-                          'Hopely AI siap mendengarkan',
+                          'Bagaimana keadaanmu hari ini?',
                           style: TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            fontSize: 17,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Butuh teman bercerita? Mulai dari apa yang terasa sekarang.',
+                  const SizedBox(height: 12),
+                  Text(
+                    today == null
+                        ? 'Luangkan 1 menit untuk mencatat kondisi fisik dan emosimu.'
+                        : 'Catatan hari ini tersimpan. Kamu dapat memperbaruinya kapan saja.',
                   ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ActionChip(
-                        label: const Text('Aku merasa cemas'),
-                        onPressed: () => context.go('/chat?prompt=anxiety'),
-                      ),
-                      ActionChip(
-                        label: const Text('Cerita hari ini'),
-                        onPressed: () => context.go('/chat?prompt=story'),
-                      ),
-                      ActionChip(
-                        label: const Text('Latihan relaksasi'),
-                        onPressed: () => context.push('/activities'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
-                    child: TextButton.icon(
-                      style: TextButton.styleFrom(
-                        backgroundColor: pillBlue,
-                        padding: const EdgeInsets.all(14),
+                    child: FilledButton.icon(
+                      onPressed: () async {
+                        await context.push('/checkin');
+                        reload();
+                      },
+                      icon: const Icon(Icons.auto_awesome_outlined),
+                      label: Text(
+                        today == null ? 'Check-in' : 'Perbarui Check-In',
                       ),
-                      onPressed: () => context.go('/chat'),
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      label: const Text('Mulai Obrolan dengan AI'),
                     ),
                   ),
                 ],
@@ -224,74 +161,49 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-            SectionHeading(
-              'Tren Suasana Hati',
-              action: 'Lihat analisis',
-              onTap: () => context.go('/insights'),
-            ),
             CareCard(
+              color: skySoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Lima hari terakhir • laporan mandiri',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: List.generate(5, (i) {
-                      final day = DateTime.now().subtract(
-                        Duration(days: 4 - i),
-                      );
-                      final row = checkins
-                          .where((c) => c['checkin_date'] == dateOnly(day))
-                          .firstOrNull;
-                      final score = row?['mood_score'] as int?;
-                      const faces = [
-                        Icons.sentiment_very_dissatisfied,
-                        Icons.sentiment_dissatisfied,
-                        Icons.sentiment_neutral,
-                        Icons.sentiment_satisfied,
-                        Icons.sentiment_very_satisfied,
-                      ];
-                      return Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: skySoft,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                '${day.day}/${day.month}',
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                              const SizedBox(height: 12),
-                              Icon(
-                                score == null
-                                    ? Icons.edit_outlined
-                                    : faces[(score - 1).clamp(0, 4)],
-                                color: hopelyBlue,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                score == null ? '—' : '$score / 5',
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                            ],
+                  const Row(
+                    children: [
+                      HopelyMark(),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Mau cerita?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
                           ),
                         ),
-                      );
-                    }),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Hopely ada di sini untuk mendengarkan tanpa menghakimi.',
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.all(14),
+                      ),
+                      onPressed: () => context.go('/chat'),
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      label: const Text('Mulai ngobrol'),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SectionHeading('Ruang Dukungan', icon: Icons.spa_outlined),
+            const HomeRecommendation(),
             CareCard(
-              color: const Color(0xFFDBEAFE),
+              color: skySoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -302,11 +214,13 @@ class HomeScreen extends ConsumerWidget {
                         color: Color(0xFF1E40AF),
                       ),
                       SizedBox(width: 10),
-                      Text(
-                        'Support Circle',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 17,
+                      Expanded(
+                        child: Text(
+                          'Support Circle',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                          ),
                         ),
                       ),
                     ],
@@ -317,15 +231,19 @@ class HomeScreen extends ConsumerWidget {
                   TextButton.icon(
                     onPressed: () => context.push('/community'),
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Lihat Komunitas'),
+                    label: const Text('Masuk Komunitas'),
                   ),
                 ],
               ),
             ),
-            const HomeRecommendation(),
             const CareCard(
               child: Column(
                 children: [
+                  ActionLink(
+                    'Lihat insight',
+                    '/insights',
+                    icon: Icons.insights_outlined,
+                  ),
                   ActionLink(
                     'Tulis jurnal pribadi',
                     '/journal',
@@ -345,7 +263,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const PrivacyNote(
-              'Hopely Care mendampingi wellbeing dan membantu pencatatan. Untuk keluhan medis, hubungi tim perawatanmu.',
+              'Pelan-pelan saja, setiap langkahmu sangat berharga.',
             ),
           ],
         );
@@ -403,10 +321,15 @@ class _HomeRecommendationState extends ConsumerState<HomeRecommendation> {
             Text(
               '${row['activity']['duration_minutes']} menit • ${row['reason']}',
             ),
-            const ActionLink(
-              'Mulai aktivitas',
-              '/activities',
-              icon: Icons.play_circle_outline,
+            TextButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => ActivityDetail(recommendation: row),
+                ),
+              ),
+              icon: const Icon(Icons.play_circle_outline),
+              label: const Text('Mulai aktivitas'),
             ),
           ],
         ),

@@ -11,15 +11,41 @@ import 'package:hopely_care/main.dart';
 
 import 'stitch_v2_test.dart' show FixtureApi, fixtureSession;
 
+class RecommendedActivityApi extends FixtureApi {
+  RecommendedActivityApi(super.session);
+  @override
+  Future<dynamic> get(String path) async {
+    if (path == '/activities/recommended') {
+      return [
+        {
+          'id': 'recommendation-42',
+          'reason': 'Pilihan pengujian',
+          'activity': {
+            'title': 'Jeda nyaman',
+            'duration_minutes': 3,
+            'steps': ['Duduk dengan nyaman.'],
+          },
+        },
+      ];
+    }
+    return super.get(path);
+  }
+}
+
 Future<ProviderContainer> openApp(
   WidgetTester tester, {
   bool caregiver = false,
+  bool recommendedActivity = false,
 }) async {
   final session = fixtureSession(caregiver: caregiver);
   final container = ProviderContainer(
     overrides: [
       sessionProvider.overrideWith((ref) => session),
-      apiProvider.overrideWithValue(FixtureApi(session)),
+      apiProvider.overrideWithValue(
+        recommendedActivity
+            ? RecommendedActivityApi(session)
+            : FixtureApi(session),
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -56,6 +82,23 @@ void main() {
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
+
+  testWidgets(
+    'home opens the recommended activity and preserves its completion API',
+    (tester) async {
+      final container = await openApp(tester, recommendedActivity: true);
+      await tapLabel(tester, 'Mulai aktivitas');
+      final api = container.read(apiProvider) as FixtureApi;
+      expect(api.writes, isEmpty);
+      expect(find.text('Duduk dengan nyaman.'), findsOneWidget);
+      await tapLabel(tester, 'Tandai selesai');
+      expect(api.writes.single.$1, '/activities/recommendation-42/complete');
+      expect(find.text('Sudah dicatat selesai'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      // Opening an activity must not record completion before the user finishes it.
+      expect(find.byType(HomeRecommendation), findsNothing);
+    },
+  );
 
   for (final origin in ['home', 'profile']) {
     testWidgets('invite from $origin creates a private invitation code', (

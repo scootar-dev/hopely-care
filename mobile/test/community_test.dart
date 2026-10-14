@@ -266,7 +266,7 @@ void main() {
       tester.widget<NavigationBar>(find.byType(NavigationBar)).destinations,
       hasLength(5),
     );
-    await tapVisible(tester, find.text('Lihat Komunitas'));
+    await tapVisible(tester, find.text('Masuk Komunitas'));
     expect(find.byType(CommunityHomeScreen), findsOneWidget);
     expect(api.reads, contains('/community/home'));
     container.read(routerProvider).pop();
