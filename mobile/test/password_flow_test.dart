@@ -77,10 +77,8 @@ void main() {
       api.fails = false;
       await send();
       expect(find.text('Periksa kotak masuk dan spam'), findsOneWidget);
-      expect(api.writes.last, (
-        '/auth/forgot-password',
-        {'email': 'own-account@test.invalid'},
-      ));
+      expect(api.writes.last.$1, '/auth/forgot-password');
+      expect(api.writes.last.$2, {'email': 'own-account@test.invalid'});
       expect(tester.takeException(), isNull);
     },
   );
