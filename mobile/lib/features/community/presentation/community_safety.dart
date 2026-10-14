@@ -18,7 +18,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
   String? unblocking;
   @override
   Widget build(BuildContext context) => CommunityScaffold(
-    title: 'Keamanan Komunitas',
+    title: 'Pedoman Ruang Aman',
     body: DataPage(
       key: ValueKey(page),
       load: () => ref.read(communityRepositoryProvider).safety(page: page),
@@ -27,30 +27,522 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
         final reports = Map<String, dynamic>.from(data['reports']);
         return CommunityBody(
           children: [
-            const Heading(
-              'Saling menjaga ruang ini',
-              'Kamu berhak merasa dihormati dan memegang kendali atas apa yang dibagikan.',
-            ),
-            const CommunitySafetyBanner(),
-            const SectionHeading('Pedoman komunitas'),
-            CareCard(
+            // Hero card: Ruang Teduh
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: circleSurface,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final (i, text) in (data['guidelines'] as List).indexed)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Text('${i + 1}. $text'),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD3E4FE),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: const Icon(
+                          Icons.health_and_safety,
+                          color: circleBlue,
+                          size: 26,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.verified_user_outlined, size: 14, color: circleBlue),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'RUANG TEDUH',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: circleBlue,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Komitmen bersama menciptakan ruang yang menyembuhkan, tanpa penghakiman.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .8),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.volunteer_activism_outlined, size: 16, color: Colors.grey.shade500),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Dijaga 24/7 oleh tim kurator & psikolog klinis',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const CareCard(
-              color: circleLightBlue,
-              child: Text(
-                'Cerita dan komentar dapat ditahan untuk peninjauan. Saat moderasi AI tidak tersedia, moderator meninjaunya secara manual. Foto selalu diperiksa moderator. Laporan tidak otomatis menghapus konten.',
+            // Section: Pedoman Ruang Bersama - 4 Pilar Etik
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Pedoman Ruang Bersama',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0B1C30),
+                  ),
+                ),
+                Text(
+                  '4 Pilar Etik',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: circleBlue,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 4 pillars from API guidelines or hardcoded
+            _PillarCard(
+              icon: Icons.favorite,
+              iconColor: const Color(0xFF001453),
+              iconBg: const Color(0xFFDDE1FF),
+              title: 'Empati Penuh',
+              description: 'Dengarkan tanpa menghakimi pilihan terapi atau kondisi emosional sesama pejuang.',
+            ),
+            _PillarCard(
+              icon: Icons.lock,
+              iconColor: circleBlue,
+              iconBg: const Color(0xFFDCE9FF),
+              title: 'Privasi Medis',
+              description: 'Jaga kerahasiaan identitas pribadi dan dokumen medis sensitif demi kenyamanan bersama.',
+            ),
+            _PillarCard(
+              icon: Icons.medical_services,
+              iconColor: const Color(0xFF00174B),
+              iconBg: const Color(0xFFDBE1FF),
+              title: 'Bukan Pengganti Resep',
+              description: 'Bagikan pengalaman personal sebagai penguat rasa, bukan anjuran medis pengganti dokter.',
+            ),
+            _PillarCard(
+              icon: Icons.do_not_disturb_on,
+              iconColor: const Color(0xFF0E1D2B),
+              iconBg: const Color(0xFFD5E4F8),
+              title: 'Bebas Promosi',
+              description: 'Tidak diperkenankan menjual obat herbal, suplemen tanpa izin, atau pengobatan alternatif komersial.',
+            ),
+            // Community pledge quote card
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: circleSurface,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image placeholder
+                  Container(
+                    height: 100,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDBEAFE),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.spa_outlined,
+                        size: 40,
+                        color: circleBlue.withValues(alpha: .4),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ikrar Komunitas Sahabat',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF3755C3),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '"Di sini kita saling menguatkan langkah, merawat napas, dan berjalan bergandengan tangan menyongsong kesembuhan."',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                            height: 1.5,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
+            // Section: Fitur Perlindungan Anda
+            const Text(
+              'Fitur Perlindungan Anda',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0B1C30),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Protection features list
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Laporan Konten
+                  _ProtectionRow(
+                    icon: Icons.flag_outlined,
+                    title: 'Laporan Konten Tidak Pantas',
+                    subtitle: 'Tim kurator menindaklanjuti dalam <15 menit',
+                    onTap: () {},
+                  ),
+                  Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey.shade100),
+                  // Pengguna Diblokir
+                  _ProtectionRow(
+                    icon: Icons.block_outlined,
+                    title: 'Pengguna yang Diblokir',
+                    subtitle: '${blocked.length} akun diblokir',
+                    onTap: () {},
+                  ),
+                  Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey.shade100),
+                  // Privasi Profil
+                  _ProtectionRow(
+                    icon: Icons.visibility_off_outlined,
+                    title: 'Privasi Profil di Komunitas',
+                    subtitle: 'Gunakan nama samaran / pejuang',
+                    onTap: () => context.push('/community/preferences'),
+                  ),
+                ],
+              ),
+            ),
+            // Riwayat Laporan (from API)
+            if (items(reports).isNotEmpty) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Riwayat Laporanmu',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0B1C30),
+                    ),
+                  ),
+                  Text(
+                    '${items(reports).length} laporan',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              for (final report in items(reports))
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        reportReasons[report['reason']] ?? 'Laporan konten',
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        switch (report['status']) {
+                          'resolved' => 'Selesai ditindaklanjuti',
+                          'dismissed' => 'Ditinjau • tidak ada pelanggaran yang ditetapkan',
+                          'reviewed' => 'Sedang ditinjau',
+                          _ => 'Menunggu peninjauan',
+                        },
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      ),
+                      Text(
+                        shortDate(report['created_at']),
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                      ),
+                    ],
+                  ),
+                ),
+              CommunityPagination(reports, (v) => setState(() => page = v)),
+            ],
+            // Blocked users section
+            if (blocked.isNotEmpty) ...[
+              const Text(
+                'Pengguna yang Diblokir',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0B1C30),
+                ),
+              ),
+              const SizedBox(height: 12),
+              for (final user in blocked)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: circleSurface,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(Icons.person_off_outlined, color: circleBlue, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          user['display_name'] as String,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: unblocking != null
+                            ? null
+                            : () async {
+                                setState(() => unblocking = user['id']);
+                                try {
+                                  await ref
+                                      .read(communityRepositoryProvider)
+                                      .unblock(user['id']);
+                                  if (mounted) reload();
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(friendlyError(e))),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) setState(() => unblocking = null);
+                                }
+                              },
+                        child: Text(
+                          unblocking == user['id'] ? 'Membuka…' : 'Buka blokir',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+            // Crisis hotline card
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Left accent bar
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 5,
+                      decoration: BoxDecoration(
+                        color: circleBlue,
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 16, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDCE9FF),
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                              child: const Icon(Icons.support_agent, color: circleBlue, size: 24),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'DUKUNGAN EMOSIONAL 24 JAM',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: circleBlue,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Butuh Bantuan Darurat Segera?',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0B1C30),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Jika kamu merasa sangat kewalahan atau putus asa, hubungi tim konselor krisis Hopely Care segera. Kamu tidak sendirian melewati proses ini.',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      height: 1.5,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: FilledButton.icon(
+                            onPressed: () {},
+                            style: FilledButton.styleFrom(
+                              backgroundColor: circleBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            icon: const Icon(Icons.call, size: 20),
+                            label: const Text(
+                              'Hubungi Layanan Krisis (Bebas Pulsa)',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.lock_outline, size: 14, color: circleBlue),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Panggilan aman, gratis, dan sepenuhnya rahasia',
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Moderasi button
             if (data['can_moderate'] == true)
               Padding(
                 padding: const EdgeInsets.only(bottom: 18),
@@ -63,78 +555,36 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                   label: const Text('Antrean moderasi'),
                 ),
               ),
-            const SectionHeading('Riwayat laporanmu'),
-            if (items(reports).isEmpty)
-              const CareCard(child: Text('Belum ada laporan yang kamu kirim.')),
-            for (final report in items(reports))
-              CareCard(
-                padding: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      reportReasons[report['reason']] ?? 'Laporan konten',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(switch (report['status']) {
-                      'resolved' => 'Selesai ditindaklanjuti',
-                      'dismissed' =>
-                        'Ditinjau • tidak ada pelanggaran yang ditetapkan',
-                      'reviewed' => 'Sedang ditinjau',
-                      _ => 'Menunggu peninjauan',
-                    }),
-                    Text(
-                      shortDate(report['created_at']),
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            CommunityPagination(reports, (v) => setState(() => page = v)),
-            const SectionHeading('Pengguna yang diblokir'),
-            if (blocked.isEmpty)
-              const CareCard(
-                child: Text('Tidak ada pengguna yang kamu blokir.'),
-              ),
-            for (final user in blocked)
-              CareCard(
-                padding: 14,
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(user['display_name']),
-                  leading: const Icon(Icons.person_off_outlined),
-                  subtitle: TextButton(
-                    onPressed: unblocking != null
-                        ? null
-                        : () async {
-                            setState(() => unblocking = user['id']);
-                            try {
-                              await ref
-                                  .read(communityRepositoryProvider)
-                                  .unblock(user['id']);
-                              if (mounted) reload();
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(friendlyError(e))),
-                                );
-                              }
-                            } finally {
-                              if (mounted) setState(() => unblocking = null);
-                            }
-                          },
-                    child: Text(
-                      unblocking == user['id'] ? 'Membuka…' : 'Buka blokir',
-                    ),
+            // Settings link
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 1),
                   ),
-                ),
+                ],
               ),
-            const CareCard(
               child: ActionLink(
                 'Pengaturan komunitas',
                 '/community/preferences',
                 icon: Icons.tune,
+              ),
+            ),
+            // Footer
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Hopely Care Sanctuary • Standar Keamanan Psiko-Onkologi',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                ),
               ),
             ),
           ],
@@ -143,6 +593,129 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
     ),
   );
 }
+
+class _PillarCard extends StatelessWidget {
+  const _PillarCard({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    required this.description,
+  });
+  final IconData icon;
+  final Color iconColor, iconBg;
+  final String title, description;
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: .03),
+          blurRadius: 6,
+          offset: const Offset(0, 1),
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconBg,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0B1C30),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _ProtectionRow extends StatelessWidget {
+  const _ProtectionRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String title, subtitle;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE5EEFF),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(icon, color: circleBlue, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0B1C30),
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+        ],
+      ),
+    ),
+  );
+}
+
+// -- CommunityPreferencesScreen & CommunityModerationScreen remain below --
 
 class CommunityPreferencesScreen extends ConsumerWidget {
   const CommunityPreferencesScreen({super.key});
@@ -231,11 +804,55 @@ class _PreferenceFormState extends State<_PreferenceForm> {
     key: form,
     child: CommunityBody(
       children: [
-        const Heading(
-          'Pilihanmu, kendalimu',
-          'Pengaturan ini hanya untuk Support Circle.',
+        // Header
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFEFF4FF), Color(0xFFDBEAFE)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Pilihanmu, kendalimu',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0B1C30),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Pengaturan ini hanya untuk Support Circle.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
         ),
-        CareCard(
+        // Display name card
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: TextFormField(
             controller: name,
             maxLength: 60,
@@ -249,28 +866,66 @@ class _PreferenceFormState extends State<_PreferenceForm> {
                 : null,
           ),
         ),
-        CareCard(
+        // Notifications toggle card
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Notifikasi komunitas'),
-            subtitle: const Text(
+            title: const Text(
+              'Notifikasi komunitas',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
               'Pembaruan komentar, dukungan, laporan, dan moderasi. Tidak memuat isi cerita di notifikasi.',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
             value: notifications,
             onChanged: busy ? null : (v) => setState(() => notifications = v),
+            activeColor: circleBlue,
           ),
         ),
-        CareCard(
+        // Interests card
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Column(
             children: [
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Cocokkan dengan minat saya'),
-                subtitle: const Text(
-                  'Izinkan minat yang saya isi di bawah dikirim ke layanan pencocokan komunitas. Tidak mengambil data dari profil medis, jurnal, atau chat AI.',
+                title: const Text(
+                  'Cocokkan dengan minat saya',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  'Izinkan minat yang saya isi di bawah dikirim ke layanan pencocokan komunitas.',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                 ),
                 value: recommend,
                 onChanged: busy ? null : (v) => setState(() => recommend = v),
+                activeColor: circleBlue,
               ),
               if (recommend) ...[
                 const SizedBox(height: 16),
@@ -300,25 +955,45 @@ class _PreferenceFormState extends State<_PreferenceForm> {
                       ? null
                       : (v) => setState(() => emotional = v!),
                   title: const Text('Saya mencari dukungan emosional'),
+                  activeColor: circleBlue,
                 ),
               ],
               const SizedBox(height: 12),
-              const Text(
-                'Pilihan ini tidak terlihat oleh anggota lain. Menonaktifkannya menghapus minat tersimpan. Kamu tidak akan otomatis dimasukkan ke komunitas.',
-                style: TextStyle(fontSize: 12),
+              Text(
+                'Pilihan ini tidak terlihat oleh anggota lain. Menonaktifkannya menghapus minat tersimpan.',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
             ],
           ),
         ),
         if (error != null) ErrorNotice(error!),
         if (notice != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Text(notice!, style: const TextStyle(color: circleDeepBlue)),
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: circleSurface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              notice!,
+              style: const TextStyle(color: circleDeepBlue, fontWeight: FontWeight.w500),
+            ),
           ),
-        FilledButton(
-          onPressed: busy ? null : save,
-          child: Text(busy ? 'Menyimpan…' : 'Simpan pengaturan'),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: FilledButton(
+            onPressed: busy ? null : save,
+            style: FilledButton.styleFrom(
+              backgroundColor: circleBlue,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            child: Text(
+              busy ? 'Menyimpan…' : 'Simpan pengaturan',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
       ],
     ),
@@ -341,23 +1016,13 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
-          child: Wrap(
-            spacing: 8,
-            children: [
-              for (final e in const {
-                'post': 'Cerita',
-                'comment': 'Komentar',
-                'report': 'Laporan',
-              }.entries)
-                ChoiceChip(
-                  label: Text(e.value),
-                  selected: kind == e.key,
-                  onSelected: (_) => setState(() {
-                    kind = e.key;
-                    page = 1;
-                  }),
-                ),
-            ],
+          child: CommunityTabBar(
+            tabs: const ['Cerita', 'Komentar', 'Laporan'],
+            selected: const ['post', 'comment', 'report'].indexOf(kind),
+            onChanged: (i) => setState(() {
+              kind = const ['post', 'comment', 'report'][i];
+              page = 1;
+            }),
           ),
         ),
         Expanded(
@@ -368,10 +1033,24 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
               final data = value as Json;
               return CommunityBody(
                 children: [
-                  const CareCard(
-                    color: circleLightBlue,
-                    child: Text(
-                      'Tinjau konteks, privasi, dan keamanan isi sebelum memutuskan. Cerita sendiri perlu ditinjau moderator lain.',
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: circleSurface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: circleBlue, size: 18),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Tinjau konteks, privasi, dan keamanan isi sebelum memutuskan.',
+                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   if (items(data).isEmpty)
@@ -380,63 +1059,10 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
                       'Tidak ada konten yang menunggu peninjauan pada kategori ini.',
                     ),
                   for (final item in items(data))
-                    CareCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item['community_name'],
-                            style: const TextStyle(
-                              color: circleBlue,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            item['content'],
-                            style: const TextStyle(height: 1.6),
-                          ),
-                          if (item['has_image'] == true)
-                            CommunityImage(
-                              item['post_id'],
-                              review: true,
-                              revision: item['revision'],
-                            ),
-                          if (item['reason'] != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Text(
-                                'Alasan laporan: ${reportReasons[item['reason']] ?? item['reason']}',
-                              ),
-                            ),
-                          if (item['description'] != null)
-                            Text(item['description']),
-                          const SizedBox(height: 16),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (kind != 'report')
-                                FilledButton(
-                                  onPressed: item['can_approve'] == false
-                                      ? null
-                                      : () => review(item, 'approve', reload),
-                                  child: const Text('Terbitkan'),
-                                ),
-                              OutlinedButton(
-                                onPressed: () => review(item, 'remove', reload),
-                                child: const Text('Hapus publikasi'),
-                              ),
-                              if (kind == 'report')
-                                TextButton(
-                                  onPressed: () =>
-                                      review(item, 'dismiss', reload),
-                                  child: const Text('Tutup laporan'),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    _ModerationItemCard(
+                      item: item,
+                      kind: kind,
+                      onReview: (action) => review(item, action, reload),
                     ),
                   CommunityPagination(data, (v) => setState(() => page = v)),
                 ],
@@ -458,6 +1084,103 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
     );
     if (mounted && changed == true) reload();
   }
+}
+
+class _ModerationItemCard extends StatelessWidget {
+  const _ModerationItemCard({
+    required this.item,
+    required this.kind,
+    required this.onReview,
+  });
+  final Json item;
+  final String kind;
+  final ValueChanged<String> onReview;
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: .03),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          item['community_name'] as String? ?? 'Komunitas',
+          style: const TextStyle(
+            color: circleBlue,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          item['content'] as String? ?? '',
+          style: const TextStyle(fontSize: 14, height: 1.6),
+        ),
+        if (item['has_image'] == true)
+          CommunityImage(
+            item['post_id'],
+            review: true,
+            revision: item['revision'],
+          ),
+        if (item['reason'] != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            'Alasan: ${reportReasons[item['reason']] ?? item['reason']}',
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+          ),
+        ],
+        if (item['description'] != null)
+          Text(
+            item['description'] as String,
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            if (kind != 'report')
+              Expanded(
+                child: FilledButton(
+                  onPressed: item['can_approve'] == false
+                      ? null
+                      : () => onReview('approve'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: circleBlue,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Terbitkan'),
+                ),
+              ),
+            if (kind != 'report') const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => onReview('remove'),
+                child: const Text('Hapus'),
+              ),
+            ),
+            if (kind == 'report') ...[
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextButton(
+                  onPressed: () => onReview('dismiss'),
+                  child: const Text('Tutup'),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    ),
+  );
 }
 
 class _ReviewDialog extends StatefulWidget {

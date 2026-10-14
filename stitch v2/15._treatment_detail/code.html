@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary": "#3755c3", "secondary-container": "#708cfd", "on-surface-variant": "#434655", "tertiary": "#485767", "tertiary-container": "#606f80", "on-primary": "#ffffff", "error-container": "#ffdad6", "tertiary-fixed": "#d5e4f8", "surface-variant": "#d3e4fe", "surface-container-low": "#eff4ff", "on-surface": "#0b1c30", "on-secondary": "#ffffff", "on-primary-container": "#eeefff", "surface-container-lowest": "#ffffff", "outline": "#737686", "tertiary-fixed-dim": "#b9c8db", "surface-container-high": "#dce9ff", "surface-container": "#e5eeff", "secondary-fixed": "#dde1ff", "on-tertiary-fixed": "#0e1d2b", "on-tertiary": "#ffffff", "error": "#ba1a1a", "background": "#f8f9ff", "primary": "#004ac6", "on-error-container": "#93000a", "primary-fixed-dim": "#b4c5ff", "on-tertiary-container": "#e9f2ff", "surface-container-highest": "#d3e4fe", "inverse-surface": "#213145", "outline-variant": "#c3c6d7", "primary-fixed": "#dbe1ff", "primary-container": "#2563eb", "on-secondary-fixed": "#001453", "on-error": "#ffffff", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#173bab", "surface-dim": "#cbdbf5", "on-background": "#0b1c30", "surface-tint": "#0053db", "secondary-fixed-dim": "#b8c4ff", "surface-bright": "#f8f9ff", "on-primary-fixed": "#00174b", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed-variant": "#3a4858", "on-secondary-container": "#00217a", "on-primary-fixed-variant": "#003ea8", "surface": "#f8f9ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2rem", "gutter-mobile": "0.75rem", "space-md": "1rem", "space-xs": "0.25rem", "margin-mobile": "1rem", "gutter": "1rem", "margin": "1.5rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-md-mobile": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"] }, "fontSize": { "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "headline-md-mobile": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0.01em", "fontWeight": "600" }], "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin-mobile flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Kembali" class="w-11 h-11 flex items-center justify-center text-on-surface hover:text-primary transition-colors -ml-space-xs" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-md-mobile text-headline-md-mobile text-on-surface font-semibold">Rincian Terapi</h1></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface px-margin-mobile"><div class="flex flex-col w-full pb-space-xl">
+<!-- Subtle Status Pill & Supportive Header Badge -->
+<div class="flex items-center justify-between mb-space-sm pt-space-xs">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      Jadwal Mendatang
+    </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+      Dikonfirmasi Medis
+    </span>
+</div>
+<!-- Treatment Title & Calming Subtitle -->
+<div class="mb-space-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-1">
+      Kemoterapi Siklus 4
+    </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+      Protokol Regimen AC • Ruang Terapi Infus Cendrawasih
+    </p>
+</div>
+<!-- Visual Delight & Preparation Card -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-low p-space-md mb-space-md shadow-sm">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[22px]">self_improvement</span>
+</div>
+<div class="min-w-0 flex-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold mb-0.5">Mari kita lewati pelan-pelan</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Tubuh Anda telah berjuang dengan luar biasa hingga siklus ini. Pastikan istirahat cukup malam sebelumnya.
+        </p>
+</div>
+</div>
+</div>
+<!-- Primary Schedule Bento Card -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm mb-space-md flex flex-col gap-space-md">
+<!-- Date & Time Row -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col">
+<div class="flex items-center gap-1.5 text-primary mb-1">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="font-label-sm text-label-sm font-medium">Tanggal</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Kamis, 18 Okt 2024</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">4 hari lagi</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col">
+<div class="flex items-center gap-1.5 text-primary mb-1">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-sm text-label-sm font-medium">Waktu</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-semibold">09.00 WIB</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estimasi ~3.5 Jam</span>
+</div>
+</div>
+<!-- Location Detailed -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center shrink-0 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[20px]">local_hospital</span>
+</div>
+<div class="min-w-0 flex-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">Lokasi Pelayanan</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Klinik Onkologi Terpadu</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">RS Kanker Dharmais • Gedung Utama Lt. 3</p>
+</div>
+</div>
+<!-- Map Preview Box -->
+<div class="w-full h-32 rounded-lg bg-surface-container bg-cover bg-center relative overflow-hidden shadow-sm" data-location="RS Kanker Dharmais Jakarta" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMptjXUMlgjAafsAlfgnTWRGkwirZJfp0hWQsO2mDCNVRTrIhNXDfdnNUSSCoPn0Jf4BakUN3xnKx5-wCxbSYjCmOfnr-6mVbSnZ6QrPBOwl_QqvlhR9Fe1SnzeEvJaDplFE3kwXyikXe_c8SvjZkl_3X-MRYSEEsbPjTaKZwISx6DfcJzFbzrQOzpxBh5loh-40k-t6ebHiwLWUC99TjW1NuqopSIo4ck1uZ6W2HjCF4vSJ2-C6zp')">
+<div class="absolute inset-0 bg-on-surface/20 backdrop-blur-[0.5px] flex items-end p-2.5">
+<div class="px-2.5 py-1 rounded bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">near_me</span>
+          Petunjuk Arah Rumah Sakit
+        </div>
+</div>
+</div>
+</div>
+<!-- Preparation Notes / Catatan Penting -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm mb-space-md">
+<div class="flex items-center gap-2 mb-space-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">assignment</span>
+<h3 class="font-headline-md-mobile text-headline-md-mobile text-on-surface">Instruksi &amp; Catatan Khusus</h3>
+</div>
+<div class="space-y-space-sm">
+<div class="flex items-start gap-3 p-space-sm rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">no_meals</span>
+<div class="min-w-0 flex-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Puasa Ringan</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Puasa 2 jam sebelum infus dimulai. Minum air putih hangat tetap diperbolehkan secukupnya.</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-space-sm rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">folder_shared</span>
+<div class="min-w-0 flex-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Dokumen Wajib Dibawa</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bawa berkas rujukan aktif, kartu identitas/BPJS, dan salinan hasil lab darah lengkap terbaru.</p>
+</div>
+</div>
+<!-- Mindful Checklist Interactive Item -->
+<div class="p-space-sm rounded-lg bg-surface-variant/40 flex items-center justify-between cursor-pointer select-none transition-colors" id="companion-check" onclick="toggleCheck()">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-primary">favorite</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Bawa jaket hangat &amp; camilan pendamping</span>
+</div>
+<div class="w-5 h-5 rounded-md bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm transition-all" id="check-icon">
+<span class="material-symbols-outlined text-[16px] hidden" id="check-mark">check</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Medical Team Brief -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm mb-space-xl flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-12 h-12 rounded-full object-cover bg-surface-container" data-alt="Warm and reassuring portrait of an experienced female oncologist wearing soft stethoscope, clean modern clinic background with calm lighting and gentle daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6o-rs26sw9z56txXmgmhPqPe3N0vGW0b6fDsOVFqy6WU6xWddiZ56NiPlXWmTCYA7IKsP126jsIlWGbrVhjhS7jjC_zsxtYgYHF3x2N9N2SkR7TLXmGyyrVqYXB8M59BQUqfeSmcw_ymW7txfW8ZfhWQ3w2WYYgnDfzTu0_TsgOaQPp9UZnRgm10cHO6KV98GFoWmAbW80f60GK8CaT3zZFuarGIg_PFeVUZPtpaweHa4wSfRM9oH"/>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Dokter Penanggung Jawab</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">dr. Siti Rahmawati, Sp.PD-KHOM</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Spesialis Konsultan Hematologi-Onkologi</p>
+</div>
+</div>
+<button aria-label="Hubungi Konsultasi" class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+</button>
+</div>
+<!-- Bottom Action Section (Clean whitespace & soothing hierarchy) -->
+<div class="flex flex-col gap-space-sm mt-auto">
+<!-- Secondary / Edit Button -->
+<button class="w-full h-[52px] rounded-xl bg-surface-container text-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 hover:bg-surface-container-high active:scale-[0.99] transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+      Ubah Jadwal Pengobatan
+    </button>
+<!-- Gentle Destructive / Subtle Action -->
+<button class="w-full h-11 rounded-lg text-error hover:bg-error-container/40 active:bg-error-container/60 font-label-md text-label-md font-medium flex items-center justify-center gap-1.5 transition-colors" onclick="confirmRemoval()" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_outline</span>
+      Hapus Jadwal Perawatan
+    </button>
+</div>
+</div>
+<script>
+  function toggleCheck() {
+    const mark = document.getElementById('check-mark');
+    const box = document.getElementById('check-icon');
+    if (mark.classList.contains('hidden')) {
+      mark.classList.remove('hidden');
+      box.classList.add('bg-primary', 'text-on-primary');
+      box.classList.remove('bg-surface-container-lowest', 'text-primary');
+    } else {
+      mark.classList.add('hidden');
+      box.classList.remove('bg-primary', 'text-on-primary');
+      box.classList.add('bg-surface-container-lowest', 'text-primary');
+    }
+  }
+
+  function confirmRemoval() {
+    if (window.confirm("Apakah Anda yakin ingin menghapus jadwal perawatan ini dari catatan Anda?")) {
+      window.history.back();
+    }
+  }
+</script></main></body></html>

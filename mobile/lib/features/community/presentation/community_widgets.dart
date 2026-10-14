@@ -12,7 +12,8 @@ import 'community_dialogs.dart';
 const circleBlue = Color(0xFF2563EB);
 const circleDeepBlue = Color(0xFF1E40AF);
 const circleLightBlue = Color(0xFFDBEAFE);
-const circleCanvas = Color(0xFFF8FAFF);
+const circleCanvas = Color(0xFFF8F9FF);
+const circleSurface = Color(0xFFEFF4FF);
 const communityCategories = {
   'cancer': 'Jenis kanker',
   'treatment': 'Fase treatment',
@@ -41,9 +42,14 @@ String moderationLabel(dynamic status) => switch (status) {
 };
 String shortDate(dynamic value) {
   final date = DateTime.tryParse(value?.toString() ?? '');
-  return date == null
-      ? ''
-      : DateFormat('dd/MM/yyyy • HH:mm').format(date.toLocal());
+  if (date == null) return '';
+  final now = DateTime.now();
+  final diff = now.difference(date.toLocal());
+  if (diff.inMinutes < 60) return '${diff.inMinutes} menit lalu';
+  if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+  if (diff.inDays == 1) return 'Kemarin';
+  if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+  return DateFormat('dd/MM/yyyy').format(date.toLocal());
 }
 
 class CommunityScaffold extends StatelessWidget {
@@ -53,11 +59,14 @@ class CommunityScaffold extends StatelessWidget {
     required this.body,
     this.actions,
     this.root = false,
+    this.floatingActionButton,
   });
   final String title;
   final Widget body;
   final List<Widget>? actions;
   final bool root;
+  final Widget? floatingActionButton;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -82,11 +91,84 @@ class CommunityScaffold extends StatelessWidget {
       ),
       child: Scaffold(
         appBar: AppBar(
-          leading: BackHomeButton(fallback: root ? '/home' : '/community'),
-          title: Text(title),
-          actions: actions,
+          backgroundColor: circleCanvas.withValues(alpha: .92),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0.5,
+          leading: root
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Center(
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: circleSurface,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Icon(
+                        Icons.diversity_1,
+                        color: circleBlue,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                )
+              : BackHomeButton(fallback: root ? '/home' : '/community'),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+            ),
+          ),
+          actions: [
+            ...?actions,
+            if (root) ...[
+              IconButton(
+                tooltip: 'Cari komunitas',
+                icon: const Icon(Icons.search, size: 22),
+                onPressed: () => context.push('/community/discover'),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: circleBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+              ),
+            ] else
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: circleBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+              ),
+          ],
         ),
         body: SafeArea(top: false, child: body),
+        floatingActionButton: floatingActionButton,
+        floatingActionButtonLocation: floatingActionButtonLocation,
       ),
     );
   }
@@ -100,7 +182,7 @@ class CommunityBody extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 620),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         physics: const AlwaysScrollableScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: children,
@@ -113,28 +195,47 @@ class CommunitySafetyBanner extends StatelessWidget {
   const CommunitySafetyBanner({super.key, this.sharing = false});
   final bool sharing;
   @override
-  Widget build(BuildContext context) => CareCard(
-    color: circleLightBlue.withValues(alpha: .45),
-    padding: 16,
-    radius: 18,
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(top: 8, bottom: 16),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: circleSurface,
+      borderRadius: BorderRadius.circular(16),
+    ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(
-          Icons.verified_user_outlined,
-          color: circleDeepBlue,
-          size: 22,
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .04),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.verified_user_outlined,
+            color: circleBlue,
+            size: 18,
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             sharing
-                ? 'Hindari membagikan informasi pribadi atau medis yang tidak ingin diketahui orang lain. Cerita dan foto yang kamu pilih dapat dibaca pengguna Hopely Care setelah ditinjau.'
-                : 'Informasi kesehatan di komunitas berasal dari pengalaman pengguna dan tidak menggantikan saran tenaga kesehatan.',
-            style: const TextStyle(
-              fontSize: 13,
+                ? 'Ruang ini dijaga bersama\nMohon hindari membagikan data rekam medis sensitif (NIK/Nomor Rekam Medis) atau promosi obat tanpa anjuran dokter.'
+                : 'Ruang aman tanpa penghakiman • Dimoderasi tenaga pendamping.',
+            style: TextStyle(
+              fontSize: 12,
               height: 1.5,
-              color: circleDeepBlue,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade700,
             ),
           ),
         ),
@@ -148,23 +249,51 @@ class CommunityEmptyState extends StatelessWidget {
   final String title, message;
   final Widget? action;
   @override
-  Widget build(BuildContext context) => CareCard(
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: .03),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
     child: Column(
       children: [
-        const CircleAvatar(
-          radius: 27,
-          backgroundColor: circleLightBlue,
-          child: Icon(Icons.forum_outlined, color: circleBlue),
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: circleSurface,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: const Icon(Icons.volunteer_activism, color: circleBlue, size: 28),
         ),
         const SizedBox(height: 16),
         Text(
           title,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0B1C30),
+          ),
         ),
         const SizedBox(height: 8),
-        Text(message, textAlign: TextAlign.center),
-        if (action != null) ...[const SizedBox(height: 12), action!],
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        if (action != null) ...[const SizedBox(height: 16), action!],
       ],
     ),
   );
@@ -177,98 +306,237 @@ class CommunityCard extends StatelessWidget {
     this.reason,
     this.onOpen,
     this.footer,
+    this.showJoinButton = true,
   });
   final Json community;
   final String? reason;
   final VoidCallback? onOpen;
   final Widget? footer;
+  final bool showJoinButton;
   @override
   Widget build(BuildContext context) {
     final status = community['membership_status'];
-    return CareCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: circleLightBlue,
-                child: Icon(
-                  community['category'] == 'emotional'
-                      ? Icons.favorite_outline
-                      : Icons.diversity_1_outlined,
-                  color: circleBlue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      community['name'] as String,
-                      style: Theme.of(context).textTheme.titleMedium,
+    final isJoined = status == 'active';
+    final memberCount = community['member_count'] ?? 0;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: onOpen ?? () => context.push('/community/groups/${community['id']}'),
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: thumbnail + name + member count
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: circleSurface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Icon(
+                      community['category'] == 'emotional'
+                          ? Icons.favorite_outline
+                          : Icons.diversity_1_outlined,
+                      color: circleBlue,
+                      size: 24,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      communityCategories[community['category']] ??
-                          'Ruang dukungan',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: circleDeepBlue,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        community['name'] as String,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0B1C30),
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.group_outlined, size: 15, color: Colors.grey.shade500),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$memberCount Teman Seperjalanan',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Description
+            Text(
+              community['description'] as String,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Bottom: avatar stack + Gabung button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Avatar stack
+                _AvatarStack(community: community),
+                // Join/View button
+                if (showJoinButton && status != 'banned')
+                  _CommunityActionButton(
+                    isJoined: isJoined,
+                    onOpen: onOpen ?? () => context.push('/community/groups/${community['id']}'),
+                  ),
+              ],
+            ),
+            if (reason != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  reason!,
+                  style: const TextStyle(fontSize: 12, color: circleDeepBlue),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(community['description'] as String),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: [
-              Text(
-                '${community['member_count'] ?? 0} anggota',
-                style: const TextStyle(fontSize: 12),
-              ),
-              if (status != null)
-                SoftLabel(switch (status) {
-                  'active' => 'Sudah bergabung',
-                  'pending' => 'Menunggu persetujuan',
-                  'banned' => 'Keanggotaan dibatasi',
-                  _ => 'Pernah bergabung',
-                }),
-            ],
-          ),
-          if (reason != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                reason!,
-                style: const TextStyle(fontSize: 12, color: circleDeepBlue),
+            if (footer != null) footer!,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarStack extends StatelessWidget {
+  const _AvatarStack({required this.community});
+  final Json community;
+  @override
+  Widget build(BuildContext context) {
+    final count = (community['member_count'] as int?) ?? 0;
+    final initials = _generateInitials(community['name'] as String? ?? '');
+    final colors = [
+      const Color(0xFFDCE9FF), // light blue
+      const Color(0xFFDDE1FF), // secondary fixed
+      const Color(0xFFE5EEFF), // surface container
+    ];
+    final textColors = [circleBlue, const Color(0xFF3755C3), Colors.grey.shade600];
+    return SizedBox(
+      height: 26,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (int i = 0; i < initials.length && i < 2; i++)
+            Transform.translate(
+              offset: Offset(i * -8.0, 0),
+              child: Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: colors[i % colors.length],
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    initials[i],
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: textColors[i % textColors.length],
+                    ),
+                  ),
+                ),
               ),
             ),
-          if (status != 'banned')
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed:
-                    onOpen ??
-                    () => context.push('/community/groups/${community['id']}'),
-                label: const Text('Lihat komunitas'),
-                icon: const Icon(Icons.arrow_forward, size: 18),
+          if (count > 2)
+            Transform.translate(
+              offset: Offset((initials.length.clamp(0, 2)) * -8.0, 0),
+              child: Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5EEFF),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    '+${(count - 2).clamp(0, 99)}',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ?footer,
         ],
       ),
     );
   }
+
+  List<String> _generateInitials(String name) {
+    final words = name.split(' ').where((w) => w.isNotEmpty).toList();
+    if (words.isEmpty) return ['?'];
+    if (words.length == 1) return [words[0][0].toUpperCase()];
+    return [
+      words[0][0].toUpperCase() + (words[0].length > 1 ? words[0][1].toUpperCase() : ''),
+      words[1][0].toUpperCase() + (words[1].length > 1 ? words[1][1].toUpperCase() : ''),
+    ];
+  }
+}
+
+class _CommunityActionButton extends StatelessWidget {
+  const _CommunityActionButton({required this.isJoined, required this.onOpen});
+  final bool isJoined;
+  final VoidCallback onOpen;
+  @override
+  Widget build(BuildContext context) => Material(
+    color: isJoined ? circleBlue : circleSurface,
+    borderRadius: BorderRadius.circular(20),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onOpen,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Text(
+          isJoined ? 'Tergabung' : 'Gabung',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isJoined ? Colors.white : circleBlue,
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class CommunityPagination extends StatelessWidget {
@@ -339,10 +607,10 @@ class _CommunityImageState extends ConsumerState<CommunityImage> {
           );
         }
         return ClipRRect(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           child: Image.memory(
             base64Decode(snapshot.data['base64'] as String),
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             width: double.infinity,
             semanticLabel: 'Foto yang dibagikan penulis',
             gaplessPlayback: false,
@@ -361,38 +629,106 @@ class CommunityReactionBar extends StatelessWidget {
     required this.selected,
     required this.count,
     required this.onReact,
+    this.commentCount = 0,
   });
   final String? selected;
   final int count;
+  final int commentCount;
   final ValueChanged<String>? onReact;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Row(
     children: [
-      Text(
-        '$count dukungan',
-        style: const TextStyle(fontSize: 12, color: circleDeepBlue),
+      // Dukung button
+      _ReactionButton(
+        icon: Icons.volunteer_activism_outlined,
+        label: 'Dukung',
+        count: count,
+        isSelected: selected != null,
+        onTap: onReact != null ? () => onReact!('support') : null,
       ),
-      const SizedBox(height: 6),
-      Wrap(
-        spacing: 6,
-        runSpacing: 4,
+      const SizedBox(width: 12),
+      // Komentar button
+      _ReactionButton(
+        icon: Icons.chat_bubble_outline,
+        label: 'Komentar',
+        count: commentCount,
+        isSelected: false,
+        onTap: null, // handled by parent navigation
+      ),
+      const Spacer(),
+      // Safety indicator
+      Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final e in supportReactions.entries)
-            FilterChip(
-              label: Text(e.value, style: const TextStyle(fontSize: 12)),
-              avatar: Icon(
-                e.key == 'thanks'
-                    ? Icons.volunteer_activism_outlined
-                    : Icons.favorite_outline,
-                size: 17,
-              ),
-              selected: selected == e.key,
-              onSelected: onReact == null ? null : (_) => onReact!(e.key),
+          Icon(Icons.verified_outlined, size: 16, color: Colors.grey.shade400),
+          const SizedBox(width: 4),
+          Text(
+            'Aman',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w500,
             ),
+          ),
         ],
       ),
     ],
+  );
+}
+
+class _ReactionButton extends StatelessWidget {
+  const _ReactionButton({
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.isSelected,
+    this.onTap,
+  });
+  final IconData icon;
+  final String label;
+  final int count;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(8),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: isSelected ? circleBlue : Colors.grey.shade500,
+          ),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? circleBlue : Colors.grey.shade600,
+                ),
+              ),
+              if (count > 0)
+                Text(
+                  '($count)',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isSelected ? circleBlue : Colors.grey.shade400,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -472,34 +808,76 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
   Widget build(BuildContext context) {
     final author = post['author'] as Map;
     final own = post['is_own'] == true;
-    return CareCard(
+    final authorName = author['display_name'] as String;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Author header
           Row(
             children: [
-              const CircleAvatar(
+              // Avatar
+              CircleAvatar(
+                radius: 20,
                 backgroundColor: circleLightBlue,
-                child: Icon(Icons.person_outline, color: circleBlue),
+                child: Text(
+                  authorName.isNotEmpty ? authorName[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    color: circleBlue,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      author['display_name'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            authorName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Author badge
+                        _AuthorBadge(post: post),
+                      ],
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       shortDate(post['created_at']),
-                      style: const TextStyle(fontSize: 11),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
               ),
               PopupMenuButton<String>(
                 tooltip: 'Pilihan cerita',
+                icon: Icon(Icons.more_horiz, color: Colors.grey.shade400),
                 onSelected: menu,
                 itemBuilder: (_) => [
                   if (own && post['moderation_status'] != 'removed')
@@ -526,67 +904,129 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            post['community_name'] as String? ?? '',
-            style: const TextStyle(
-              color: circleBlue,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              SoftLabel(moderationLabel(post['moderation_status'])),
-              if (post['is_demo'] == true) const SoftLabel('Contoh sintetis'),
-            ],
-          ),
           const SizedBox(height: 14),
+          // Content
           Text(
             post['content'] as String,
             maxLines: widget.detail ? null : 5,
             overflow: widget.detail ? null : TextOverflow.ellipsis,
-            style: const TextStyle(height: 1.65),
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.65,
+              color: Color(0xFF0B1C30),
+            ),
           ),
+          // Image
           if (post['has_image'] == true)
             if (widget.detail)
               CommunityImage(post['id'], revision: post['revision'])
             else
-              const Padding(
-                padding: EdgeInsets.only(top: 12),
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.image_outlined, color: circleBlue, size: 18),
-                    SizedBox(width: 6),
-                    Text('Foto dalam cerita'),
+                    const Icon(Icons.image_outlined, color: circleBlue, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Foto dalam cerita',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
                   ],
                 ),
               ),
+          // Topic tag
+          if (post['community_name'] != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: circleSurface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.favorite_outline, size: 14, color: circleBlue),
+                  const SizedBox(width: 4),
+                  Text(
+                    post['community_name'] as String,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: circleBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
+          // Divider
+          Divider(color: Colors.grey.shade100, height: 1),
+          const SizedBox(height: 12),
+          // Reaction bar
           CommunityReactionBar(
             selected: post['my_reaction'] as String?,
             count: post['reaction_count'] as int? ?? 0,
+            commentCount: post['comment_count'] as int? ?? 0,
             onReact: !busy && post['can_participate'] == true ? react : null,
           ),
           if (error != null) ErrorNotice(error!),
           if (!widget.detail)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: () async {
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: InkWell(
+                onTap: () async {
                   await context.push('/community/posts/${post['id']}');
                   if (mounted) widget.onChanged();
                 },
-                icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                label: Text(
-                  '${post['comment_count'] ?? 0} komentar • Baca cerita',
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    'Baca cerita selengkapnya →',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: circleBlue,
+                    ),
+                  ),
                 ),
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _AuthorBadge extends StatelessWidget {
+  const _AuthorBadge({required this.post});
+  final Json post;
+  @override
+  Widget build(BuildContext context) {
+    final status = post['moderation_status'];
+    String label;
+    if (status == 'pending') {
+      label = 'Menunggu';
+    } else if (post['is_demo'] == true) {
+      label = 'Contoh';
+    } else {
+      label = 'Penyintas';
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: circleBlue,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -597,55 +1037,242 @@ class CommunityCommentItem extends StatelessWidget {
   final Json comment;
   final ValueChanged<String> onAction;
   @override
-  Widget build(BuildContext context) => CareCard(
-    padding: 16,
-    radius: 18,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
+  Widget build(BuildContext context) {
+    final author = comment['author'] as Map;
+    final authorName = author['display_name'] as String;
+    final isOwn = comment['is_own'] == true;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .02),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: circleLightBlue,
+                child: Text(
+                  authorName.isNotEmpty ? authorName[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    color: circleBlue,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          authorName,
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        ),
+                        const SizedBox(width: 6),
+                        // Role badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: circleBlue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            isOwn ? 'Anda' : 'Pejuang',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      shortDate(comment['created_at']),
+                      style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuButton<String>(
+                tooltip: 'Pilihan komentar',
+                icon: Icon(Icons.more_horiz, size: 20, color: Colors.grey.shade400),
+                onSelected: onAction,
+                itemBuilder: (_) => [
+                  if (comment['is_own'] == true)
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Hapus komentar'),
+                    ),
+                  if (comment['is_own'] != true)
+                    const PopupMenuItem(
+                      value: 'report',
+                      child: Text('Laporkan komentar'),
+                    ),
+                  if (comment['is_own'] != true)
+                    const PopupMenuItem(
+                      value: 'block',
+                      child: Text('Blokir pengguna'),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            comment['content'],
+            style: const TextStyle(fontSize: 14, height: 1.6),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.favorite_outline, size: 16, color: Colors.grey.shade400),
+              const SizedBox(width: 4),
+              Text(
+                'Terbantu',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'Balas',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: circleBlue,
+                ),
+              ),
+            ],
+          ),
+          if (comment['moderation_status'] != 'approved')
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
-                comment['author']['display_name'],
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                moderationLabel(comment['moderation_status']),
+                style: const TextStyle(color: circleDeepBlue, fontSize: 12),
               ),
             ),
-            PopupMenuButton<String>(
-              tooltip: 'Pilihan komentar',
-              onSelected: onAction,
-              itemBuilder: (_) => [
-                if (comment['is_own'] == true)
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Hapus komentar'),
+        ],
+      ),
+    );
+  }
+}
+
+class CommunityTabBar extends StatelessWidget {
+  const CommunityTabBar({
+    super.key,
+    required this.tabs,
+    required this.selected,
+    required this.onChanged,
+  });
+  final List<String> tabs;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: circleSurface,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        for (int i = 0; i < tabs.length; i++)
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected == i ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: selected == i
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: .05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    tabs[i],
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: selected == i ? FontWeight.w600 : FontWeight.w500,
+                      color: selected == i ? circleBlue : Colors.grey.shade500,
+                    ),
                   ),
-                if (comment['is_own'] != true)
-                  const PopupMenuItem(
-                    value: 'report',
-                    child: Text('Laporkan komentar'),
-                  ),
-                if (comment['is_own'] != true)
-                  const PopupMenuItem(
-                    value: 'block',
-                    child: Text('Blokir pengguna'),
-                  ),
-              ],
+                ),
+              ),
             ),
-          ],
-        ),
-        Text(comment['content'], style: const TextStyle(height: 1.6)),
-        const SizedBox(height: 8),
-        Text(
-          shortDate(comment['created_at']),
-          style: const TextStyle(fontSize: 11),
-        ),
-        if (comment['moderation_status'] != 'approved')
-          Text(
-            moderationLabel(comment['moderation_status']),
-            style: const TextStyle(color: circleDeepBlue, fontSize: 12),
           ),
       ],
+    ),
+  );
+}
+
+class CommunityFilterChips extends StatelessWidget {
+  const CommunityFilterChips({
+    super.key,
+    required this.filters,
+    required this.selected,
+    required this.onChanged,
+  });
+  final List<String> filters;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 36,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: filters.length,
+      separatorBuilder: (_, __) => const SizedBox(width: 8),
+      itemBuilder: (context, index) => GestureDetector(
+        onTap: () => onChanged(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected == index ? circleBlue : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .04),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Text(
+            filters[index],
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: selected == index ? Colors.white : Colors.grey.shade600,
+            ),
+          ),
+        ),
+      ),
     ),
   );
 }
