@@ -51,9 +51,9 @@ class SplashScreen extends StatelessWidget {
                     const SizedBox(height: 6),
                     const Text('Temani setiap langkahmu.'),
                     const SizedBox(height: 24),
-                    const Semantics(
+                    Semantics(
                       label: 'Memuat ruang pribadimu',
-                      child: SizedBox(
+                      child: const SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),

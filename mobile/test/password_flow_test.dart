@@ -14,7 +14,7 @@ class RecoveryApi extends FixtureApi {
   @override
   Future<dynamic> post(String path, [Json data = const {}]) async {
     writes.add((path, data));
-    if (fails)
+    if (fails) {
       throw DioException(
         requestOptions: RequestOptions(path: path),
         response: Response(
@@ -22,6 +22,7 @@ class RecoveryApi extends FixtureApi {
           statusCode: 503,
         ),
       );
+    }
     return {'message': 'Generic recovery response'};
   }
 }
