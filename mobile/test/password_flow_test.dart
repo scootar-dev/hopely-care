@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hopely_care/core/api/api.dart';
 import 'package:hopely_care/core/routing/router.dart';
 import 'package:hopely_care/main.dart';
+import 'package:hopely_care/features/auth/password_screen.dart';
 
 import 'stitch_v2_test.dart' show FixtureApi, fixtureSession;
 
@@ -51,10 +52,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Lupa kata sandi?'));
       await tester.pumpAndSettle();
-      expect(
-        container.read(routerProvider).routeInformationProvider.value.uri.path,
-        '/forgot-password',
-      );
+      expect(find.byType(PasswordScreen), findsOneWidget);
+      expect(container.read(routerProvider).canPop(), isTrue);
       Future<void> send() async {
         await tester.ensureVisible(find.text('Kirim Tautan'));
         await tester.tap(find.text('Kirim Tautan'));
