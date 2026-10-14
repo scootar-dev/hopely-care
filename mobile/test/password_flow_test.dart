@@ -29,6 +29,45 @@ class RecoveryApi extends FixtureApi {
 }
 
 void main() {
+  testWidgets('guest forms support narrow screens and large text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 740);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final session = fixtureSession(guest: true);
+    final container = ProviderContainer(
+      overrides: [
+        sessionProvider.overrideWith((ref) => session),
+        apiProvider.overrideWithValue(RecoveryApi(session)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const HopelyApp()),
+    );
+    await tester.pumpAndSettle();
+    for (final route in [
+      '/welcome',
+      '/onboarding',
+      '/role',
+      '/login',
+      '/register',
+      '/forgot-password',
+    ]) {
+      container.read(routerProvider).go(route);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: route);
+      final scrollable = find.byType(Scrollable).first;
+      await tester.drag(scrollable, const Offset(0, -1600));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: '$route scrolled');
+    }
+  });
+
   testWidgets(
     'password recovery validates input and never calls failure success',
     (tester) async {

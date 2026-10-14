@@ -86,23 +86,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       if (widget.register) ...[
         const Text('Saya mendaftar sebagai:'),
         const SizedBox(height: 10),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(
-              value: 'PATIENT',
-              label: Text('Pasien'),
-              icon: Icon(Icons.favorite_outline),
-            ),
-            ButtonSegment(
-              value: 'CAREGIVER',
-              label: Text('Pendamping'),
-              icon: Icon(Icons.volunteer_activism_outlined),
-            ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in const {
+              'PATIENT': 'Pasien',
+              'CAREGIVER': 'Pendamping',
+            }.entries)
+              ChoiceChip(
+                label: Text(option.value),
+                selected: role == option.key,
+                onSelected: busy
+                    ? null
+                    : (_) => setState(() => role = option.key),
+              ),
           ],
-          selected: {role},
-          onSelectionChanged: busy
-              ? null
-              : (v) => setState(() => role = v.first),
         ),
         const SizedBox(height: 24),
         _label('Nama Lengkap'),
@@ -135,11 +134,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             v == null || !v.contains('@') ? 'Isi email yang sesuai' : null,
       ),
       const SizedBox(height: 18),
-      Row(
+      Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
         children: [
-          const Expanded(
-            child: Text('Kata Sandi', style: TextStyle(color: ink)),
-          ),
+          const Text('Kata Sandi', style: TextStyle(color: ink)),
           if (!widget.register)
             TextButton(
               onPressed: busy ? null : () => context.push('/forgot-password'),
