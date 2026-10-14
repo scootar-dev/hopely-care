@@ -262,75 +262,61 @@ class MetricSelector extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          Row(
-            children: List.generate(5, (i) {
-              final selected = value == i + 1;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Semantics(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final size = ((constraints.maxWidth - 24) / 5).clamp(48.0, 100.0);
+              return Wrap(
+                spacing: 6,
+                runSpacing: 8,
+                children: List.generate(5, (i) {
+                  final selected = value == i + 1;
+                  return Semantics(
+                    button: true,
                     selected: selected,
                     label: '$label, ${i + 1} dari 5',
-                    child: Material(
-                      color: selected ? activeColor : const Color(0xFFF5F6FE),
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => onChanged(i + 1),
-                        child: SizedBox(
-                          height: 58,
-                          child: Center(
-                            child: mood
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        const [
-                                          Icons.sentiment_very_dissatisfied,
-                                          Icons.sentiment_dissatisfied,
-                                          Icons.sentiment_neutral,
-                                          Icons.sentiment_satisfied,
-                                          Icons.sentiment_very_satisfied,
-                                        ][i],
-                                        size: 22,
-                                        color: selected ? Colors.white : ink,
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        '${i + 1}',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: selected ? Colors.white : ink,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : Text(
-                                    '${i + 1}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: selected ? Colors.white : ink,
-                                    ),
+                    child: SizedBox(
+                      width: size,
+                      child: Material(
+                        color: selected ? activeColor : skySoft,
+                        borderRadius: BorderRadius.circular(10),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => onChanged(i + 1),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 48),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Center(
+                                child: Text(
+                                  '${i + 1}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: selected ? Colors.white : ink,
                                   ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
               );
-            }),
+            },
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 16,
+            runSpacing: 4,
             children: [
               Text(
-                highIsGood ? 'Sangat rendah' : 'Tidak ada',
+                highIsGood ? '1: Sangat rendah' : '1: Tidak ada',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               Text(
-                highIsGood ? 'Sangat baik' : 'Sangat tinggi',
+                highIsGood ? '5: Sangat baik' : '5: Sangat tinggi',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

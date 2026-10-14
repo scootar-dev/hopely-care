@@ -17,7 +17,7 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
   final note = TextEditingController();
   late Map<String, int> scores;
   String? id;
-  bool analysis = false, busy = false, loading = true;
+  bool analysis = false, busy = false, loading = true, loadFailed = false;
   Object? error;
   @override
   void initState() {
@@ -40,6 +40,11 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
   }
 
   Future<void> load() async {
+    setState(() {
+      loading = true;
+      error = null;
+      loadFailed = false;
+    });
     try {
       if (!widget.symptoms) {
         final rows = items(await ref.read(apiProvider).get('/checkins'));
@@ -56,6 +61,7 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
         }
       }
     } catch (e) {
+      loadFailed = true;
       error = e;
     }
     if (mounted) {
@@ -155,19 +161,24 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
+          : loadFailed
+          ? PageBody(
+              children: [
+                ErrorNotice(error!),
+                FilledButton(onPressed: load, child: const Text('Coba lagi')),
+              ],
+            )
           : PageBody(
               children: [
                 Heading(
                   widget.symptoms
                       ? 'Dengarkan tubuhmu'
                       : 'Bagaimana keadaanmu hari ini?',
-                  'Tidak apa-apa jika hari ini terasa berat. Catat sesuai apa yang kamu rasakan.',
-                  badge: 'Refleksi harian • skala 1–5',
+                  'Pilih skala 1 hingga 5 yang paling mewakili kondisimu saat ini.',
                 ),
                 for (final k in scores.keys)
                   MetricSelector(
-                    label:
-                        '${scores.keys.toList().indexOf(k) + 1}. ${labels[k]!}',
+                    label: labels[k]!,
                     mood: k == 'mood',
                     icon:
                         const {
@@ -251,7 +262,14 @@ class CheckinSavedScreen extends StatelessWidget {
     ),
     body: PageBody(
       children: [
-        const CareHero(compact: true),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 32),
+          child: CircleAvatar(
+            radius: 48,
+            backgroundColor: skySoft,
+            child: Icon(Icons.check_rounded, size: 52, color: hopelyBlue),
+          ),
+        ),
         const Heading(
           'Terima kasih sudah mendengarkan dirimu.',
           'Catatanmu telah tersimpan. Tidak perlu memaksakan langkah berikutnya.',
