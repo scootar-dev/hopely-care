@@ -115,10 +115,11 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                                   .unblock(user['id']);
                               if (mounted) reload();
                             } catch (e) {
-                              if (context.mounted)
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text(friendlyError(e))),
                                 );
+                              }
                             } finally {
                               if (mounted) setState(() => unblocking = null);
                             }
@@ -417,8 +418,9 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
                             children: [
                               if (kind != 'report')
                                 FilledButton(
-                                  onPressed: () =>
-                                      review(item, 'approve', reload),
+                                  onPressed: item['can_approve'] == false
+                                      ? null
+                                      : () => review(item, 'approve', reload),
                                   child: const Text('Terbitkan'),
                                 ),
                               OutlinedButton(
@@ -492,11 +494,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       await widget.repo.review(widget.item, widget.action, note.text.trim());
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           error = e;
           busy = false;
         });
+      }
     }
   }
 

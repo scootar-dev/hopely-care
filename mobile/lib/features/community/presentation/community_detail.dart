@@ -22,8 +22,9 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
   Future<void> membership(Json community, VoidCallback reload) async {
     final repo = ref.read(communityRepositoryProvider);
     if (community['membership_status'] != 'active') {
-      if (await showCommunityJoin(context, repo, community) && mounted)
+      if (await showCommunityJoin(context, repo, community) && mounted) {
         reload();
+      }
       return;
     }
     if (!await communityConfirm(
@@ -31,8 +32,9 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
       'Keluar dari komunitas?',
       'Ceritamu tetap tersedia sampai kamu menghapusnya. Kamu dapat mengelolanya di Ceritaku.',
       'Keluar',
-    ))
+    )) {
       return;
+    }
     setState(() {
       busy = true;
       error = null;
@@ -189,11 +191,12 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
         icon: const Icon(Icons.edit_note),
         onPressed: () async {
           await context.push('/community/compose');
-          if (mounted)
+          if (mounted) {
             setState(() {
               page = 1;
               version++;
             });
+          }
         },
       ),
     ],
@@ -290,18 +293,20 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                             'Keluar dari komunitas?',
                             'Cerita yang pernah dibagikan tetap dapat kamu hapus dari Ceritaku.',
                             'Keluar',
-                          ))
+                          )) {
                             return;
+                          }
                           try {
                             await ref
                                 .read(communityRepositoryProvider)
                                 .leave(c['id']);
                             if (context.mounted) reload();
                           } catch (e) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(friendlyError(e))),
                               );
+                            }
                           }
                         },
                         child: const Text('Keluar dari komunitas'),

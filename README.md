@@ -6,6 +6,8 @@ MVP pendamping wellbeing pasien kanker, dilanjutkan dari repository utama dan di
 
 Status komunitas, pengelola Tools Kesehatan, undangan kerabat, foto profil, dan provider AI dijelaskan di [FEATURE_STATUS.md](docs/FEATURE_STATUS.md). Foto profil dapat dipilih/diganti/dihapus dari Profil; gunakan `flutter pub get` dan restart penuh karena ada plugin galeri baru. Android minimum SDK 24. Backend perlu diperbarui bersamaan; fitur foto tidak menambah migrasi database.
 
+**Support Circle:** panduan pembaruan pada branch `feature/support-circle`, pengujian, dan penugasan moderator tersedia di [SUPPORT_CIRCLE.md](docs/SUPPORT_CIRCLE.md). Fitur komunitas menambah migration; akun sendiri tetap dapat dipakai. Saat AI belum aktif, cerita menunggu moderator sebelum terbit.
+
 ## Arsitektur
 Flutter → Laravel/Sanctum → MySQL dan FastAPI internal. FastAPI → provider LLM dan Qdrant untuk dokumen terkurasi. Flutter tidak memegang internal service key atau API key LLM. FCM dipakai hanya untuk notifikasi perangkat yang diaktifkan pengguna.
 
@@ -35,10 +37,9 @@ Dari root proyek:
 ```sh
 python scripts/configure.py
 docker compose up --build -d
-docker compose exec backend php artisan db:seed
 ```
 
-`configure.py` membuat `.env` dengan secret acak dan tidak menimpa konfigurasi lama. Secret tidak dicetak dan tidak disertakan dalam paket. Baca `DEMO_PASSWORD` dari `.env` lokal untuk login demo, jangan membagikan atau commit file itu.
+`configure.py` membuat `.env` dengan secret acak dan tidak menimpa konfigurasi lama. Secret tidak dicetak dan tidak disertakan dalam paket. Startup menambah katalog komunitas tanpa akun demo. Daftar akun sendiri melalui aplikasi. Untuk data contoh opsional di lingkungan pengembangan, jalankan `docker compose exec backend php artisan db:seed`; password akun contoh berasal dari `DEMO_PASSWORD` lokal.
 
 API Laravel: `http://localhost:8000/api`. Health Laravel: `http://localhost:8000/up`. MySQL, Qdrant, dan FastAPI tidak dipublikasikan ke host. API hanya bind ke loopback untuk pengembangan. Untuk emulator Android gunakan `10.0.2.2:8000`. Untuk perangkat nyata gunakan development tunnel/ingress yang kamu kendalikan, dan HTTPS pada release.
 
@@ -84,13 +85,14 @@ AI tidak diperlukan oleh endpoint login. Pada Docker Compose, startup backend me
 Aplikasi memakai Bahasa Indonesia, Material 3, tema biru/lavender Stitch V2, kartu membulat, dan navigasi Beranda / Perjalanan / Hopely AI / Insight / Profil. Onboarding, Tools Kesehatan, penerimaan undangan, dan detail pengingat dukungan telah ditambahkan. Ilustrasi ikon Flutter menggantikan aset gambar terpisah yang tidak tersedia. Screenshot bukan data pasien dan teks medis contoh tidak dipakai sebagai fakta.
 
 ## Laravel tanpa Docker
-Install PHP 8.3+, Composer, extension PDO MySQL/SQLite, mbstring, XML, tokenizer, ctype, fileinfo, zip. Sediakan MySQL sendiri. Salin variabel aplikasi/database/internal-service yang diperlukan ke `backend/.env`; buat APP_KEY lokal menggunakan Artisan.
+Install PHP 8.3+, Composer, extension PDO MySQL/SQLite, mbstring, XML, tokenizer, ctype, fileinfo, zip, GD. Sediakan MySQL sendiri. Untuk instalasi baru, salin variabel aplikasi/database/internal-service yang diperlukan ke `backend/.env` dan buat APP_KEY lokal menggunakan Artisan. Untuk pembaruan aplikasi yang sudah berjalan, pertahankan APP_KEY dan konfigurasi lama; ikuti [panduan upgrade](docs/SUPPORT_CIRCLE.md).
 
 ```sh
 cd backend
 composer install
 php artisan key:generate
 php artisan migrate
+php artisan db:seed --class=CommunitySeeder
 php artisan serve --host=127.0.0.1 --port=8000
 vendor/bin/phpunit
 ```

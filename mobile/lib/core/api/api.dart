@@ -159,16 +159,21 @@ String friendlyError(Object error) {
     final login = path.endsWith('/auth/login');
     final register = path.endsWith('/auth/register');
     if (path.contains('/communit') || path.endsWith('/block')) {
-      if (code == 403)
+      if (code == 403) {
         return 'Akses belum tersedia. Periksa keanggotaanmu; konten juga mungkin dibatasi atau dihapus.';
-      if (code == 404)
+      }
+      if (code == 404) {
         return 'Konten ini sudah tidak tersedia. Muat ulang komunitas.';
-      if (code == 409)
+      }
+      if (code == 409) {
         return 'Konten berubah sejak terakhir dibuka. Muat ulang sebelum melanjutkan.';
-      if (code == 413 || code == 422)
+      }
+      if (code == 413 || code == 422) {
         return 'Periksa isian dan persetujuan berbagi. Foto harus JPG, PNG, atau WebP, maksimal 2 MB dan 4096 × 4096 piksel.';
-      if (code != null && code >= 500)
+      }
+      if (code != null && code >= 500) {
         return 'Komunitas belum dapat dihubungi. Tulisanmu masih ada di layar ini; coba lagi.';
+      }
     }
     if (path.endsWith('/me/avatar')) {
       if (code == 413 || code == 422) {

@@ -36,12 +36,13 @@ Future<bool> communityContentAction(
   String type,
   Json item,
 ) async {
-  if (action == 'report')
+  if (action == 'report') {
     return await showDialog<bool>(
           context: context,
           builder: (_) => _ReportDialog(repo, type, item['id']),
         ) ??
         false;
+  }
   final block = action == 'block';
   if (!await communityConfirm(
     context,
@@ -52,8 +53,9 @@ Future<bool> communityContentAction(
         ? 'Kalian tidak akan melihat cerita dan komentar satu sama lain. Kamu dapat membuka blokir di Keamanan Komunitas. Moderator tetap dapat meninjau konten yang dilaporkan.'
         : 'Konten ini akan dihapus dari komunitas.',
     block ? 'Blokir' : 'Hapus',
-  ))
+  )) {
     return false;
+  }
   try {
     if (block) {
       await repo.block(item['author']['id']);
@@ -62,18 +64,20 @@ Future<bool> communityContentAction(
     } else {
       await repo.deleteComment(item['id']);
     }
-    if (context.mounted)
+    if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(block ? 'Pengguna diblokir.' : 'Konten dihapus.'),
         ),
       );
+    }
     return true;
   } catch (e) {
-    if (context.mounted)
+    if (context.mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(friendlyError(e))));
+    }
     return false;
   }
 }
@@ -118,11 +122,12 @@ class _ReportDialogState extends State<_ReportDialog> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           error = e;
           busy = false;
         });
+      }
     }
   }
 
@@ -216,11 +221,12 @@ class _JoinDialogState extends State<_JoinDialog> {
       await widget.repo.join(widget.community['id'], name.text.trim());
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           error = e;
           busy = false;
         });
+      }
     }
   }
 

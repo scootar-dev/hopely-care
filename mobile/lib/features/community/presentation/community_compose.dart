@@ -27,7 +27,7 @@ class CommunityComposeScreen extends ConsumerWidget {
           final communities = items(
             data['memberships'],
           ).where((c) => c['membership_status'] == 'active').toList();
-          if (communities.isEmpty)
+          if (communities.isEmpty) {
             return CommunityBody(
               children: [
                 CommunityEmptyState(
@@ -43,6 +43,7 @@ class CommunityComposeScreen extends ConsumerWidget {
                 ),
               ],
             );
+          }
           return _ComposeForm(
             repo: repo,
             communities: communities,
@@ -93,16 +94,18 @@ class _ComposeFormState extends ConsumerState<_ComposeForm> {
       if (recovered == null) return;
       ref.read(recoveredCommunityPhotoProvider.notifier).state = null;
       if (recovered.userId != widget.repo.api.session.user?['id'] ||
-          recovered.communityId != communityId)
+          recovered.communityId != communityId) {
         return;
+      }
       try {
         final bytes = await recovered.file.readAsBytes();
-        if (mounted && bytes.length <= 2 * 1024 * 1024)
+        if (mounted && bytes.length <= 2 * 1024 * 1024) {
           setState(() {
             image = bytes;
             photoError =
                 'Foto dipulihkan sebagai pratinjau. Periksa kembali cerita dan persetujuan sebelum berbagi.';
           });
+        }
       } catch (_) {
         /* A fresh gallery selection remains available. */
       }
@@ -145,11 +148,12 @@ class _ComposeFormState extends ConsumerState<_ComposeForm> {
       }
       setState(() => image = bytes);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => photoError =
               'Galeri belum dapat dibuka. Periksa izin foto dan coba lagi.',
         );
+      }
     } finally {
       try {
         await widget.repo.api.session.storage.delete(
@@ -187,11 +191,12 @@ class _ComposeFormState extends ConsumerState<_ComposeForm> {
         context.pushReplacement('/community/posts/${result['id']}');
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           error = e;
           busy = false;
         });
+      }
     }
   }
 

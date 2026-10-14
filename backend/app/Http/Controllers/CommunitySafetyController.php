@@ -136,7 +136,7 @@ class CommunitySafetyController extends Controller
         }
         $page = $q->oldest()->orderBy("id")->paginate(20);
         $items = $page
-            ->map(function ($item) use ($kind) {
+            ->map(function ($item) use ($kind, $r) {
                 if ($kind === "report") {
                     $target = ($item->reportable_type === "post"
                         ? CommunityPost::class
@@ -165,6 +165,7 @@ class CommunitySafetyController extends Controller
                     )->name,
                     "moderation_status" => $item->moderation_status,
                     "revision" => $item->revision,
+                    "can_approve" => $item->user_id !== $r->user()->id,
                     "has_image" => $kind === "post" && $item->image_path !== null,
                     "post_id" => $kind === "post" ? $item->id : $item->post_id,
                     "created_at" => $item->created_at?->toISOString()
@@ -238,19 +239,19 @@ class CommunitySafetyController extends Controller
                         "moderation_meta" => ["mode" => "human", "note" => $v["note"]]
                     ])
                     ->save();
-                $notifications[] = [$target->user_id, "community_moderation", $target->id];
+                $notifications[] = [$target->user_id, "community_moderation", $target->id, $r->user()->id];
                 if ($target instanceof CommunityComment && $v["action"] === "approve") {
                     // Use the actual comment author for block/notification checks, not the moderator.
-                    $this->service->notify(
+                    $notifications[] = [
                         $target->post->user_id,
-                        $target->author,
                         "community_comment",
-                        $target->post_id
-                    );
+                        $target->post_id,
+                        $target->user_id
+                    ];
                 }
             }
             if ($kind === "report") {
-                $notifications[] = [$item->reporter_user_id, "community_report_update", $item->id];
+                $notifications[] = [$item->reporter_user_id, "community_report_update", $item->id, $r->user()->id];
             }
             app(AuditService::class)->record(
                 $r->user()->id,
@@ -260,8 +261,11 @@ class CommunitySafetyController extends Controller
             );
             return $notifications;
         });
-        foreach ($notifications as [$recipient, $type, $subject]) {
-            $this->service->notify($recipient, $r->user(), $type, $subject);
+        // Commit first; provider calls never hold database locks or send rolled-back updates.
+        foreach ($notifications as [$recipient, $type, $subject, $actorId]) {
+            if ($actor = User::find($actorId)) {
+                $this->service->notify($recipient, $actor, $type, $subject);
+            }
         }
         return $this->ok();
     }

@@ -57,15 +57,21 @@ jobs:
         with: {channel: stable}
       - run: flutter pub get
         working-directory: mobile
-      - name: Report native Dart fixes for source review
-        run: |
-          dart fix --apply
-          dart format lib test
-          git diff -- lib test
-        working-directory: mobile
       - run: flutter analyze
         working-directory: mobile
       - run: flutter test
+        working-directory: mobile
+      - name: Capture community visual review
+        if: always()
+        run: |
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+          for name in ['home', 'detail', 'compose', 'safety']:
+              file = Path('test-output') / f'community-{name}.png'
+              if file.exists():
+                  print('HOPELY_PREVIEW:' + file.name + ':' + base64.b64encode(file.read_bytes()).decode())
+          PY
         working-directory: mobile
       - run: flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
         working-directory: mobile

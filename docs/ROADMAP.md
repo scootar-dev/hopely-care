@@ -18,7 +18,7 @@ The source tree follows phases 0–14. Source availability is separate from veri
 | 12 | Doctor summary + PDF preview/export | 7/14/30-day period, patient-reported only |
 | 13 | Device registration, FCM sender, reminder scheduler | Credentials required; generic payload; deduplication |
 | 14 | Design, tests, synthetic seed, docs | Flutter/Laravel test and actual device demo |
-| 15 | Community | Deferred; requires report/block/moderation |
+| 15 | Support Circle | Implemented under revised 12 October requirements: memberships, posts/comments/reactions, report/block, review queue, consented metadata matching; verification in VERIFICATION.md |
 
 ## Technical risks
 1. Missing SDK/runtime means source cannot be called a verified end-to-end build; CI gates and local setup are supplied.

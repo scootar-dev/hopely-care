@@ -2,7 +2,7 @@
 
 ## Komunitas dan Care Circle
 
-Support Circle antar pasien belum diimplementasikan. Master requirement menempatkannya pada fase lanjutan setelah inti aplikasi stabil. Bila dikembangkan, pengguna memilih bergabung ke kelompok kecil sesuai kebutuhan dukungan, fase perawatan, preferensi komunikasi, dan konteks kanker yang bersedia dibagikan. Tidak ada pencocokan otomatis atau pembukaan data kesehatan sekarang. Report, block, dan moderasi manusia tetap diperlukan.
+Support Circle kini diimplementasikan mengikuti instruksi revisi 12 Oktober 2026: discovery, gabung/keluar, cerita dengan foto opsional, komentar, dukungan, laporan, blokir, preferensi dan antrean moderator terhubung ke API Laravel. Data komunitas terpisah dari catatan privat. Pencocokan memakai minat yang diisi sendiri dengan izin opsional; pengguna memilih keanggotaannya sendiri. Saat AI mock/offline, publikasi ditahan untuk moderator. [SUPPORT_CIRCLE.md](SUPPORT_CIRCLE.md) memuat langkah upgrade, penugasan moderator, API/alur dan batas MVP; hasil pengujian ada di [VERIFICATION.md](VERIFICATION.md).
 
 Care Circle yang sudah ada menghubungkan pasien dengan akun **Kerabat** melalui undangan pribadi. Ini bukan komunitas antar pasien.
 

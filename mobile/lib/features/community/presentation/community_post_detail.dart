@@ -94,8 +94,9 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                           'comment',
                           c,
                         ) &&
-                        mounted)
+                        mounted) {
                       reload();
+                    }
                   },
                 ),
               CommunityPagination(comments, (v) => setState(() => page = v)),

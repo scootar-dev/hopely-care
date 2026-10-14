@@ -21,6 +21,106 @@
         }
       }
     },
+    "/v1/ai/community/moderate": {
+      "post": {
+        "summary": "Community Moderate",
+        "operationId": "community_moderate_v1_ai_community_moderate_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityModerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityModerationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai/community/recommend": {
+      "post": {
+        "summary": "Community Recommend",
+        "operationId": "community_recommend_v1_ai_community_recommend_post",
+        "parameters": [
+          {
+            "name": "x-internal-service-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Internal-Service-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityRecommendationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityRecommendationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/ai/companion": {
       "post": {
         "summary": "Companion",
@@ -648,6 +748,279 @@
           "pain_score"
         ],
         "title": "Checkin"
+      },
+      "CommunityCandidate": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 40,
+            "title": "Category"
+          },
+          "cancer_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancer Type"
+          },
+          "treatment_phase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment Phase"
+          },
+          "support_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Type"
+          },
+          "activity_count": {
+            "type": "integer",
+            "maximum": 1000000000.0,
+            "minimum": 0.0,
+            "title": "Activity Count",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category"
+        ],
+        "title": "CommunityCandidate"
+      },
+      "CommunityInterests": {
+        "properties": {
+          "cancer_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancer Type"
+          },
+          "treatment_phase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment Phase"
+          },
+          "support_preferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Support Preferences"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CommunityInterests"
+      },
+      "CommunityModerationRequest": {
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "post",
+              "comment"
+            ],
+            "title": "Content Type"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 2,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content_type",
+          "content"
+        ],
+        "title": "CommunityModerationRequest"
+      },
+      "CommunityModerationResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "safe",
+              "review",
+              "unsafe"
+            ],
+            "title": "Status"
+          },
+          "categories": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "medical_misinformation",
+                "dangerous_medical_claim",
+                "harassment",
+                "hate_speech",
+                "spam",
+                "scam",
+                "unverified_treatment",
+                "unsafe_content"
+              ]
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Categories"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "model",
+              "rules",
+              "manual_review"
+            ],
+            "title": "Mode"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "categories",
+          "confidence",
+          "reason",
+          "mode"
+        ],
+        "title": "CommunityModerationResponse"
+      },
+      "CommunityRecommendation": {
+        "properties": {
+          "community_id": {
+            "type": "string",
+            "title": "Community Id"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "community_id",
+          "score",
+          "reason"
+        ],
+        "title": "CommunityRecommendation"
+      },
+      "CommunityRecommendationRequest": {
+        "properties": {
+          "personalization_allowed": {
+            "type": "boolean",
+            "title": "Personalization Allowed",
+            "default": false
+          },
+          "patient_context": {
+            "$ref": "#/components/schemas/CommunityInterests"
+          },
+          "communities": {
+            "items": {
+              "$ref": "#/components/schemas/CommunityCandidate"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Communities"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "communities"
+        ],
+        "title": "CommunityRecommendationRequest"
+      },
+      "CommunityRecommendationResponse": {
+        "properties": {
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/CommunityRecommendation"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          },
+          "method": {
+            "type": "string",
+            "const": "metadata",
+            "title": "Method",
+            "default": "metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recommendations"
+        ],
+        "title": "CommunityRecommendationResponse"
       },
       "CompanionRequest": {
         "properties": {

@@ -264,7 +264,7 @@ class CommunityCard extends StatelessWidget {
                 icon: const Icon(Icons.arrow_forward, size: 18),
               ),
             ),
-          if (footer != null) footer!,
+          ?footer,
         ],
       ),
     );
@@ -326,16 +326,18 @@ class _CommunityImageState extends ConsumerState<CommunityImage> {
     child: FutureBuilder<dynamic>(
       future: image,
       builder: (context, snapshot) {
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return ErrorNotice(
             snapshot.error!,
             retry: () => setState(() => image = load()),
           );
-        if (!snapshot.hasData)
+        }
+        if (!snapshot.hasData) {
           return const SizedBox(
             height: 100,
             child: Center(child: CircularProgressIndicator()),
           );
+        }
         return ClipRRect(
           borderRadius: BorderRadius.circular(18),
           child: Image.memory(

@@ -7,7 +7,7 @@
 4. Legacy proposal: background only. No technical decisions derive from it.
 
 ## Product boundary
-Patient-controlled psycho-oncology support; no diagnosis, prognosis, prescribing, treatment selection, or automatic declaration that someone is safe. MVP roles: PATIENT, CAREGIVER, ADMIN. Doctors receive patient-created summaries, not accounts. Community and Meaningful Moments remain phase 2.
+Patient-controlled psycho-oncology support; no diagnosis, prognosis, prescribing, treatment selection, or automatic declaration that someone is safe. MVP roles: PATIENT, CAREGIVER, ADMIN. Doctors receive patient-created summaries, not accounts. Support Circle is integrated under the revised 12 October requirements; Meaningful Moments remains phase 2. Community uses separate sharing, metadata preferences, scoped moderator review and private media; see [SUPPORT_CIRCLE.md](SUPPORT_CIRCLE.md) and [COMMUNITY_API.md](COMMUNITY_API.md).
 
 ## Runtime boundaries
 ```mermaid

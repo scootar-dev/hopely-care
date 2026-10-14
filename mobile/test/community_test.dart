@@ -14,6 +14,7 @@ import 'stitch_v2_test.dart' show FixtureApi, fixtureSession, savePreview;
 class CommunityFixtureApi extends FixtureApi {
   CommunityFixtureApi(super.session);
   bool joined = false, empty = false, blocked = false, failHome = false;
+  bool reviewed = false;
   Completer<dynamic>? homePending;
   final comments = <Json>[];
   final reports = <Json>[];
@@ -63,7 +64,7 @@ class CommunityFixtureApi extends FixtureApi {
     final uri = Uri.parse(path), p = uri.path;
     if (p == '/community/home') {
       if (homePending != null) return homePending!.future;
-      if (failHome)
+      if (failHome) {
         throw DioException(
           requestOptions: RequestOptions(path: path),
           response: Response(
@@ -71,31 +72,36 @@ class CommunityFixtureApi extends FixtureApi {
             statusCode: 503,
           ),
         );
+      }
       return homeData;
     }
     if (p == '/communities') return page(empty ? [] : [group]);
-    if (p == '/communities/g1')
+    if (p == '/communities/g1') {
       return {
         'community': group,
         'guidelines': ['Hormati privasi.', 'Bagikan dukungan, bukan resep.'],
       };
+    }
     if (p == '/community/my-communities') return page(joined ? [group] : []);
-    if (p == '/communities/g1/posts' || p == '/community/feed')
+    if (p == '/communities/g1/posts' || p == '/community/feed') {
       return page(empty || blocked ? [] : [story]);
+    }
     if (p == '/community/posts/p1/comments') return page(comments);
-    if (p == '/community/posts/p1')
+    if (p == '/community/posts/p1') {
       return {
         ...story,
         'can_participate': joined && story['moderation_status'] == 'approved',
       };
-    if (p == '/community/preferences')
+    }
+    if (p == '/community/preferences') {
       return {
         'display_name': 'Sahabat',
         'notifications_enabled': true,
         'recommendation_enabled': false,
         'interests': <String, dynamic>{},
       };
-    if (p == '/community/safety')
+    }
+    if (p == '/community/safety') {
       return {
         'guidelines': [
           'Hormati privasi.',
@@ -109,7 +115,9 @@ class CommunityFixtureApi extends FixtureApi {
             : [],
         'can_moderate': true,
       };
-    if (p == '/community/moderation')
+    }
+    if (p == '/community/moderation') {
+      if (reviewed) return page([]);
       return page([
         {
           'id': 'held-1',
@@ -120,14 +128,20 @@ class CommunityFixtureApi extends FixtureApi {
           'has_image': false,
         },
       ]);
+    }
     return super.get(path);
   }
 
   @override
   Future<dynamic> post(String path, [Json data = const {}]) async {
-    if (!path.contains('/communit') && !path.endsWith('/block'))
+    if (!path.contains('/communit') && !path.endsWith('/block')) {
       return super.post(path, data);
+    }
     writes.add((path, data));
+    if (path.startsWith('/community/moderation/')) {
+      reviewed = true;
+      return null;
+    }
     if (path.endsWith('/join')) {
       joined = true;
       story['can_participate'] = true;
@@ -365,6 +379,12 @@ void main() {
     final (container, api) = await setupCommunity(tester, joined: true);
     container.read(routerProvider).go('/community/posts/p1');
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('community-comment-content')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('community-comment-content')),
       'Terima kasih sudah berbagi.',
@@ -379,6 +399,12 @@ void main() {
     expect(api.writes.single.$1, '/community/posts/p1/comments');
     expect(api.writes.single.$2['sharing_acknowledged'], isTrue);
     expect(api.comments, hasLength(1));
+    await tester.scrollUntilVisible(
+      find.text('Terima kasih sudah berbagi.'),
+      -150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Terima kasih sudah berbagi.'), findsOneWidget);
   });
 
@@ -450,6 +476,33 @@ void main() {
     expect(api.writes.single.$2['notifications_enabled'], isFalse);
     expect(api.writes.single.$2['recommendation_enabled'], isFalse);
     expect(api.writes.single.$2['interests'], isEmpty);
+  });
+
+  testWidgets('member can leave from My Communities', (tester) async {
+    final (container, api) = await setupCommunity(tester, joined: true);
+    container.read(routerProvider).go('/community/mine');
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('Keluar dari komunitas'));
+    await tester.tap(find.text('Keluar'));
+    await tester.pumpAndSettle();
+    expect(api.joined, isFalse);
+    expect(api.writes.single.$1, '/communities/g1/leave');
+    expect(find.text('Belum mengikuti komunitas'), findsOneWidget);
+  });
+
+  testWidgets('moderator submits a decision and clears the queue', (tester) async {
+    final (container, api) = await setupCommunity(tester, joined: true);
+    container.read(routerProvider).go('/community/moderation');
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('Terbitkan'));
+    await tester.enterText(find.byType(TextFormField), 'Cerita sudah ditinjau.');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Simpan keputusan'));
+    await tester.pumpAndSettle();
+    expect(api.writes.single.$1, '/community/moderation/post/held-1');
+    expect(api.writes.single.$2, {'action': 'approve', 'revision': 1, 'note': 'Cerita sudah ditinjau.'});
+    expect(find.text('Antrean sudah bersih'), findsOneWidget);
   });
 
   testWidgets(
