@@ -16,8 +16,10 @@ class CommunityPostResource extends JsonResource
                 "display_name" => $this->author?->communityProfile?->display_name ?? "Anggota"
             ],
             "is_own" => $this->user_id === $request->user()->id,
-            "moderation_source" => $this->user_id === $request->user()->id
-                ? ($this->moderation_meta['mode'] ?? null) : null,
+            "moderation_source" =>
+                $this->user_id === $request->user()->id
+                    ? $this->moderation_meta["mode"] ?? null
+                    : null,
             "content" => $this->content,
             "has_image" => $this->image_path !== null,
             "is_demo" => $this->is_demo,

@@ -239,7 +239,12 @@ class CommunitySafetyController extends Controller
                         "moderation_meta" => ["mode" => "human", "note" => $v["note"]]
                     ])
                     ->save();
-                $notifications[] = [$target->user_id, "community_moderation", $target->id, $r->user()->id];
+                $notifications[] = [
+                    $target->user_id,
+                    "community_moderation",
+                    $target->id,
+                    $r->user()->id
+                ];
                 if ($target instanceof CommunityComment && $v["action"] === "approve") {
                     // Use the actual comment author for block/notification checks, not the moderator.
                     $notifications[] = [
@@ -251,7 +256,12 @@ class CommunitySafetyController extends Controller
                 }
             }
             if ($kind === "report") {
-                $notifications[] = [$item->reporter_user_id, "community_report_update", $item->id, $r->user()->id];
+                $notifications[] = [
+                    $item->reporter_user_id,
+                    "community_report_update",
+                    $item->id,
+                    $r->user()->id
+                ];
             }
             app(AuditService::class)->record(
                 $r->user()->id,

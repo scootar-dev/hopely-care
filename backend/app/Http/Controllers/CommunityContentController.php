@@ -166,7 +166,7 @@ class CommunityContentController extends Controller
             $this->service->notify($post->user_id, $r->user(), "community_comment", $post->id);
         }
         return $this->ok(
-            new CommunityCommentResource($comment->load("author.communityProfile")),
+            new CommunityCommentResource($comment->refresh()->load("author.communityProfile")),
             201
         );
     }

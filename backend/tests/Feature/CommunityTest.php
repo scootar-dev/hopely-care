@@ -479,4 +479,56 @@ class CommunityTest extends TestCase
         $this->assertDatabaseCount("users", 0);
         $this->assertDatabaseCount("community_posts", 0);
     }
+
+    public function test_new_pending_comment_returns_its_revision_and_can_be_reviewed(): void
+    {
+        $community = $this->community();
+        $owner = $this->user();
+        $author = $this->user();
+        $moderator = $this->user();
+        $this->member($author, $community);
+        $this->member($moderator, $community, "moderator");
+        $post = $this->story($owner, $community);
+        Http::swap(new \Illuminate\Http\Client\Factory());
+        Http::fake([
+            "*" => Http::response([
+                "status" => "review",
+                "confidence" => 0,
+                "categories" => [],
+                "mode" => "manual_review"
+            ])
+        ]);
+        Sanctum::actingAs($author);
+        $response = $this->postJson("/api/community/posts/$post->id/comments", $this->text())
+            ->assertCreated()
+            ->assertJsonPath("data.revision", 1)
+            ->assertJsonPath("data.moderation_status", "pending");
+        $commentId = $response->json("data.id");
+        Sanctum::actingAs($moderator);
+        $decision = [
+            "action" => "approve",
+            "revision" => $response->json("data.revision"),
+            "note" => "Cerita sudah ditinjau."
+        ];
+        $post->forceFill(["moderation_status" => "pending"])->save();
+        $this->postJson(
+            "/api/community/moderation/comment/$commentId",
+            $decision
+        )->assertConflict();
+        $post->forceFill(["moderation_status" => "approved"])->save();
+        $this->postJson("/api/community/moderation/comment/$commentId", $decision)->assertOk();
+        $this->assertDatabaseHas("community_comments", [
+            "id" => $commentId,
+            "moderation_status" => "approved"
+        ]);
+        $this->assertDatabaseHas("notifications", [
+            "user_id" => $owner->id,
+            "notification_type" => "community_comment"
+        ]);
+        Sanctum::actingAs($owner);
+        $this->getJson("/api/community/posts/$post->id/comments")
+            ->assertOk()
+            ->assertJsonPath("data.items.0.revision", 2)
+            ->assertJsonPath("data.items.0.moderation_status", "approved");
+    }
 }
