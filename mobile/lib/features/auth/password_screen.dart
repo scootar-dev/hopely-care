@@ -47,6 +47,9 @@ class _PasswordScreenState extends ConsumerState<PasswordScreen> {
     appBar: AppBar(
       leading: const BackHomeButton(fallback: '/login'),
       title: const Text('Pemulihan Akun'),
+      actions: const [
+        Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+      ],
     ),
     body: PageBody(
       children: [
@@ -121,8 +124,19 @@ class _PasswordScreenState extends ConsumerState<PasswordScreen> {
             ),
           ),
         const SizedBox(height: 24),
-        const PrivacyNote(
-          'Tautan pemulihan berlaku 15 menit dan hanya dapat digunakan sekali.',
+        const CareCard(
+          color: skySoft,
+          child: Row(
+            children: [
+              Icon(Icons.verified_user_outlined, color: hopelyBlue, size: 28),
+              SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  'Keamanan privasi pasien\nTautan pemulihan berlaku 15 menit dan hanya dapat digunakan sekali.',
+                ),
+              ),
+            ],
+          ),
         ),
         TextButton(
           onPressed: () => context.go('/login'),

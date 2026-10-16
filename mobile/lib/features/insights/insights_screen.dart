@@ -89,14 +89,21 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
                 const Wrap(
                   spacing: 12,
                   children: [
-                    Text('● Cemas', style: TextStyle(color: Color(0xFFA94316))),
-                    Text('● Tidur', style: TextStyle(color: Colors.blueGrey)),
-                    Text('● Mood', style: TextStyle(color: forest)),
+                    Text('Cemas', style: TextStyle(color: Color(0xFFA94316))),
+                    Text('Tidur', style: TextStyle(color: Colors.blueGrey)),
+                    Text('Mood', style: TextStyle(color: forest)),
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text('Skala 1–5 • hanya tanggal yang tercatat'),
+                const Text('Skala 1-5 - hanya tanggal yang tercatat'),
               ],
+            ),
+          ),
+          const CareCard(
+            child: ActionLink(
+              'Buka detail insight',
+              '/insights/detail',
+              icon: Icons.open_in_new,
             ),
           ),
           if (data['overall_direction'] == 'insufficient_data')

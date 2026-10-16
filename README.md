@@ -63,6 +63,23 @@ Bootstrap membuat runner Android/iOS hanya bila direktori platform belum tersedi
 
 Alamat default tanpa `--dart-define` mengikuti lingkungan pengembangan: Android memakai `http://10.0.2.2:8000/api` untuk Android Emulator; desktop/web memakai `http://127.0.0.1:8000/api`. `API_BASE_URL` eksplisit selalu diprioritaskan. HP fisik memerlukan pengaturan endpoint sendiri; alamat emulator tidak berlaku untuk HP fisik.
 
+## Membagikan APK melalui GitHub
+
+Workflow `.github/workflows/android-apk.yml` membuat APK yang dapat dicoba tim:
+
+1. Pastikan backend sudah online pada alamat HTTPS, misalnya `https://api.example.com/api`. APK release tidak dapat memakai `localhost` atau `10.0.2.2` pada HP fisik.
+2. Buka tab **Actions** di GitHub, pilih **Android APK**, klik **Run workflow**, lalu isi `api_base_url` dengan URL backend tersebut.
+3. Setelah workflow selesai, unduh artifact **hopely-care-apk**. File ini dapat dipasang pada Android melalui sideload.
+
+Untuk membuat tautan yang lebih mudah dibagikan melalui halaman **Releases**, simpan URL backend sebagai repository variable `API_BASE_URL` pada **Settings → Secrets and variables → Actions → Variables**, lalu push tag, misalnya:
+
+```sh
+git tag v0.1.0-test
+git push origin v0.1.0-test
+```
+
+Workflow akan membuat release dan melampirkan `hopely-care.apk`. APK ini ditandatangani dengan debug key untuk pengujian internal, bukan untuk publikasi Play Store. Jangan commit `.env`, password, atau API key ke repository.
+
 ## Jika login email gagal
 
 `flutter run` hanya menyalakan aplikasi Flutter. Laravel dan database harus berjalan terpisah. Login menerima email dan kata sandi **akun Hopely Care** yang sudah didaftarkan lewat **Buat akun baru**. Ini bukan login Google/Gmail, OTP email, atau kata sandi kotak masuk email. Registrasi memerlukan kata sandi minimal 12 karakter. Akun demo baru tersedia setelah seeder dijalankan; kata sandinya adalah `DEMO_PASSWORD` pada konfigurasi lokal saat pertama kali di-seed.
@@ -114,7 +131,7 @@ python -m pytest -q
 `GET /health` tidak memerlukan key. Semua endpoint lain memerlukan `X-Internal-Service-Key`. OpenAPI disediakan sebagai file `docs/AI_OPENAPI.json`; dokumentasi interaktif tidak dipublikasikan pada service.
 
 ## Mengaktifkan AI nyata
-Set di `.env` lokal: `MOCK_AI_MODE=false`, `LLM_PROVIDER=openai`, `LLM_API_KEY=<secret milikmu>`, `LLM_MODEL=<model yang tersedia pada akunmu dan mendukung structured output>`. Restart container. Tidak ada model atau biaya API yang diasumsikan tersedia. Aplikasi memanggil antarmuka `LLMProvider`, bukan mengikat business layer ke vendor.
+Untuk memakai Groq, set di `.env` lokal: `MOCK_AI_MODE=false`, `LLM_PROVIDER=groq`, `GROQ_API_KEY=<API key Groq milikmu>`, dan `LLM_MODEL=openai/gpt-oss-20b` (atau model Groq lain yang mendukung structured output). Restart container dengan `docker compose up --build -d`. Key hanya dibaca oleh `ai-service`; Flutter dan Laravel tidak menerima key provider. Tidak ada model atau biaya API yang diasumsikan tersedia. Aplikasi memanggil antarmuka `LLMProvider`, bukan mengikat business layer ke vendor.
 
 Untuk embedding lokal / transformer emosi, set `WITH_LOCAL_MODELS=true` lalu rebuild AI image. Image memasang PyTorch CPU dan extra ML. Tanpa pilihan ini, mode mock dapat berjalan tanpa mengunduh bobot model. `EMOTION_MODEL_NAME` boleh kosong; live emotion analysis memakai structured LLM classification dan mencatat fallback. Mengaktifkan transformer memerlukan model zero-shot multilingual yang sesuai serta evaluasi Bahasa Indonesia. Bobot/model bukan bagian paket.
 

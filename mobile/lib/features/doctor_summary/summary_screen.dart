@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../core/api/api.dart';
+import '../../core/theme/theme.dart';
+import '../../core/widgets/stitch.dart';
 import '../../core/widgets/ui.dart';
 
 class SummaryScreen extends ConsumerStatefulWidget {
@@ -111,13 +113,58 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Ringkasan Konsultasi')),
+    appBar: AppBar(
+      leading: const BackHomeButton(),
+      title: const Text('Ringkasan Konsultasi'),
+      actions: const [
+        Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+      ],
+    ),
     body: PageBody(
       children: [
-        const Heading(
-          'Bawa ceritamu ke konsultasi',
-          'Ringkasan laporan mandiri untuk membantu percakapan dengan dokter.',
+        CareCard(
+          color: skySoft,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const IconWell(
+                Icons.assignment_outlined,
+                size: 56,
+                radius: 18,
+                background: lavender,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'KESIAPAN KLINIS',
+                      style: TextStyle(
+                        color: hopelyBlue,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: .6,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Persiapan konsultasi medis',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Ringkas catatanmu sebelum bertemu tenaga kesehatan agar sesi konsultasi lebih terarah.',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+        const PrivacyNote(
+          'Data ringkasan berasal dari catatanmu dan tetap berada dalam kendalimu.',
+        ),
+        const SectionHeading('Pilih periode ringkasan'),
         SegmentedButton<int>(
           segments: const [
             ButtonSegment(value: 7, label: Text('7 Hari')),

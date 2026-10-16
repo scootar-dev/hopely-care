@@ -63,7 +63,10 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const BackHomeButton(fallback: '/profile'),
-      title: const Text('Undang Kerabat'),
+      title: const Text('Care Circle'),
+      actions: const [
+        Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+      ],
     ),
     body: DataPage(
       key: ValueKey(version),
@@ -72,9 +75,37 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
         final rows = items(data);
         return PageBody(
           children: [
-            const Heading(
-              'Dukungan dalam kendalimu',
-              'Pendamping hanya melihat ringkasan yang kamu izinkan. Isi jurnal dan chat tetap pribadi.',
+            const CareCard(
+              color: skySoft,
+              child: Row(
+                children: [
+                  IconWell(
+                    Icons.groups_outlined,
+                    size: 52,
+                    radius: 28,
+                    background: lavender,
+                  ),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Lingkaran Kasih',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Mereka yang berjalan bersamamu di setiap langkah pemulihan.',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const ActionLink('Atur persetujuan berbagi', '/privacy'),
             CareCard(
@@ -196,11 +227,24 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      row['relationship_label'],
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Row(
+                      children: [
+                        const IconWell(Icons.person_outline, size: 48),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                row['relationship_label'],
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              Text(row['invited_email']),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(row['invited_email']),
                     const SizedBox(height: 8),
                     SoftLabel(
                       const {
@@ -210,6 +254,11 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                           }[row['invitation_status']] ??
                           row['invitation_status'],
                     ),
+                    if (row['invitation_status'] != 'revoked')
+                      const SectionHeading(
+                        'Izin berbagi',
+                        icon: Icons.shield_outlined,
+                      ),
                     for (final e in const {
                       'can_view_wellbeing_summary': 'Ringkasan wellbeing',
                       'can_view_symptom_summary': 'Ringkasan keluhan',

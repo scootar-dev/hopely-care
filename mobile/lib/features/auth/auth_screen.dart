@@ -26,7 +26,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       confirm = TextEditingController();
   final form = GlobalKey<FormState>();
   String role = 'PATIENT';
-  bool busy = false, obscured = true, remember = true;
+  bool busy = false, obscured = true;
   Object? error;
   @override
   void initState() {
@@ -63,7 +63,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           },
         },
       );
-      await ref.read(sessionProvider).setAuth(data as Json, remember: remember);
+      // The mobile session is persisted and remains valid until explicit revocation.
+      await ref.read(sessionProvider).setAuth(data as Json);
       if (mounted) {
         context.go(
           ref.read(sessionProvider).caregiver ? '/caregiver' : '/home',
@@ -86,20 +87,40 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       if (widget.register) ...[
         const Text('Saya mendaftar sebagai:'),
         const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        Row(
           children: [
             for (final option in const {
-              'PATIENT': 'Pasien',
-              'CAREGIVER': 'Pendamping',
+              'PATIENT': ('Pasien', Icons.favorite),
+              'CAREGIVER': ('Pendamping', Icons.volunteer_activism),
             }.entries)
-              ChoiceChip(
-                label: Text(option.value),
-                selected: role == option.key,
-                onSelected: busy
-                    ? null
-                    : (_) => setState(() => role = option.key),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: option.key == 'PATIENT' ? 6 : 0,
+                    left: option.key == 'CAREGIVER' ? 6 : 0,
+                  ),
+                  child: FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: role == option.key
+                          ? hopelyBlue
+                          : skySoft,
+                      foregroundColor: role == option.key
+                          ? Colors.white
+                          : ink,
+                    ),
+                    onPressed: busy
+                        ? null
+                        : () => setState(() => role = option.key),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(option.value.$2, size: 18),
+                        const SizedBox(width: 6),
+                        Text(option.value.$1),
+                      ],
+                    ),
+                  ),
+                ),
               ),
           ],
         ),
@@ -191,12 +212,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           validator: (v) => v != password.text ? 'Kata sandi belum sama' : null,
         ),
       ] else
-        CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: const Text('Ingat saya', style: TextStyle(fontSize: 13)),
-          value: remember,
-          onChanged: busy ? null : (v) => setState(() => remember = v ?? false),
+        const PrivacyNote(
+          'Sesi login tersimpan aman di perangkat dan tetap aktif sampai kamu keluar, mengganti kata sandi, atau mencabut akses akun.',
         ),
       const SizedBox(height: 18),
       if (error != null) ErrorNotice(error!),
@@ -235,16 +252,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       body: PageBody(
         children: [
           if (widget.register) ...[
-            const CareCard(
+            CareCard(
               color: skySoft,
               padding: 16,
-              child: Row(
+              radius: 16,
+              child: const Row(
                 children: [
                   HopelyMark(),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Hopely Care\nRuang teduh bagi pasien & pendamping',
+                      'Hopely Care Sanctuary\nRuang teduh bagi pejuang & pendamping',
                     ),
                   ),
                 ],
@@ -252,17 +270,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
             const Heading(
               'Daftar Akun Baru',
-              'Mulai langkah awal di ruang yang aman.',
+              'Mulai langkah awal ruang aman dan terpercaya.',
             ),
           ] else ...[
             const Center(
               child: CircleAvatar(
                 radius: 32,
-                backgroundColor: lavender,
+                backgroundColor: primaryFixed,
                 child: Icon(
                   Icons.volunteer_activism,
                   color: hopelyBlue,
-                  size: 30,
+                  size: 32,
                 ),
               ),
             ),
@@ -325,17 +343,29 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
     ),
     body: PageBody(
       children: [
+        const Text(
+          'Langkah 1 dari 3',
+          style: TextStyle(
+            fontSize: 12,
+            color: hopelyBlue,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 8),
         const Heading(
           'Kamu menggunakan Hopely sebagai?',
           'Pilih peran untuk menyesuaikan pengalaman pendampinganmu.',
         ),
-        const CareCard(
+        CareCard(
           color: skySoft,
           child: Row(
             children: [
-              HopelyMark(),
-              SizedBox(width: 12),
-              Expanded(child: Text('Ruang tenang untuk melangkah bersama.')),
+              const HopelyMark(),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Ruang Tenang & Aman'),
+              ),
             ],
           ),
         ),
@@ -349,47 +379,62 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           (
             'caregiver',
             'Pendamping',
-            'Saya mendampingi keluarga atau kerabat.',
+            'Saya mendampingi keluarga atau kerabat yang sedang berjuang.',
             Icons.volunteer_activism,
           ),
         ])
           CareCard(
-            color: role == item.$1 ? skySoft : Colors.white,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () => setState(() => role = item.$1),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: lavender,
-                      child: Icon(item.$4, color: hopelyBlue),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.$2,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(item.$3),
-                        ],
+              child: Stack(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconWell(
+                        item.$4,
+                        size: 56,
+                        radius: 16,
+                        background: role == item.$1
+                            ? primaryFixed
+                            : skySoft,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.$2,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(item.$3),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 28),
+                    ],
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: role == item.$1
+                          ? hopelyBlueDark
+                          : surfaceHigh,
+                      child: Icon(
+                        Icons.check,
+                        size: 14,
+                        color: role == item.$1
+                            ? Colors.white
+                            : Colors.transparent,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      role == item.$1
-                          ? Icons.check_circle
-                          : Icons.circle_outlined,
-                      color: hopelyBlue,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

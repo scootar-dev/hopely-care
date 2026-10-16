@@ -5,12 +5,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=(".env", "../.env"), extra="ignore")
     internal_service_key: str = Field(min_length=32)
     app_env: str = "local"
     mock_ai_mode: bool = True
-    llm_provider: str = "openai"
+    llm_provider: str = "groq"
     llm_api_key: str = ""
+    groq_api_key: str = ""
     llm_model: str = ""
     emotion_model_name: str = ""
     embedding_model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -23,8 +24,13 @@ class Settings(BaseSettings):
     def live_configuration(self):
         if self.app_env == "production" and self.mock_ai_mode:
             raise ValueError("Mock mode cannot be enabled in production")
-        if not self.mock_ai_mode and (not self.llm_api_key or not self.llm_model):
-            raise ValueError("Live AI requires LLM_API_KEY and LLM_MODEL")
+        provider_key = (
+            self.groq_api_key or self.llm_api_key
+            if self.llm_provider.strip().lower() == "groq"
+            else self.llm_api_key
+        )
+        if not self.mock_ai_mode and (not provider_key or not self.llm_model):
+            raise ValueError("Live AI requires a provider API key and LLM_MODEL")
         return self
 
 

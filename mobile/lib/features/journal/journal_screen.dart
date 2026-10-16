@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import '../settings/profile_photo.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -13,30 +15,32 @@ class JournalScreen extends ConsumerStatefulWidget {
 
 class _JournalScreenState extends ConsumerState<JournalScreen> {
   int version = 0, page = 1;
-  void edit([Json? entry, bool letter = false]) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => JournalEditor(
-          entry: entry,
-          initialTitle: letter ? 'Surat untuk diriku' : '',
-        ),
-      ),
+  Future<void> edit([Json? entry, bool letter = false]) async {
+    await context.push<void>(
+      entry == null
+          ? '/journal/new${letter ? '?letter=1' : ''}'
+          : '/journal/${entry['id']}/reflection',
     );
-    if (mounted) {
-      setState(() => version++);
-    }
+    if (mounted) setState(() => version++);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      leading: const BackHomeButton(),
-      title: const Text('Jurnal Harian'),
-    ),
-    floatingActionButton: FloatingActionButton.extended(
-      onPressed: edit,
-      icon: const Icon(Icons.edit_outlined),
-      label: const Text('Tulis Jurnal Baru'),
+      leading: const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+      title: const Text('Jurnal'),
+      actions: [
+        IconButton(
+          onPressed: () => context.push('/notifications'),
+          icon: const Icon(Icons.notifications_none),
+          tooltip: 'Notifikasi',
+        ),
+        IconButton(
+          onPressed: () => context.push('/profile'),
+          icon: const ProfileAvatar(radius: 16),
+          tooltip: 'Profil',
+        ),
+      ],
     ),
     body: DataPage(
       key: ValueKey('$version-$page'),
@@ -50,6 +54,19 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               'Isi jurnal hanya untukmu. Analisis AI selalu memerlukan izinmu.',
             ),
             const SoftLabel('Privat • Hanya Aku', icon: Icons.lock_outline),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: edit,
+                icon: const Icon(Icons.add),
+                label: const Text('Tulis Jurnal Baru'),
+                style: FilledButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             CareCard(
               color: lavenderSoft,
@@ -86,10 +103,12 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               CareCard(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
+                  leading: const IconWell(Icons.edit_note_outlined, size: 44),
                   title: Text(
                     row['title']?.toString().isNotEmpty == true
                         ? row['title']
                         : 'Catatan ${row['journal_date']}',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

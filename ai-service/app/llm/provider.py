@@ -42,6 +42,49 @@ class OpenAIProvider:
             raise ProviderError("AI provider unavailable or invalid response") from exc
 
 
+class GroqProvider:
+    """Groq's OpenAI-compatible chat API with schema-validated JSON output."""
+
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.client = AsyncOpenAI(
+            api_key=settings.groq_api_key or settings.llm_api_key,
+            base_url="https://api.groq.com/openai/v1",
+            timeout=35.0,
+            max_retries=1,
+        )
+
+    async def structured(self, task: str, payload: dict, schema: type[T]) -> T:
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.settings.llm_model,
+                messages=[
+                    {"role": "system", "content": SYSTEM + "\nTask: " + task},
+                    {
+                        "role": "user",
+                        "content": json.dumps(payload, ensure_ascii=False),
+                    },
+                ],
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": schema.__name__.lower(),
+                        "strict": True,
+                        "schema": schema.model_json_schema(),
+                    },
+                },
+                max_tokens=1800,
+            )
+            content = response.choices[0].message.content
+            if not content:
+                raise ProviderError("No validated response")
+            return schema.model_validate_json(content)
+        except ProviderError:
+            raise
+        except Exception as exc:
+            raise ProviderError("AI provider unavailable or invalid response") from exc
+
+
 class MockProvider:
     """Offline fixtures: deliberately not called a language model or clinical classifier."""
 
@@ -103,6 +146,9 @@ class MockProvider:
 def make_provider(settings: Settings) -> LLMProvider:
     if settings.mock_ai_mode:
         return MockProvider()
-    if settings.llm_provider != "openai":
-        raise ValueError("Unsupported LLM_PROVIDER; implement LLMProvider adapter")
-    return OpenAIProvider(settings)
+    provider_name = settings.llm_provider.strip().lower()
+    if provider_name == "groq":
+        return GroqProvider(settings)
+    if provider_name == "openai":
+        return OpenAIProvider(settings)
+    raise ValueError("Unsupported LLM_PROVIDER; implement LLMProvider adapter")

@@ -1,11 +1,13 @@
 import asyncio
+from types import SimpleNamespace
 
 import pytest
 from pydantic import ValidationError
 
 from app.core.config import Settings
-from app.llm.provider import MockProvider, ProviderError
+from app.llm.provider import GroqProvider, MockProvider, ProviderError, make_provider
 from app.schemas.contracts import (
+    CompanionResult,
     PatientContext,
     RecommendationRequest,
     RecommendationResult,
@@ -201,6 +203,66 @@ def test_provider_failure_never_silently_mocks(context):
 def test_production_disallows_mock():
     with pytest.raises(ValidationError):
         Settings(internal_service_key="x" * 32, app_env="production", mock_ai_mode=True)
+
+
+def test_groq_settings_accepts_groq_key(monkeypatch):
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    settings = Settings(
+        internal_service_key="x" * 32,
+        mock_ai_mode=False,
+        llm_provider="groq",
+        groq_api_key="test-groq-key",
+        llm_model="openai/gpt-oss-20b",
+    )
+    assert settings.groq_api_key == "test-groq-key"
+
+
+def test_groq_provider_uses_structured_chat_output():
+    settings = Settings(
+        internal_service_key="x" * 32,
+        mock_ai_mode=False,
+        llm_provider="groq",
+        groq_api_key="test-groq-key",
+        llm_model="openai/gpt-oss-20b",
+    )
+    provider = make_provider(settings)
+    assert isinstance(provider, GroqProvider)
+    assert str(provider.client.base_url) == "https://api.groq.com/openai/v1/"
+
+
+def test_groq_provider_validates_structured_response():
+    settings = Settings(
+        internal_service_key="x" * 32,
+        mock_ai_mode=False,
+        llm_provider="groq",
+        groq_api_key="test-groq-key",
+        llm_model="openai/gpt-oss-20b",
+    )
+    provider = GroqProvider(settings)
+    calls = {}
+
+    class FakeCompletions:
+        async def create(self, **kwargs):
+            calls.update(kwargs)
+            return SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(
+                            content=(
+                                '{"reply":"Halo","support_intent":"listen",'
+                                '"suggested_activity":null,"safety_signal":"NONE"}'
+                            )
+                        )
+                    )
+                ]
+            )
+
+    provider.client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions()))
+    result = asyncio.run(provider.structured("companion", {"message": "halo"}, CompanionResult))
+
+    assert result.reply == "Halo"
+    assert calls["response_format"]["type"] == "json_schema"
+    assert calls["response_format"]["json_schema"]["strict"] is True
 
 
 def test_unreviewed_ingestion_rejected(client, headers):

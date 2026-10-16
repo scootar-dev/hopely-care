@@ -8,6 +8,7 @@ import '../../../core/widgets/ui.dart';
 import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_dialogs.dart';
+import '../../settings/profile_photo.dart';
 
 const circleBlue = Color(0xFF2563EB);
 const circleDeepBlue = Color(0xFF1E40AF);
@@ -60,6 +61,7 @@ class CommunityScaffold extends StatelessWidget {
     this.actions,
     this.root = false,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
   });
   final String title;
   final Widget body;
@@ -125,44 +127,25 @@ class CommunityScaffold extends StatelessWidget {
           ),
           actions: [
             ...?actions,
+            IconButton(
+              tooltip: 'Notifikasi',
+              icon: const Icon(Icons.notifications_none_outlined, size: 22),
+              onPressed: () => context.push('/notifications'),
+            ),
             if (root) ...[
               IconButton(
                 tooltip: 'Cari komunitas',
                 icon: const Icon(Icons.search, size: 22),
                 onPressed: () => context.push('/community/discover'),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: circleBlue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: ProfileAvatar(radius: 16),
               ),
             ] else
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: circleBlue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: ProfileAvatar(radius: 16),
               ),
           ],
         ),
@@ -425,7 +408,7 @@ class CommunityCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, color: circleDeepBlue),
                 ),
               ),
-            if (footer != null) footer!,
+            ?footer,
           ],
         ),
       ),
@@ -1246,7 +1229,7 @@ class CommunityFilterChips extends StatelessWidget {
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       itemCount: filters.length,
-      separatorBuilder: (_, __) => const SizedBox(width: 8),
+      separatorBuilder: (_, _) => const SizedBox(width: 8),
       itemBuilder: (context, index) => GestureDetector(
         onTap: () => onChanged(index),
         child: AnimatedContainer(

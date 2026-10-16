@@ -35,11 +35,12 @@ services:
     environment:
       INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       LLM_API_KEY: ${LLM_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
       LLM_MODEL: ${LLM_MODEL}
       QDRANT_API_KEY: ${QDRANT_API_KEY}
       APP_ENV: ${APP_ENV:-local}
       MOCK_AI_MODE: ${MOCK_AI_MODE:-true}
-      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
       EMOTION_MODEL_NAME: ${EMOTION_MODEL_NAME:-}
       EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
       QDRANT_URL: http://qdrant:6333

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api.dart';
 import '../../../core/widgets/ui.dart';
-import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_dialogs.dart';
 import 'community_widgets.dart';
@@ -86,7 +85,10 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFDBEAFE),
                             borderRadius: BorderRadius.circular(20),
@@ -115,7 +117,11 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                           ),
                         ),
                         // Options menu
-                        _PostOptionMenu(post: post, repo: repo, onChanged: reload),
+                        _PostOptionMenu(
+                          post: post,
+                          repo: repo,
+                          onChanged: reload,
+                        ),
                       ],
                     ),
                   ),
@@ -136,7 +142,10 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                         Expanded(
                           child: Text(
                             'Interaksi dipantau tim pendamping Hopely demi kenyamanan bersama.',
-                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ),
                       ],
@@ -168,7 +177,10 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                       ),
                       Text(
                         'Terbaru',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -195,7 +207,10 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                         }
                       },
                     ),
-                  CommunityPagination(comments, (v) => setState(() => page = v)),
+                  CommunityPagination(
+                    comments,
+                    (v) => setState(() => page = v),
+                  ),
                   // Extra bottom padding for comment input
                   if (canParticipate) const SizedBox(height: 80),
                   if (!canParticipate)
@@ -209,7 +224,10 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                       ),
                       child: Text(
                         'Komentar tersedia untuk anggota pada cerita yang sudah diterbitkan.',
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ),
                   if (notice != null)
@@ -268,17 +286,19 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                                     controller: _commentController,
                                     enabled: !busy,
                                     decoration: InputDecoration(
-                                      hintText: 'Tulis kata-kata penyemangat...',
+                                      hintText:
+                                          'Tulis kata-kata penyemangat...',
                                       hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: Colors.grey.shade400,
                                       ),
                                       border: InputBorder.none,
                                       filled: false,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
+                                          ),
                                     ),
                                     onSubmitted: (_) => send(reload),
                                   ),
@@ -307,7 +327,9 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                             child: Container(
                               width: 48,
                               height: 48,
-                              decoration: const BoxDecoration(shape: BoxShape.circle),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
                               child: busy
                                   ? const Padding(
                                       padding: EdgeInsets.all(12),
@@ -316,7 +338,11 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                                         color: Colors.white,
                                       ),
                                     )
-                                  : const Icon(Icons.send, color: Colors.white, size: 22),
+                                  : const Icon(
+                                      Icons.send,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
                             ),
                           ),
                         ),
@@ -425,7 +451,10 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
                     const SizedBox(height: 2),
                     Text(
                       'Penyintas Kanker • ${shortDate(post['created_at'])}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -475,9 +504,14 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
                     : null,
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isLiked ? const Color(0xFFE5EEFF) : const Color(0xFFF0F4FF),
+                    color: isLiked
+                        ? const Color(0xFFE5EEFF)
+                        : const Color(0xFFF0F4FF),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -504,7 +538,10 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
               const SizedBox(width: 10),
               // Komentar count
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0F4FF),
                   borderRadius: BorderRadius.circular(20),
@@ -512,7 +549,11 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey.shade500),
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      size: 20,
+                      color: Colors.grey.shade500,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Komentar ($commentCount)',
@@ -527,7 +568,11 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
               ),
               const Spacer(),
               // Bookmark
-              Icon(Icons.bookmark_border, size: 24, color: Colors.grey.shade400),
+              Icon(
+                Icons.bookmark_border,
+                size: 24,
+                color: Colors.grey.shade400,
+              ),
             ],
           ),
         ],
@@ -646,7 +691,10 @@ class _CommentCard extends StatelessWidget {
                         const Spacer(),
                         Text(
                           shortDate(comment['created_at']),
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
@@ -664,7 +712,11 @@ class _CommentCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.favorite_outline, size: 16, color: Colors.grey.shade400),
+                              Icon(
+                                Icons.favorite_outline,
+                                size: 16,
+                                color: Colors.grey.shade400,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Terbantu (${(comment['helpful_count'] ?? 0)})',
@@ -691,23 +743,41 @@ class _CommentCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         moderationLabel(comment['moderation_status']),
-                        style: const TextStyle(color: circleDeepBlue, fontSize: 12),
+                        style: const TextStyle(
+                          color: circleDeepBlue,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_horiz, size: 18, color: Colors.grey.shade300),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                icon: Icon(
+                  Icons.more_horiz,
+                  size: 18,
+                  color: Colors.grey.shade300,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onSelected: onAction,
                 itemBuilder: (_) => [
                   if (comment['is_own'] == true)
-                    const PopupMenuItem(value: 'delete', child: Text('Hapus komentar')),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Hapus komentar'),
+                    ),
                   if (comment['is_own'] != true)
-                    const PopupMenuItem(value: 'report', child: Text('Laporkan')),
+                    const PopupMenuItem(
+                      value: 'report',
+                      child: Text('Laporkan'),
+                    ),
                   if (comment['is_own'] != true)
-                    const PopupMenuItem(value: 'block', child: Text('Blokir pengguna')),
+                    const PopupMenuItem(
+                      value: 'block',
+                      child: Text('Blokir pengguna'),
+                    ),
                 ],
               ),
             ],

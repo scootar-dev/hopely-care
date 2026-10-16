@@ -10,7 +10,7 @@ class CareCard extends StatelessWidget {
     required this.child,
     this.color = Colors.white,
     this.padding = 20,
-    this.radius = 20,
+    this.radius = 24,
     this.borderColor,
   });
   final Widget child;
@@ -20,21 +20,13 @@ class CareCard extends StatelessWidget {
   final Color? borderColor;
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 18),
+    margin: const EdgeInsets.only(bottom: 16),
     padding: EdgeInsets.all(padding),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(
-        color: borderColor ?? Colors.white.withValues(alpha: .45),
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: const Color(0xFF25315F).withValues(alpha: 0.025),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      border: Border.all(color: borderColor ?? Colors.transparent),
+      boxShadow: hopelyCardShadow,
     ),
     child: Material(type: MaterialType.transparency, child: child),
   );
@@ -57,7 +49,7 @@ class PageBody extends StatelessWidget {
         ),
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           physics: const AlwaysScrollableScrollPhysics(),
           children: children,
         ),
@@ -98,8 +90,9 @@ class _SoftBadge extends StatelessWidget {
     child: Text(
       label,
       style: const TextStyle(
-        color: Color(0xFF351B8A),
-        fontWeight: FontWeight.w800,
+        color: hopelyBlue,
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
       ),
     ),
   );
@@ -231,6 +224,10 @@ class MetricSelector extends StatelessWidget {
     this.highIsGood = true,
     this.icon = Icons.favorite_outline,
     this.mood = false,
+    this.subtitle,
+    this.lowLabel,
+    this.highLabel,
+    this.valueLabel,
   });
   final String label;
   final int value;
@@ -238,30 +235,52 @@ class MetricSelector extends StatelessWidget {
   final bool highIsGood;
   final IconData icon;
   final bool mood;
+  final String? subtitle;
+  final String? lowLabel;
+  final String? highLabel;
+  final String Function(int value)? valueLabel;
   @override
   Widget build(BuildContext context) {
-    const activeColor = hopelyBlue;
     return CareCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 21,
-                backgroundColor: skySoft,
+              Container(
+                width: 42,
+                height: 42,
+                decoration: const BoxDecoration(
+                  color: skySoft,
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, size: 21, color: hopelyBlue),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: Theme.of(context).textTheme.titleMedium),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                  ],
+                ),
+              ),
+              Text(
+                valueLabel?.call(value) ?? '$value / 5',
+                style: const TextStyle(
+                  color: hopelyBlue,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
               final size = ((constraints.maxWidth - 24) / 5).clamp(48.0, 100.0);
@@ -277,8 +296,8 @@ class MetricSelector extends StatelessWidget {
                     child: SizedBox(
                       width: size,
                       child: Material(
-                        color: selected ? activeColor : skySoft,
-                        borderRadius: BorderRadius.circular(10),
+                        color: selected ? hopelyBlueDark : skySoft,
+                        borderRadius: BorderRadius.circular(12),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () => onChanged(i + 1),
@@ -312,11 +331,12 @@ class MetricSelector extends StatelessWidget {
             runSpacing: 4,
             children: [
               Text(
-                highIsGood ? '1: Sangat rendah' : '1: Tidak ada',
+                lowLabel ?? (highIsGood ? '1: Sangat rendah' : '1: Tidak ada'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               Text(
-                highIsGood ? '5: Sangat baik' : '5: Sangat tinggi',
+                highLabel ??
+                    (highIsGood ? '5: Sangat baik' : '5: Sangat tinggi'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

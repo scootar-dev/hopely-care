@@ -5,6 +5,7 @@ import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import '../settings/profile_photo.dart';
 
 class CaregiverScreen extends ConsumerWidget {
   const CaregiverScreen({super.key});
@@ -13,7 +14,7 @@ class CaregiverScreen extends ConsumerWidget {
     appBar: AppBar(
       centerTitle: false,
       leading: const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
-      title: const Text('Hopely Care'),
+      title: const Text('Caregiver Home'),
       actions: [
         IconButton(
           onPressed: () => context.push('/notifications'),
@@ -22,7 +23,7 @@ class CaregiverScreen extends ConsumerWidget {
         ),
         IconButton(
           onPressed: () => context.push('/profile'),
-          icon: const Icon(Icons.person_outline),
+          icon: const ProfileAvatar(radius: 16),
           tooltip: 'Profil',
         ),
       ],
@@ -34,6 +35,7 @@ class CaregiverScreen extends ConsumerWidget {
       },
       builder: (data, reload) {
         final patients = items(data['patients']);
+        final featuredPatient = patients.isEmpty ? null : patients.first;
         final alerts = items(data['notifications']).where(
           (n) =>
               n['notification_type'] == 'support_alert' && n['read_at'] == null,
@@ -41,10 +43,37 @@ class CaregiverScreen extends ConsumerWidget {
         return PageBody(
           children: [
             const SoftLabel('Mode Kerabat Aktif', icon: Icons.people_outline),
-            const SizedBox(height: 20),
-            const Heading(
-              'Dashboard Kerabat',
-              'Hadir dengan lembut, sambil menghormati ruang pribadi orang yang kamu dampingi.',
+            const SizedBox(height: 14),
+            Text(
+              'Selamat ${dayGreeting().replaceFirst('Selamat ', '').toLowerCase()},',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              featuredPatient == null
+                  ? 'Pendampingan yang penuh perhatian'
+                  : 'Pendampingan ${featuredPatient['name'] ?? 'pasien'}',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 12),
+            const CareCard(
+              color: skySoft,
+              child: Row(
+                children: [
+                  IconWell(
+                    Icons.favorite_outline,
+                    size: 48,
+                    radius: 24,
+                    background: Colors.white,
+                  ),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      'Kehadiran yang tenang dan penuh perhatian adalah bentuk dukungan yang berarti.',
+                    ),
+                  ),
+                ],
+              ),
             ),
             for (final alert in alerts)
               CareCard(
@@ -52,9 +81,9 @@ class CaregiverScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    const SectionHeading(
                       'Pengingat dukungan',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      icon: Icons.notifications_active_outlined,
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -75,14 +104,15 @@ class CaregiverScreen extends ConsumerWidget {
                   'Belum ada pasien yang terhubung. Terima undangan pribadi dari orang yang akan kamu dampingi.',
                 ),
               ),
+            if (patients.isNotEmpty)
+              const SectionHeading(
+                'Orang yang kamu dampingi',
+              ),
             for (final patient in patients)
               CareCard(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const CircleAvatar(
-                    backgroundColor: lavender,
-                    child: Icon(Icons.person_outline, color: hopelyBlue),
-                  ),
+                  leading: const IconWell(Icons.person_outline, size: 48),
                   title: Text(patient['name'] ?? 'Pasien'),
                   subtitle: Text(patient['relationship_label']),
                   trailing: const Icon(Icons.chevron_right),
@@ -97,6 +127,13 @@ class CaregiverScreen extends ConsumerWidget {
               },
               icon: const Icon(Icons.link),
               label: const Text('Hubungkan dengan Pasien'),
+              style: FilledButton.styleFrom(
+                shape: const StadiumBorder(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+              ),
             ),
             const SizedBox(height: 22),
             const PrivacyNote(

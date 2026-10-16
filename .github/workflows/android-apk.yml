@@ -1,0 +1,67 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: Public HTTPS Laravel API URL, including /api
+        required: true
+        type: string
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: Validate API URL
+        env:
+          API_BASE_URL: ${{ inputs.api_base_url || vars.API_BASE_URL }}
+        run: |
+          if [[ -z "$API_BASE_URL" ]]; then
+            echo "Set the api_base_url input or the repository variable API_BASE_URL."
+            exit 1
+          fi
+          if [[ "$API_BASE_URL" != https://* ]]; then
+            echo "API_BASE_URL must use HTTPS for release APKs."
+            exit 1
+          fi
+
+      - name: Build APK
+        working-directory: mobile
+        env:
+          API_BASE_URL: ${{ inputs.api_base_url || vars.API_BASE_URL }}
+        run: flutter build apk --release --dart-define=API_BASE_URL="$API_BASE_URL"
+
+      - name: Rename APK
+        working-directory: mobile
+        run: cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/hopely-care.apk
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hopely-care-apk
+          path: mobile/build/app/outputs/flutter-apk/hopely-care.apk
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" mobile/build/app/outputs/flutter-apk/hopely-care.apk --title "Hopely Care $GITHUB_REF_NAME" --generate-notes

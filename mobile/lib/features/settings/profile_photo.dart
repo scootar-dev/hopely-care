@@ -24,15 +24,25 @@ class ProfileAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final id = ref.watch(
-      sessionProvider.select((s) => s.user?['id'] as String?),
-    );
+    final session = ref.watch(sessionProvider);
+    final id = session.user?['id']?.toString();
+    final displayName =
+        (session.profile?['display_name'] ?? session.user?['name'] ?? '')
+            .toString()
+            .trim();
     final bytes = id == null ? null : ref.watch(profilePhotoProvider(id)).value;
     return CircleAvatar(
       radius: radius,
       backgroundColor: pillBlue,
       child: bytes == null
-          ? Icon(Icons.person_outline, color: hopelyBlue, size: radius * 1.1)
+          ? Text(
+              _initials(displayName),
+              style: TextStyle(
+                color: hopelyBlue,
+                fontSize: radius * 0.72,
+                fontWeight: FontWeight.w700,
+              ),
+            )
           : ClipOval(
               child: Image.memory(
                 bytes,
@@ -48,6 +58,15 @@ class ProfileAvatar extends ConsumerWidget {
               ),
             ),
     );
+  }
+
+  String _initials(String name) {
+    if (name.isEmpty) return '?';
+    final parts = name.split(RegExp(r'\s+'));
+    final value = parts.length == 1
+        ? parts.first.substring(0, 1)
+        : '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}';
+    return value.toUpperCase();
   }
 }
 

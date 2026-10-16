@@ -197,41 +197,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final s = ref.watch(sessionProvider);
     return PageBody(
       children: [
-        Center(
+        CareCard(
+          padding: 20,
+          radius: 28,
+          color: skySoft,
           child: Column(
             children: [
               const ProfilePhotoControls(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Text(
                 s.profile?['display_name'] ?? s.user?['name'] ?? 'Profil',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
+              Text(
+                s.caregiver
+                    ? 'Pendamping terdaftar'
+                    : 'Ruang pribadi Hopely Care',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
               SoftLabel(
-                s.caregiver ? 'Akun Kerabat' : 'Ruang Pribadimu',
-                icon: Icons.favorite_outline,
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-        const BlueCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Setiap langkahmu berarti.',
-                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Ada ruang untuk beristirahat, mencatat, dan melangkah sesuai kemampuanmu.',
+                s.caregiver ? 'Akun Pendamping' : 'Sedang menjalani perjalanan',
+                icon: Icons.circle,
               ),
             ],
           ),
         ),
         if (!s.caregiver && !s.needsConsent) const ProfileStats(),
-        const SectionHeading('Pengaturan Cepat'),
+        const _SettingsSectionLabel('AKUN'),
+        const CareCard(
+          child: ActionLink(
+            'Data dan akun',
+            '/data-account',
+            icon: Icons.manage_accounts_outlined,
+          ),
+        ),
         const CareCard(
           child: ActionLink(
             'Privasi & persetujuan',
@@ -239,12 +240,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.lock_outline,
           ),
         ),
+        const _SettingsSectionLabel('DUKUNGAN'),
         if (!s.caregiver) ...[
           const CareCard(
             child: ActionLink(
               'Profil dan zona waktu',
               '/edit-profile',
               icon: Icons.person_outline,
+            ),
+          ),
+          const CareCard(
+            child: ActionLink(
+              'Konteks perawatan',
+              '/treatment-profile',
+              icon: Icons.medical_information_outlined,
             ),
           ),
           const CareCard(
@@ -262,6 +271,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
         ],
+        const _SettingsSectionLabel('PREFERENSI'),
         if (!s.caregiver)
           const CareCard(
             child: ActionLink(
@@ -272,11 +282,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         const CareCard(
           child: ActionLink(
+            'Pengaturan notifikasi',
+            '/notification-settings',
+            icon: Icons.notifications_active_outlined,
+          ),
+        ),
+        const CareCard(
+          child: ActionLink(
             'Notifikasi',
             '/notifications',
             icon: Icons.notifications_none,
           ),
         ),
+        const _SettingsSectionLabel('DATA & AKUN'),
         const CareCard(
           child: ActionLink(
             'Support Circle • Komunitas',
@@ -328,6 +346,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ],
     );
   }
+}
+
+class _SettingsSectionLabel extends StatelessWidget {
+  const _SettingsSectionLabel(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: tertiaryInk,
+          letterSpacing: 0.8,
+        ),
+      ),
+    ),
+  );
 }
 
 class ProfileEditor extends ConsumerStatefulWidget {

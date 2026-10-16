@@ -5,18 +5,48 @@ import '../theme/theme.dart';
 import 'ui.dart';
 
 class HopelyMark extends StatelessWidget {
-  const HopelyMark({super.key, this.size = 44});
+  const HopelyMark({super.key, this.size = 36, this.filled = false});
   final double size;
+  final bool filled;
   @override
   Widget build(BuildContext context) => Container(
     width: size,
     height: size,
     decoration: BoxDecoration(
-      color: skySoft,
+      color: filled ? hopelyBlue : surfaceHigh,
       shape: BoxShape.circle,
-      border: Border.all(color: pillBlue),
     ),
-    child: Icon(Icons.spa_outlined, color: hopelyBlue, size: size * .6),
+    child: Icon(
+      Icons.spa_outlined,
+      color: filled ? Colors.white : hopelyBlue,
+      size: size * .55,
+    ),
+  );
+}
+
+class IconWell extends StatelessWidget {
+  const IconWell(
+    this.icon, {
+    super.key,
+    this.size = 48,
+    this.radius = 16,
+    this.background = skySoft,
+    this.foreground = hopelyBlue,
+  });
+  final IconData icon;
+  final double size;
+  final double radius;
+  final Color background;
+  final Color foreground;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: background,
+      borderRadius: BorderRadius.circular(radius),
+    ),
+    child: Icon(icon, color: foreground, size: size * .46),
   );
 }
 
@@ -29,7 +59,7 @@ class SoftLabel extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
-      color: inverse ? Colors.white.withValues(alpha: .16) : skySoft,
+      color: inverse ? Colors.white.withValues(alpha: .16) : surfaceHighest,
       borderRadius: BorderRadius.circular(30),
     ),
     child: Row(
@@ -44,8 +74,9 @@ class SoftLabel extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: 12,
+              height: 16 / 12,
               color: inverse ? Colors.white : hopelyBlue,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -60,30 +91,18 @@ class BlueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    margin: const EdgeInsets.only(bottom: 22),
+    margin: const EdgeInsets.only(bottom: 16),
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
       gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFF3979F4), Color(0xFF0049D6), Color(0xFF4466C8)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [skySoft, surfaceContainer, Colors.white],
       ),
-      borderRadius: BorderRadius.circular(26),
-      boxShadow: [
-        BoxShadow(
-          color: hopelyBlue.withValues(alpha: .15),
-          blurRadius: 18,
-          offset: const Offset(0, 8),
-        ),
-      ],
+      borderRadius: BorderRadius.circular(28),
+      boxShadow: hopelyCardShadow,
     ),
-    child: DefaultTextStyle.merge(
-      style: const TextStyle(color: Colors.white),
-      child: IconTheme(
-        data: const IconThemeData(color: Colors.white),
-        child: child,
-      ),
-    ),
+    child: child,
   );
 }
 
@@ -101,15 +120,21 @@ class SectionHeading extends StatelessWidget {
   final IconData? icon;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 8, bottom: 14),
+    padding: const EdgeInsets.only(top: 8, bottom: 10),
     child: Row(
       children: [
         if (icon != null) ...[
-          Icon(icon, color: hopelyBlue, size: 22),
-          const SizedBox(width: 8),
+          Icon(icon, color: mutedInk, size: 18),
+          const SizedBox(width: 6),
         ],
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: mutedInk,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
         if (action != null) TextButton(onPressed: onTap, child: Text(action!)),
       ],
@@ -127,7 +152,7 @@ class PrivacyNote extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.lock_outline, color: hopelyBlue, size: 19),
+        const Icon(Icons.lock_outline, color: hopelyBlue, size: 18),
         const SizedBox(width: 10),
         Expanded(
           child: Text(text, style: Theme.of(context).textTheme.bodySmall),
@@ -167,7 +192,7 @@ class ScoreBar extends StatelessWidget {
               value: value!.toDouble().clamp(0, 5) / 5,
               minHeight: 8,
               color: color,
-              backgroundColor: pillBlue,
+              backgroundColor: surfaceHighest,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -177,52 +202,22 @@ class ScoreBar extends StatelessWidget {
 }
 
 class CareHero extends StatelessWidget {
-  const CareHero({super.key, this.compact = false});
+  const CareHero({super.key, this.compact = false, this.icon = Icons.favorite});
   final bool compact;
+  final IconData icon;
   @override
   Widget build(BuildContext context) => Container(
-    height: compact ? 190 : 275,
-    margin: const EdgeInsets.symmetric(vertical: 20),
-    decoration: const BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: RadialGradient(
-        colors: [Colors.white, Color(0xFFE2E9FF), canvas],
+    height: compact ? 160 : 240,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(28),
+      gradient: const RadialGradient(
+        colors: [Colors.white, primaryFixed, skySoft],
       ),
+      boxShadow: hopelyCardShadow,
     ),
     child: Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: compact ? 140 : 205,
-            height: compact ? 140 : 205,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: hopelyBlue.withValues(alpha: .12),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.volunteer_activism_outlined,
-            size: compact ? 82 : 120,
-            color: hopelyBlue,
-          ),
-          if (!compact)
-            const Positioned(
-              bottom: 4,
-              child: SoftLabel(
-                'Ruang untuk didengarkan',
-                icon: Icons.favorite_outline,
-              ),
-            ),
-        ],
-      ),
+      child: Icon(icon, size: compact ? 64 : 96, color: hopelyBlue),
     ),
   );
 }
@@ -236,4 +231,63 @@ class BackHomeButton extends StatelessWidget {
     icon: const Icon(Icons.arrow_back),
     onPressed: () => context.canPop() ? context.pop() : context.go(fallback),
   );
+}
+
+class MenuRow extends StatelessWidget {
+  const MenuRow({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    this.trailing,
+  });
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  final Widget? trailing;
+  @override
+  Widget build(BuildContext context) => InkWell(
+    borderRadius: BorderRadius.circular(16),
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          IconWell(icon, size: 40, radius: 12),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+          ),
+          if (trailing != null) ...[trailing!, const SizedBox(width: 4)],
+          const Icon(Icons.chevron_right, color: outlineVariant),
+        ],
+      ),
+    ),
+  );
+}
+
+String dayGreeting([DateTime? at]) {
+  final hour = (at ?? DateTime.now()).hour;
+  if (hour < 11) return 'Selamat pagi';
+  if (hour < 15) return 'Selamat siang';
+  if (hour < 18) return 'Selamat sore';
+  return 'Selamat malam';
+}
+
+String firstName(String? full) {
+  final value = (full ?? '').trim();
+  if (value.isEmpty) return '';
+  return value.split(RegExp(r'\s+')).first;
+}
+
+String relativeScheduleLabel(DateTime when) {
+  final local = when.toLocal();
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final day = DateTime(local.year, local.month, local.day);
+  final time =
+      '${local.hour.toString().padLeft(2, '0')}.${local.minute.toString().padLeft(2, '0')}';
+  if (day == today) return 'Hari ini • $time WIB';
+  if (day == today.add(const Duration(days: 1))) return 'Besok • $time WIB';
+  return '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')} • $time WIB';
 }

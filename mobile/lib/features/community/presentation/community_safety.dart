@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/api/api.dart';
+import '../../../core/theme/theme.dart';
 import '../../../core/widgets/ui.dart';
-import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_widgets.dart';
 
@@ -68,7 +68,11 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.verified_user_outlined, size: 14, color: circleBlue),
+                                const Icon(
+                                  Icons.verified_user_outlined,
+                                  size: 14,
+                                  color: circleBlue,
+                                ),
                                 const SizedBox(width: 4),
                                 const Text(
                                   'RUANG TEDUH',
@@ -83,7 +87,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Komitmen bersama menciptakan ruang yang menyembuhkan, tanpa penghakiman.',
+                              'Komitmen bersama menciptakan ruang yang aman, hangat, dan tanpa penghakiman.',
                               style: TextStyle(
                                 fontSize: 14,
                                 height: 1.5,
@@ -97,7 +101,10 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: .8),
                       borderRadius: BorderRadius.circular(8),
@@ -105,11 +112,18 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.volunteer_activism_outlined, size: 16, color: Colors.grey.shade500),
+                        Icon(
+                          Icons.volunteer_activism_outlined,
+                          size: 16,
+                          color: Colors.grey.shade500,
+                        ),
                         const SizedBox(width: 6),
                         Text(
-                          'Dijaga 24/7 oleh tim kurator & psikolog klinis',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          'Konten dapat ditahan untuk ditinjau moderator.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ],
                     ),
@@ -146,28 +160,32 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
               iconColor: const Color(0xFF001453),
               iconBg: const Color(0xFFDDE1FF),
               title: 'Empati Penuh',
-              description: 'Dengarkan tanpa menghakimi pilihan terapi atau kondisi emosional sesama pejuang.',
+              description:
+                  'Dengarkan tanpa menghakimi pilihan terapi atau kondisi emosional sesama pejuang.',
             ),
             _PillarCard(
               icon: Icons.lock,
               iconColor: circleBlue,
               iconBg: const Color(0xFFDCE9FF),
               title: 'Privasi Medis',
-              description: 'Jaga kerahasiaan identitas pribadi dan dokumen medis sensitif demi kenyamanan bersama.',
+              description:
+                  'Jaga kerahasiaan identitas pribadi dan dokumen medis sensitif demi kenyamanan bersama.',
             ),
             _PillarCard(
               icon: Icons.medical_services,
               iconColor: const Color(0xFF00174B),
               iconBg: const Color(0xFFDBE1FF),
               title: 'Bukan Pengganti Resep',
-              description: 'Bagikan pengalaman personal sebagai penguat rasa, bukan anjuran medis pengganti dokter.',
+              description:
+                  'Bagikan pengalaman personal sebagai penguat rasa, bukan anjuran medis pengganti dokter.',
             ),
             _PillarCard(
               icon: Icons.do_not_disturb_on,
               iconColor: const Color(0xFF0E1D2B),
               iconBg: const Color(0xFFD5E4F8),
               title: 'Bebas Promosi',
-              description: 'Tidak diperkenankan menjual obat herbal, suplemen tanpa izin, atau pengobatan alternatif komersial.',
+              description:
+                  'Tidak diperkenankan menjual obat herbal, suplemen tanpa izin, atau pengobatan alternatif komersial.',
             ),
             // Community pledge quote card
             Container(
@@ -192,7 +210,9 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: const Color(0xFFDBEAFE),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(14),
+                      ),
                     ),
                     child: Center(
                       child: Icon(
@@ -217,7 +237,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '"Di sini kita saling menguatkan langkah, merawat napas, dan berjalan bergandengan tangan menyongsong kesembuhan."',
+                          '"Di sini kita saling menguatkan langkah, merawat napas, dan menjalani hari ini bersama."',
                           style: TextStyle(
                             fontSize: 13,
                             fontStyle: FontStyle.italic,
@@ -261,10 +281,15 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                   _ProtectionRow(
                     icon: Icons.flag_outlined,
                     title: 'Laporan Konten Tidak Pantas',
-                    subtitle: 'Tim kurator menindaklanjuti dalam <15 menit',
-                    onTap: () {},
+                    subtitle: 'Status laporan dapat dilihat pada riwayat di bawah',
+                    onTap: null,
                   ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey.shade100),
+                  Divider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Colors.grey.shade100,
+                  ),
                   // Pengguna Diblokir
                   _ProtectionRow(
                     icon: Icons.block_outlined,
@@ -272,7 +297,12 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                     subtitle: '${blocked.length} akun diblokir',
                     onTap: () {},
                   ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey.shade100),
+                  Divider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Colors.grey.shade100,
+                  ),
                   // Privasi Profil
                   _ProtectionRow(
                     icon: Icons.visibility_off_outlined,
@@ -323,21 +353,31 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                     children: [
                       Text(
                         reportReasons[report['reason']] ?? 'Laporan konten',
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         switch (report['status']) {
                           'resolved' => 'Selesai ditindaklanjuti',
-                          'dismissed' => 'Ditinjau • tidak ada pelanggaran yang ditetapkan',
+                          'dismissed' =>
+                            'Ditinjau • tidak ada pelanggaran yang ditetapkan',
                           'reviewed' => 'Sedang ditinjau',
                           _ => 'Menunggu peninjauan',
                         },
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                       Text(
                         shortDate(report['created_at']),
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
                     ],
                   ),
@@ -379,13 +419,20 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                           color: circleSurface,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Icon(Icons.person_off_outlined, color: circleBlue, size: 20),
+                        child: const Icon(
+                          Icons.person_off_outlined,
+                          color: circleBlue,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           user['display_name'] as String,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       TextButton(
@@ -405,7 +452,9 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                                     );
                                   }
                                 } finally {
-                                  if (mounted) setState(() => unblocking = null);
+                                  if (mounted) {
+                                    setState(() => unblocking = null);
+                                  }
                                 }
                               },
                         child: Text(
@@ -420,11 +469,11 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                   ),
                 ),
             ],
-            // Crisis hotline card
+            // Crisis guidance without inventing a hotline or response SLA.
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFFFFF7ED),
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
@@ -436,16 +485,17 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
               ),
               child: Stack(
                 children: [
-                  // Left accent bar
                   Positioned(
                     left: 0,
                     top: 0,
                     bottom: 0,
                     child: Container(
                       width: 5,
-                      decoration: BoxDecoration(
-                        color: circleBlue,
-                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFD97706),
+                        borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(14),
+                        ),
                       ),
                     ),
                   ),
@@ -461,10 +511,14 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFDCE9FF),
+                                color: const Color(0xFFFED7AA),
                                 borderRadius: BorderRadius.circular(22),
                               ),
-                              child: const Icon(Icons.support_agent, color: circleBlue, size: 24),
+                              child: const Icon(
+                                Icons.support_agent,
+                                color: Color(0xFFB45309),
+                                size: 24,
+                              ),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -472,7 +526,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'DUKUNGAN EMOSIONAL 24 JAM',
+                                    'JIKA KAMU DALAM KRISIS',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
@@ -482,7 +536,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   const Text(
-                                    'Butuh Bantuan Darurat Segera?',
+                                    'Komunitas bukan layanan darurat',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
@@ -491,7 +545,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Jika kamu merasa sangat kewalahan atau putus asa, hubungi tim konselor krisis Hopely Care segera. Kamu tidak sendirian melewati proses ini.',
+                                    'Jika kamu berada dalam bahaya atau ingin menyakiti diri, hubungi layanan darurat setempat atau orang yang kamu percaya sekarang. Nomor bantuan berbeda menurut lokasi.',
                                     style: TextStyle(
                                       fontSize: 13,
                                       height: 1.5,
@@ -504,37 +558,9 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 52,
-                          child: FilledButton.icon(
-                            onPressed: () {},
-                            style: FilledButton.styleFrom(
-                              backgroundColor: circleBlue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            icon: const Icon(Icons.call, size: 20),
-                            label: const Text(
-                              'Hubungi Layanan Krisis (Bebas Pulsa)',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.lock_outline, size: 14, color: circleBlue),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Panggilan aman, gratis, dan sepenuhnya rahasia',
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                              ),
-                            ],
-                          ),
+                        const Text(
+                          'Cari bantuan langsung dari layanan resmi di wilayahmu. Hopely Care tidak memantau keadaan darurat secara real time.',
+                          style: TextStyle(fontSize: 12, color: tertiaryInk),
                         ),
                       ],
                     ),
@@ -581,7 +607,7 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'Hopely Care Sanctuary • Standar Keamanan Psiko-Onkologi',
+                  'Hopely Care • Pedoman keselamatan komunitas',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
                 ),
@@ -671,7 +697,7 @@ class _ProtectionRow extends StatelessWidget {
   });
   final IconData icon;
   final String title, subtitle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => InkWell(
     onTap: onTap,
@@ -708,7 +734,8 @@ class _ProtectionRow extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
+          if (onTap != null)
+            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 22),
         ],
       ),
     ),
@@ -830,10 +857,7 @@ class _PreferenceFormState extends State<_PreferenceForm> {
               const SizedBox(height: 6),
               Text(
                 'Pengaturan ini hanya untuk Support Circle.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -893,7 +917,7 @@ class _PreferenceFormState extends State<_PreferenceForm> {
             ),
             value: notifications,
             onChanged: busy ? null : (v) => setState(() => notifications = v),
-            activeColor: circleBlue,
+            activeThumbColor: circleBlue,
           ),
         ),
         // Interests card
@@ -925,7 +949,7 @@ class _PreferenceFormState extends State<_PreferenceForm> {
                 ),
                 value: recommend,
                 onChanged: busy ? null : (v) => setState(() => recommend = v),
-                activeColor: circleBlue,
+                activeThumbColor: circleBlue,
               ),
               if (recommend) ...[
                 const SizedBox(height: 16),
@@ -977,7 +1001,10 @@ class _PreferenceFormState extends State<_PreferenceForm> {
             ),
             child: Text(
               notice!,
-              style: const TextStyle(color: circleDeepBlue, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: circleDeepBlue,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         SizedBox(
@@ -987,7 +1014,9 @@ class _PreferenceFormState extends State<_PreferenceForm> {
             onPressed: busy ? null : save,
             style: FilledButton.styleFrom(
               backgroundColor: circleBlue,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
             child: Text(
               busy ? 'Menyimpan…' : 'Simpan pengaturan',
@@ -1042,12 +1071,19 @@ class _ModerationState extends ConsumerState<CommunityModerationScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: circleBlue, size: 18),
+                        const Icon(
+                          Icons.info_outline,
+                          color: circleBlue,
+                          size: 18,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Tinjau konteks, privasi, dan keamanan isi sebelum memutuskan.',
-                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ),
                       ],
@@ -1155,7 +1191,9 @@ class _ModerationItemCard extends StatelessWidget {
                       : () => onReview('approve'),
                   style: FilledButton.styleFrom(
                     backgroundColor: circleBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: const Text('Terbitkan'),
                 ),

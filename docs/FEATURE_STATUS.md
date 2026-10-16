@@ -39,6 +39,6 @@ API pemilik akun: GET/POST/DELETE `/api/me/avatar`. POST memakai multipart field
 
 ## Provider AI dan biaya
 
-Implementasi live saat ini hanya memiliki adapter OpenAI; `MOCK_AI_MODE` tidak memengaruhi login atau foto. Key provider lain tidak dapat langsung dimasukkan sebagai pengganti key OpenAI. Gemini/Groq/local model memerlukan adapter dan pengujian structured output serta safety yang sama.
+Implementasi live memiliki adapter OpenAI dan Groq. Untuk Groq, set `MOCK_AI_MODE=false`, `LLM_PROVIDER=groq`, `GROQ_API_KEY`, dan model yang mendukung structured output; `MOCK_AI_MODE` tidak memengaruhi login atau foto. Key provider hanya berada di `ai-service`, bukan di mobile.
 
 [Billing API OpenAI](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform) terpisah dari langganan ChatGPT. [Gemini menyediakan kuota gratis untuk model tertentu](https://ai.google.dev/gemini-api/docs/billing), tetapi [ketentuan layanan gratisnya](https://ai.google.dev/gemini-api/terms) tidak mengizinkan pengiriman informasi pribadi/sensitif. Jika mengevaluasi free tier, gunakan data sintetis; data pasien nyata memerlukan penilaian pengaturan privasi provider dan consent yang sesuai.

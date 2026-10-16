@@ -61,6 +61,13 @@ class ToolsScreen extends ConsumerWidget {
                   '/doctor-summary',
                   width,
                 ),
+                _Tool(
+                  'Riwayat Tracking',
+                  'Tinjau kembali check-in dan log gejala yang tersimpan.',
+                  Icons.history_outlined,
+                  '/history',
+                  width,
+                ),
               ],
             );
           },

@@ -46,6 +46,6 @@ Semua 15 referensi V2 sudah dipetakan ke layar aplikasi. Splash, welcome, dan on
 
 Perubahan backend terbatas pada perbaikan ownership saat menyimpan consent dan penambahan `total` pada respons daftar untuk jumlah catatan yang akurat. Tes ownership/revocation ditambahkan. Skema MySQL, Sanctum, AI Engine/FastAPI, kebijakan akses, dan pengamanan catatan tetap dipertahankan.
 
-Session Flutter kini reaktif terhadap perubahan izin; router tetap satu instance. Checkbox ingat sesi mengatur penyimpanan token. Material pada kartu dan scroll chat diperbaiki setelah tes native menemukan error rendering dan overflow. Bootstrap tidak membuat ulang runner yang sudah ada dan mempertahankan atribut manifest pengguna.
+Session Flutter kini reaktif terhadap perubahan izin; router tetap satu instance. Token mobile disimpan di secure storage dan tetap aktif sampai logout, reset kata sandi, penghapusan akun, atau revocation operator. Material pada kartu dan scroll chat diperbaiki setelah tes native menemukan error rendering dan overflow. Bootstrap tidak membuat ulang runner yang sudah ada dan mempertahankan atribut manifest pengguna.
 
 CI menjalankan Laravel pada SQLite/MySQL, FastAPI, Flutter analyze/widget tests, dan build APK debug. Screenshot widget memakai data sintetis, font aplikasi dan ikon asli; tidak berisi data akun pengguna. Bukti pengujian dan batas yang masih belum diverifikasi ada di [VERIFICATION.md](VERIFICATION.md).

@@ -604,7 +604,7 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _cancerTypes.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => GestureDetector(
                     onTap: () {
                       setState(() => _cancerFilter = i);
@@ -656,7 +656,7 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _phases.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => GestureDetector(
                     onTap: () => setState(() => _phaseFilter = _phaseFilter == i ? -1 : i),
                     child: Container(
@@ -696,7 +696,7 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _focuses.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) {
                     final icons = [Icons.favorite_outline, Icons.spa_outlined, Icons.favorite_border];
                     return GestureDetector(

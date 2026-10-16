@@ -14,8 +14,44 @@ class CommunityRepository {
       values.entries.where((e) => e.value?.isNotEmpty == true),
     ),
   ).toString();
-  Future<Json> home() async =>
-      Map<String, dynamic>.from(await api.get('/community/home'));
+  Future<Json> home() async {
+    try {
+      return Map<String, dynamic>.from(await api.get('/community/home'));
+    } catch (error, stack) {
+      final results = await Future.wait<Json?>([
+        _try(discover()),
+        _try(mine()),
+        _try(feed()),
+      ]);
+      if (results.every((value) => value == null)) {
+        Error.throwWithStackTrace(error, stack);
+      }
+      final discovered = items(results[0]);
+      return {
+        'recommended': discovered
+            .take(4)
+            .map(
+              (community) => {
+                'community': community,
+                'reason':
+                    'Ruang dukungan yang tersedia. Pilih yang terasa sesuai untukmu.',
+              },
+            )
+            .toList(),
+        'recommendation_method': 'catalogue',
+        'joined': items(results[1]),
+        'recent': items(results[2]),
+      };
+    }
+  }
+
+  Future<Json?> _try(Future<Json> request) async {
+    try {
+      return await request;
+    } catch (_) {
+      return null;
+    }
+  }
   Future<Json> discover({
     String search = '',
     String? category,

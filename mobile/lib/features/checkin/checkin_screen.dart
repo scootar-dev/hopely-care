@@ -150,6 +150,18 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
       'appetite': 'Nafsu Makan',
       'sleep_quality': 'Kualitas Tidur',
     };
+    const subtitles = {
+      'mood': 'Suasana Hati',
+      'anxiety': 'Tingkat Kecemasan',
+      'energy': 'Stamina & Kelelahan',
+      'sleep': 'Kualitas Istirahat',
+      'pain': 'Rasa Sakit Tubuh',
+      'fatigue': 'Rasa Lelah',
+      'nausea': 'Rasa Mual',
+      'dizziness': 'Rasa Pusing',
+      'appetite': 'Nafsu Makan',
+      'sleep_quality': 'Kualitas Istirahat',
+    };
     final allowAI = ref
         .watch(sessionProvider)
         .consents
@@ -157,7 +169,15 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const BackHomeButton(),
-        title: Text(widget.symptoms ? 'Catat Gejala' : 'Check-in Harian'),
+        title: Text(widget.symptoms ? 'Catat Gejala' : 'Daily Check In'),
+        actions: [
+          IconButton(
+            tooltip: 'Tutup',
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go('/home'),
+            icon: const Icon(Icons.close),
+          ),
+        ],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
@@ -173,12 +193,13 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                 Heading(
                   widget.symptoms
                       ? 'Dengarkan tubuhmu'
-                      : 'Bagaimana keadaanmu hari ini?',
+                      : 'Bagaimana keadaanmu?',
                   'Pilih skala 1 hingga 5 yang paling mewakili kondisimu saat ini.',
                 ),
                 for (final k in scores.keys)
                   MetricSelector(
-                    label: labels[k]!,
+                    label: widget.symptoms ? labels[k]! : _metricTitle(k),
+                    subtitle: subtitles[k],
                     mood: k == 'mood',
                     icon:
                         const {
@@ -197,23 +218,32 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                       'appetite',
                       'sleep_quality',
                     ].contains(k),
+                    valueLabel: (value) => _metricValue(k, value),
+                    lowLabel: _metricLowLabel(k),
+                    highLabel: _metricHighLabel(k),
                     onChanged: (v) => setState(() => scores[k] = v),
                   ),
                 CareCard(
-                  child: TextField(
-                    controller: note,
-                    maxLines: 4,
-                    maxLength: 4000,
-                    decoration: const InputDecoration(
-                      labelText: 'Ada yang ingin kamu ceritakan?',
-                      helperText: 'Opsional • catatan pribadi',
-                    ),
-                  ),
-                ),
-                if (!widget.symptoms)
-                  CareCard(
-                    child: Column(
-                      children: [
+                  padding: 16,
+                  radius: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: note,
+                        maxLines: 4,
+                        maxLength: 4000,
+                        decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.edit_note),
+                          labelText: 'Tambahkan catatan (opsional)',
+                          hintText:
+                              'Tuliskan keluhan atau hal yang membuatmu merasa lebih baik...',
+                          filled: true,
+                          fillColor: skySoft,
+                        ),
+                      ),
+                      if (!widget.symptoms) ...[
+                        const Divider(height: 24),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text(
@@ -232,8 +262,9 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                         if (!allowAI)
                           const ActionLink('Pengaturan privasi', '/privacy'),
                       ],
-                    ),
+                    ],
                   ),
+                ),
                 const CareCard(
                   color: skySoft,
                   child: Text(
@@ -241,15 +272,67 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                   ),
                 ),
                 if (error != null) ErrorNotice(error!),
-                FilledButton(
+                FilledButton.icon(
                   onPressed: busy ? null : save,
-                  child: Text(busy ? 'Menyimpan…' : 'Simpan Ringkasan'),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: Text(busy ? 'Menyimpan...' : 'Simpan Check-In'),
                 ),
                 const SizedBox(height: 24),
               ],
             ),
     );
   }
+
+  String _metricTitle(String key) => const {
+    'mood': 'Mood',
+    'anxiety': 'Cemas',
+    'energy': 'Energi',
+    'sleep': 'Tidur',
+    'pain': 'Nyeri Fisik',
+  }[key]!;
+
+  String _metricValue(String key, int value) {
+    final values = const {
+      'mood': ['Sangat Murung', 'Murung', 'Biasa', 'Nyaman', 'Sangat Nyaman'],
+      'anxiety': [
+        'Sangat Tenang',
+        'Cukup Tenang',
+        'Sedang',
+        'Cemas',
+        'Sangat Cemas',
+      ],
+      'energy': ['Sangat Lemah', 'Lemah', 'Cukup', 'Baik', 'Penuh Energi'],
+      'sleep': [
+        'Buruk / Sulit',
+        'Kurang Nyenyak',
+        'Cukup Nyenyak',
+        'Nyenyak',
+        'Sangat Nyenyak',
+      ],
+      'pain': ['Tanpa Nyeri', 'Ringan', 'Sedang', 'Cukup Sakit', 'Nyeri Berat'],
+    }[key];
+    return '${values == null ? '$value / 5' : values[value - 1]} ($value)';
+  }
+
+  String _metricLowLabel(String key) =>
+      (const {
+        'mood': '1: Sangat Murung',
+        'anxiety': '1: Sangat Tenang',
+        'energy': '1: Sangat Lemah',
+        'sleep': '1: Buruk / Sulit',
+        'pain': '1: Tanpa Nyeri',
+      }[key] ??
+      '1: Rendah');
+
+  String _metricHighLabel(String key) =>
+      (const {
+        'mood': '5: Sangat Nyaman',
+        'anxiety': '5: Sangat Cemas',
+        'energy': '5: Penuh Energi',
+        'sleep': '5: Nyenyak',
+        'pain': '5: Nyeri Berat',
+      }[key] ??
+      '5: Tinggi');
 }
 
 class CheckinSavedScreen extends StatelessWidget {
@@ -263,22 +346,68 @@ class CheckinSavedScreen extends StatelessWidget {
     body: PageBody(
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 32),
+          padding: EdgeInsets.symmetric(vertical: 24),
           child: CircleAvatar(
-            radius: 48,
-            backgroundColor: skySoft,
-            child: Icon(Icons.check_rounded, size: 52, color: hopelyBlue),
+            radius: 40,
+            backgroundColor: surfaceContainer,
+            child: Icon(Icons.check_rounded, size: 36, color: hopelyBlue),
           ),
         ),
         const Heading(
-          'Terima kasih sudah mendengarkan dirimu.',
+          'Terima kasih sudah check-in.',
           'Catatanmu telah tersimpan. Tidak perlu memaksakan langkah berikutnya.',
         ),
-        FilledButton(
+        CareCard(
+          radius: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  IconWell(Icons.air, size: 48, radius: 12),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'REKOMENDASI LEMBUT',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: hopelyBlue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'Latihan Napas 3 Menit',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Pemberhentian sejenak untuk melonggarkan ketegangan.',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => context.push('/activities'),
+                  child: const Text('Coba sekarang  →'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        TextButton(
           onPressed: () => context.go('/home'),
           child: const Text('Kembali ke Beranda'),
         ),
-        const SizedBox(height: 18),
         const ActionLink(
           'Lihat pola catatanku',
           '/insights',

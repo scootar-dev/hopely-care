@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Proposal Hopely Care</title>
+  <style>
+    @page { size: A4; margin: 22mm 20mm 20mm 25mm; }
+    :root {
+      --blue: #174ea6;
+      --blue-soft: #eaf2ff;
+      --ink: #172033;
+      --muted: #5b6475;
+      --line: #cfd8e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      color: var(--ink);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      line-height: 1.55;
+      margin: 0;
+      text-align: justify;
+    }
+    h1, h2, h3, h4 { color: var(--blue); page-break-after: avoid; }
+    h1 { font-size: 18pt; letter-spacing: .04em; text-align: center; margin: 0 0 18px; }
+    h2 { font-size: 15pt; margin: 22px 0 10px; text-transform: uppercase; }
+    h3 { font-size: 13pt; margin: 18px 0 8px; }
+    h4 { font-size: 12pt; margin: 14px 0 6px; }
+    p { margin: 0 0 9px; text-indent: 1.1cm; }
+    ul, ol { margin: 5px 0 12px 26px; padding-left: 18px; }
+    li { margin: 3px 0; }
+    .cover {
+      min-height: 245mm;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      page-break-after: always;
+    }
+    .cover p { text-indent: 0; }
+    .cover .eyebrow { color: var(--blue); font-weight: bold; letter-spacing: .12em; font-size: 12pt; }
+    .cover .mark {
+      width: 92px; height: 92px; border-radius: 30px 30px 38px 30px;
+      background: linear-gradient(145deg, #2563eb, #7ca6ef);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-family: Arial, sans-serif; font-size: 48px; font-weight: 700;
+      margin: 10px 0 22px; transform: rotate(-4deg);
+      box-shadow: 0 12px 28px rgba(37,99,235,.2);
+    }
+    .cover .title { max-width: 150mm; color: var(--ink); font-size: 21pt; font-weight: bold; line-height: 1.3; }
+    .cover .subtitle { color: var(--muted); font-size: 13pt; max-width: 145mm; margin-top: 8px; }
+    .cover .rule { width: 54mm; border-top: 3px solid var(--blue); margin: 22px auto; }
+    .cover .meta { margin-top: 20px; line-height: 1.8; }
+    .cover .institution { margin-top: 30px; font-weight: bold; line-height: 1.5; }
+    .front-page { page-break-after: always; }
+    .center { text-align: center; }
+    .center p { text-indent: 0; }
+    .toc, .figures { page-break-after: always; }
+    .toc h1, .figures h1 { margin-bottom: 22px; }
+    .toc-row { display: flex; gap: 8px; margin: 8px 0; }
+    .toc-row .dots { flex: 1; border-bottom: 1px dotted #8994a7; height: 1.2em; }
+    .small { color: var(--muted); font-size: 10.5pt; }
+    .chapter { page-break-before: always; }
+    .chapter-title { text-align: center; margin-top: 2mm; margin-bottom: 20px; }
+    .chapter-title .chapter-number { font-size: 16pt; font-weight: bold; }
+    .chapter-title .chapter-name { font-size: 17pt; font-weight: bold; color: var(--blue); text-transform: uppercase; }
+    .callout {
+      background: var(--blue-soft); border-left: 4px solid var(--blue);
+      padding: 11px 14px; margin: 12px 0 15px; page-break-inside: avoid;
+    }
+    .callout p { text-indent: 0; margin: 0; }
+    .feature {
+      border: 1px solid var(--line); border-radius: 7px; padding: 10px 13px; margin: 11px 0;
+      page-break-inside: avoid;
+    }
+    .feature h4 { margin-top: 0; }
+    .feature p:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 15px; page-break-inside: avoid; }
+    th, td { border: 1px solid var(--line); padding: 7px 8px; vertical-align: top; }
+    th { background: var(--blue-soft); color: var(--blue); text-align: left; }
+    td p, th p { text-indent: 0; margin: 0; }
+    .figure { margin: 17px 0 20px; text-align: center; page-break-inside: avoid; }
+    .figure img { max-width: 90%; max-height: 104mm; border: 1px solid var(--line); border-radius: 5px; }
+    .figure figcaption { color: var(--muted); font-size: 10.5pt; margin-top: 5px; }
+    .wide img { max-width: 100%; max-height: 92mm; }
+    .architecture { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 18px 0; page-break-inside: avoid; }
+    .node { background: var(--blue-soft); border: 1px solid #9cb8e9; border-radius: 7px; padding: 10px 7px; text-align: center; font-weight: bold; font-size: 10pt; width: 30mm; }
+    .arrow { color: var(--blue); font-size: 16pt; font-weight: bold; }
+    .sprint { background: #fff; }
+    .sprint strong { color: var(--blue); }
+    .references p { text-indent: -0.65cm; padding-left: .65cm; margin-bottom: 9px; }
+    .appendix { page-break-before: always; }
+    .mockup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mockup-grid figure { margin: 0 0 12px; }
+    .mockup-grid img { max-width: 100%; max-height: 105mm; }
+    .mockup-grid figcaption { font-size: 10pt; text-align: center; color: var(--muted); }
+    .signature { display: flex; justify-content: space-between; margin-top: 28mm; text-align: center; }
+    .signature div { width: 42%; }
+    .signature p { text-indent: 0; }
+    .signature .space { height: 28mm; }
+    @media print {
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="eyebrow">PROPOSAL KEGIATAN<br>KOMPETISI MAHASISWA BIDANG INFORMATIKA</div>
+    <div class="mark">♥</div>
+    <div class="title">HOPELY CARE</div>
+    <div class="subtitle">Platform Pendamping Kesejahteraan Psikososial Pejuang Kanker Berbasis Mobile dengan AI yang Aman dan Berpusat pada Consent</div>
+    <div class="rule"></div>
+    <p><b>Kategori Lomba:</b> HACKATHON</p>
+    <div class="meta">
+      <b>Oleh Tim: BAKSO UJUNG</b><br>
+      M. HARIS TRI NUGRAHA (2405109)<br>
+      M. RIZAL JAMALI (2405108)<br>
+      ARFA ZULHILMI (2405048)
+    </div>
+    <div class="institution">POLITEKNIK NEGERI INDRAMAYU<br>Jl. Lohbener Lama No. 08, Kec. Lohbener, Kab. Indramayu<br>Jawa Barat 45252<br>2026</div>
+  </section>
+
+  <section class="toc">
+    <h1>DAFTAR ISI</h1>
+    <div class="toc-row"><span>BAB 1 PENDAHULUAN</span><span class="dots"></span><span>1</span></div>
+    <div class="toc-row"><span>A. Latar Belakang</span><span class="dots"></span><span>1</span></div>
+    <div class="toc-row"><span>B. Tujuan</span><span class="dots"></span><span>2</span></div>
+    <div class="toc-row"><span>C. Manfaat</span><span class="dots"></span><span>2</span></div>
+    <div class="toc-row"><span>BAB 2 GAGASAN</span><span class="dots"></span><span>4</span></div>
+    <div class="toc-row"><span>A. Kondisi Aktual Objek Permasalahan</span><span class="dots"></span><span>4</span></div>
+    <div class="toc-row"><span>B. Gagasan dan Posisi Solusi</span><span class="dots"></span><span>5</span></div>
+    <div class="toc-row"><span>C. Bahasan Lengkap</span><span class="dots"></span><span>6</span></div>
+    <div class="toc-row"><span>D. Teknologi yang Digunakan</span><span class="dots"></span><span>16</span></div>
+    <div class="toc-row"><span>E. Prediksi Hasil Implementasi</span><span class="dots"></span><span>17</span></div>
+    <div class="toc-row"><span>F. Peran dan Kontribusi Pihak yang Terlibat</span><span class="dots"></span><span>18</span></div>
+    <div class="toc-row"><span>G. Tahapan Strategis</span><span class="dots"></span><span>19</span></div>
+    <div class="toc-row"><span>BAB 3 KESIMPULAN</span><span class="dots"></span><span>22</span></div>
+    <div class="toc-row"><span>DAFTAR PUSTAKA</span><span class="dots"></span><span>23</span></div>
+    <div class="toc-row"><span>LAMPIRAN</span><span class="dots"></span><span>24</span></div>
+  </section>
+
+  <section class="figures">
+    <h1>DAFTAR GAMBAR</h1>
+    <div class="toc-row"><span>Gambar 2.1 Arsitektur sistem Hopely Care</span><span class="dots"></span><span>8</span></div>
+    <div class="toc-row"><span>Gambar 2.2 Alur AI dan perlindungan keselamatan</span><span class="dots"></span><span>10</span></div>
+    <div class="toc-row"><span>Gambar 2.3 Layar beranda pasien</span><span class="dots"></span><span>12</span></div>
+    <div class="toc-row"><span>Gambar 2.4 Layar Hopely AI</span><span class="dots"></span><span>12</span></div>
+    <div class="toc-row"><span>Gambar 2.5 Layar check-in harian</span><span class="dots"></span><span>13</span></div>
+    <div class="toc-row"><span>Gambar 2.6 Layar jurnal</span><span class="dots"></span><span>13</span></div>
+    <div class="toc-row"><span>Gambar 2.7 Layar komunitas</span><span class="dots"></span><span>14</span></div>
+    <div class="toc-row"><span>Gambar 2.8 Layar caregiver</span><span class="dots"></span><span>14</span></div>
+    <div class="toc-row"><span>Gambar 2.9 Layar pengetahuan tepercaya</span><span class="dots"></span><span>15</span></div>
+    <div class="toc-row"><span>Gambar 2.10 Tahapan pengembangan Agile</span><span class="dots"></span><span>20</span></div>
+  </section>
+
+  <section class="chapter">
+    <div class="chapter-title"><div class="chapter-number">BAB 1</div><div class="chapter-name">Pendahuluan</div></div>
+    <h3>A. Latar Belakang</h3>
+    <p>Kanker merupakan salah satu tantangan kesehatan besar yang dihadapi masyarakat Indonesia. Berdasarkan data Global Cancer Observatory tahun 2022 yang dirujuk dalam proposal awal, Indonesia mencatat lebih dari 408.000 kasus kanker baru dan lebih dari 242.000 kematian. Di balik angka tersebut terdapat beban psikologis yang sering tidak terlihat: kecemasan, rasa takut, kelelahan, kesepian, perubahan peran sosial, tekanan ekonomi, dan ketidakpastian selama menjalani pengobatan.</p>
+    <p>Layanan kesehatan formal berperan penting dalam diagnosis dan pengobatan, tetapi kebutuhan psikososial pasien dan keluarga tidak selalu dapat didampingi setiap saat. Pasien membutuhkan ruang yang mudah diakses untuk mencatat kondisi, memahami perubahan diri, mencari informasi yang telah dikurasi, serta memperoleh dukungan emosional yang tidak menghakimi. Keluarga dan caregiver juga membutuhkan panduan agar dapat hadir dengan cara yang sesuai, tanpa mengambil alih kendali pasien.</p>
+    <p>Perangkat mobile dapat menjadi sarana pendamping yang praktis karena mampu menggabungkan pencatatan harian, percakapan suportif, ringkasan informasi, komunitas, dan pengelolaan izin dalam satu ekosistem. Atas kebutuhan tersebut, Hopely Care dikembangkan sebagai platform mobile berbahasa Indonesia yang menempatkan pasien sebagai pengendali data dan keputusan dukungan.</p>
+    <div class="callout"><p><b>Posisi produk.</b> Hopely Care bukan alat diagnosis, bukan pengganti dokter atau psikolog, dan bukan sistem pemantauan darurat. Aplikasi ini merupakan pendamping kesejahteraan psikososial yang membantu pasien dan caregiver mengambil langkah dukungan yang lebih teratur dan sadar batas.</p></div>
+    <h3>B. Tujuan</h3>
+    <ol>
+      <li>Menyediakan aplikasi mobile berbahasa Indonesia untuk mendampingi kesejahteraan emosional dan pencatatan perjalanan perawatan pasien kanker.</li>
+      <li>Memberikan ruang percakapan suportif melalui Hopely AI dengan keluaran yang terstruktur, tervalidasi, dan memiliki batas keselamatan.</li>
+      <li>Membantu pasien mencatat check-in, gejala, jurnal, aktivitas, dan jadwal perawatan secara teratur.</li>
+      <li>Menyediakan dukungan caregiver berbasis izin, sehingga informasi yang dibagikan tetap berada dalam kendali pasien.</li>
+      <li>Membangun komunitas yang memiliki consent berbagi, moderasi, pelaporan, dan perlindungan terhadap penyalahgunaan.</li>
+      <li>Menyediakan dasar teknis yang dapat diuji, dipelihara, dan dikembangkan menuju deployment yang aman.</li>
+    </ol>
+    <h3>C. Manfaat</h3>
+    <h4>1. Bagi pasien</h4>
+    <ul>
+      <li>Mendapatkan ruang digital yang tenang untuk mencatat pengalaman dan mengekspresikan perasaan.</li>
+      <li>Memahami pola data check-in dan gejala melalui insight deskriptif, tanpa melabeli data sebagai diagnosis.</li>
+      <li>Mengakses percakapan suportif, aktivitas sederhana, dan pengetahuan yang bersumber dari dokumen terkurasi.</li>
+      <li>Mengatur consent AI, jurnal, berbagi data, komunitas, dan caregiver secara terpisah.</li>
+    </ul>
+    <h4>2. Bagi keluarga dan caregiver</h4>
+    <ul>
+      <li>Mendapatkan ringkasan yang memang diizinkan pasien, bukan akses otomatis terhadap jurnal atau percakapan privat.</li>
+      <li>Menerima panduan komunikasi yang suportif melalui fitur caregiver coach.</li>
+      <li>Memahami batas peran caregiver dan menghindari asumsi bahwa data aplikasi merupakan diagnosis klinis.</li>
+    </ul>
+    <h4>3. Bagi pengembang dan ekosistem kesehatan</h4>
+    <ul>
+      <li>Menghasilkan contoh implementasi teknologi kesehatan yang mengutamakan privacy by design dan fail-closed safety.</li>
+      <li>Menyediakan fondasi untuk evaluasi lebih lanjut bersama tenaga kesehatan, komunitas pasien, dan pemangku kepentingan privasi.</li>
+    </ul>
+  </section>
+
+  <section class="chapter">
+    <div class="chapter-title"><div class="chapter-number">BAB 2</div><div class="chapter-name">Gagasan</div></div>
+    <h3>A. Kondisi Aktual Objek Permasalahan</h3>
+    <p>Pasien kanker menghadapi perjalanan yang panjang dan berubah-ubah. Pada satu waktu, kebutuhan utama dapat berupa tempat untuk bercerita; pada waktu lain, pasien membutuhkan cara yang lebih teratur untuk mencatat gejala, menyiapkan pertanyaan untuk dokter, atau meminta dukungan keluarga. Perubahan ini membuat solusi yang hanya berfokus pada satu fitur menjadi kurang memadai.</p>
+    <p>Masalah lain adalah fragmentasi. Catatan emosi, gejala, jadwal, jurnal, komunikasi keluarga, dan materi edukasi sering berada di tempat berbeda. Fragmentasi membuat pasien sulit melihat konteks perjalanan dirinya dan membuat caregiver mudah menerima informasi yang tidak lengkap. Namun penggabungan data juga berisiko jika dilakukan tanpa consent yang jelas.</p>
+    <p>Karena itu, solusi yang dibutuhkan bukan sekadar chatbot atau aplikasi pencatat. Solusi perlu memiliki tiga karakter utama: <b>pendampingan yang manusiawi</b>, <b>kendali data di tangan pasien</b>, dan <b>arsitektur yang mampu menolak keluaran AI yang tidak aman</b>.</p>
+    <h3>B. Gagasan dan Posisi Solusi</h3>
+    <p>Hopely Care menggabungkan pengalaman mobile pasien, backend bisnis yang mengatur identitas dan izin, serta layanan AI internal yang memproses konteks minimum. Aplikasi dibangun dalam dua ruang utama: ruang pasien dan ruang caregiver. Keduanya terhubung secara selektif, bukan melalui akses penuh terhadap seluruh data.</p>
+    <p>Dibandingkan solusi pencatatan umum, Hopely Care memiliki fokus pada perjalanan psikososial pasien kanker. Dibandingkan chatbot umum, Hopely AI memiliki konteks terbatas, instruksi keselamatan, validasi schema, pemeriksaan output, dan jalur fail-closed. Dibandingkan komunitas umum, fitur komunitas menyediakan explicit sharing, moderasi, pelaporan, pemblokiran, dan mekanisme pemberitahuan yang lebih terarah.</p>
+    <div class="callout"><p><b>Nilai kebaruan utama:</b> satu platform yang menghubungkan pencatatan perjalanan, dukungan emosional berbasis AI, caregiver yang dibatasi consent, komunitas dengan moderasi, dan pengetahuan terkurasi tanpa menjadikan AI sebagai otoritas klinis.</p></div>
+    <h3>C. Bahasan Lengkap</h3>
+    <h4>1. Gambaran umum produk</h4>
+    <p>Hopely Care dikembangkan sebagai aplikasi mobile lintas platform dengan antarmuka yang lembut, kontras yang terukur, teks Bahasa Indonesia yang mudah dipahami, dan navigasi yang konsisten: Beranda, Perjalanan, Hopely AI, Insight, dan Profil. Desain menggunakan prinsip warm minimalism agar tidak menambah beban kognitif pasien yang sedang lelah atau cemas.</p>
+    <h4>2. Fitur pasien</h4>
+    <div class="feature"><h4>a. Onboarding, role, dan consent</h4><p>Pengguna menyelesaikan onboarding dan memilih peran pasien atau caregiver. Persetujuan kesehatan, AI chat, analisis jurnal, berbagi data, dan caregiver disimpan sebagai izin yang terpisah. Perubahan consent diproses reaktif pada aplikasi sehingga layar yang bergantung pada izin segera menyesuaikan.</p></div>
+    <div class="feature"><h4>b. Check-in harian dan pencatatan kondisi</h4><p>Pasien dapat mencatat skala mood, kecemasan, energi, tidur, nyeri, kelelahan, mual, pusing, dan indikator lain yang tersedia. Data tidak diisi untuk menghasilkan diagnosis. Sistem menghitung ringkasan deskriptif, coverage, baseline pribadi, dan arah perubahan berdasarkan tanggal yang benar-benar tercatat.</p></div>
+    <div class="feature"><h4>c. Perjalanan perawatan dan jadwal</h4><p>Pasien dapat mengelola peristiwa perawatan dan statusnya. Jadwal membantu pasien mengingat aktivitas penting, sementara notifikasi dirancang generik agar tidak menampilkan diagnosis, judul terapi, atau isi AI pada layar kunci.</p></div>
+    <div class="feature"><h4>d. Hopely AI dan percakapan suportif</h4><p>Hopely AI menerima pesan pasien melalui Laravel, kemudian Laravel hanya mengirim konteks minimum yang telah melewati consent ke FastAPI. Pada mode live, FastAPI menggunakan adapter Groq melalui endpoint OpenAI-compatible. Groq dipanggil dengan structured JSON output, lalu hasilnya divalidasi Pydantic sebelum dikembalikan.</p><p>AI diarahkan untuk mendengarkan, merespons dengan Bahasa Indonesia yang empatik, mengakui ketidakpastian, dan menyarankan tim perawatan untuk keputusan klinis. AI tidak mendiagnosis, tidak meresepkan, tidak menyarankan perubahan terapi, dan tidak menyatakan pasien aman.</p></div>
+    <div class="feature"><h4>e. Analisis emosi, insight, dan ringkasan</h4><p>Analisis emosi menghasilkan sinyal yang tidak boleh dipahami sebagai diagnosis psikologis. Insight tren menggunakan statistik deskriptif dan hanya membandingkan data yang tersedia. Ringkasan dokter membantu pasien menyiapkan pertanyaan dari data yang dicatat, bukan membuat laporan medis otomatis.</p></div>
+    <div class="feature"><h4>f. Jurnal privat</h4><p>Jurnal merupakan ruang milik pasien. Jurnal dan percakapan tidak ditampilkan pada endpoint caregiver. Analisis jurnal hanya dapat diproses jika consent global dan izin per entri terpenuhi. Withdrawal menghapus atau menolak penggunaan turunan analitik sesuai aturan layanan.</p></div>
+    <div class="feature"><h4>g. Aktivitas dukungan dan pengetahuan terkurasi</h4><p>Aktivitas dukungan dipilih dari katalog yang dibatasi dan rekomendasi AI hanya boleh merujuk pada activity ID yang tersedia. Knowledge base menggunakan dokumen yang direview admin, potongan terbatas, embedding ke Qdrant, ambang retrieval, dan citation ID yang diverifikasi. Jika bukti tidak cukup, sistem abstain.</p></div>
+    <h4>3. Fitur komunitas</h4>
+    <p>Fitur komunitas membantu pengguna menemukan ruang berbagi yang relevan. Pengguna dapat bergabung, membuat cerita, memberi reaksi, berkomentar, melaporkan, dan memblokir akun. Berbagi bersifat eksplisit dan publikasi dapat menunggu moderasi manusia. Moderasi AI diperlakukan sebagai bantuan, bukan keputusan klinis atau keputusan final yang tidak dapat ditinjau.</p>
+    <p>Perlindungan komunitas meliputi ownership check, stale revision check, moderator scope, independent review, report history, deduplikasi notifikasi, opt-out, two-way block, dan private encrypted images. Dengan demikian, fitur sosial tidak menghilangkan kebutuhan terhadap kontrol manusia.</p>
+    <h4>4. Fitur caregiver dan doctor summary</h4>
+    <p>Caregiver masuk melalui undangan yang terikat pada email, memiliki masa berlaku, dan memerlukan penerimaan. Pasien menentukan izin yang dapat dilihat. Dashboard caregiver menyajikan data yang telah difilter; jurnal, chat, dan free text privat tidak diteruskan. Caregiver coach memberi saran komunikasi umum yang tidak menggantikan konsultasi profesional.</p>
+    <p>Doctor summary merupakan artefak yang dibuat pasien untuk dibawa ke tenaga kesehatan. Fitur ini menyajikan data yang dilaporkan pasien dan pertanyaan yang mungkin ingin didiskusikan. Aplikasi tidak membuat akun dokter atau mengirim data langsung ke rumah sakit secara otomatis.</p>
+    <h4>5. Arsitektur sistem</h4>
+    <div class="architecture">
+      <div class="node">Flutter<br>Mobile</div><div class="arrow">&rarr;</div>
+      <div class="node">Laravel<br>Business API</div><div class="arrow">&rarr;</div>
+      <div class="node">FastAPI<br>AI Service</div><div class="arrow">&rarr;</div>
+      <div class="node">Groq<br>LLM</div>
+    </div>
+    <div class="architecture">
+      <div class="node">Laravel</div><div class="arrow">&rarr;</div><div class="node">MySQL<br>Patient Data</div>
+      <div class="arrow">&nbsp;&nbsp;</div><div class="node">FastAPI</div><div class="arrow">&rarr;</div><div class="node">Qdrant<br>Curated Knowledge</div>
+    </div>
+    <p class="center small">Gambar 2.1 Arsitektur sistem Hopely Care</p>
+    <p>Flutter tidak menyimpan API key LLM maupun internal service key. Laravel menguasai autentikasi, ownership, consent, filtering caregiver, dan persistence. FastAPI bersifat stateless terhadap data pasien dan hanya dapat dipanggil melalui internal service key. Dalam deployment, hanya API Laravel yang dipublikasikan melalui HTTPS; MySQL, Qdrant, dan FastAPI tetap berada pada jaringan privat.</p>
+    <h4>6. Alur AI dan keselamatan</h4>
+    <ol>
+      <li>Laravel memeriksa autentikasi, ownership, consent, dan validasi request.</li>
+      <li>Context service memilih data minimum sesuai tujuan inference.</li>
+      <li>FastAPI menjalankan deterministic safety cues sebelum inference semantik.</li>
+      <li>Provider Groq menerima task dan payload sebagai data tidak tepercaya, dengan instruksi agar tidak mengikuti instruksi dari catatan pasien atau dokumen.</li>
+      <li>Respons harus mengikuti JSON Schema dan divalidasi dengan Pydantic.</li>
+      <li>Output diperiksa kembali oleh safety service dan aturan domain.</li>
+      <li>Jika provider gagal, menolak, timeout, atau menghasilkan schema invalid, sistem mengembalikan error tersanitasi; live mode tidak diam-diam memakai mock.</li>
+    </ol>
+    <div class="callout"><p><b>Gambar 2.2 Alur AI dan perlindungan keselamatan:</b> consent dan filtering &rarr; safety input &rarr; Groq structured output &rarr; validasi schema &rarr; safety output &rarr; respons atau abstain.</p></div>
+    <h4>7. Tampilan dan pengalaman pengguna</h4>
+    <figure class="figure"><img src="../stitch v2/9._patient_home/screen.png" alt="Beranda pasien"><figcaption>Gambar 2.3 Layar beranda pasien dengan check-in, perjalanan, insight, dan akses Hopely AI.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/18._chat_conversation/screen.png" alt="Percakapan Hopely AI"><figcaption>Gambar 2.4 Layar percakapan Hopely AI.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/10._daily_check_in/screen.png" alt="Check-in harian"><figcaption>Gambar 2.5 Layar check-in harian.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/19._journal_home/screen.png" alt="Jurnal pasien"><figcaption>Gambar 2.6 Layar jurnal privat pasien.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/26._community_home/screen.png" alt="Komunitas"><figcaption>Gambar 2.7 Layar komunitas dan ruang berbagi.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/37._caregiver_home/screen.png" alt="Dashboard caregiver"><figcaption>Gambar 2.8 Layar dashboard caregiver berbasis izin.</figcaption></figure>
+    <figure class="figure"><img src="../stitch v2/42._trusted_knowledge/screen.png" alt="Pengetahuan tepercaya"><figcaption>Gambar 2.9 Layar pengetahuan terkurasi.</figcaption></figure>
+    <h3>D. Teknologi yang Digunakan</h3>
+    <table>
+      <tr><th>Lapisan</th><th>Teknologi</th><th>Peran</th></tr>
+      <tr><td>Mobile</td><td>Flutter, Dart, Riverpod, GoRouter, Dio</td><td>Aplikasi Android/iOS lintas platform, state management, navigasi, dan komunikasi API.</td></tr>
+      <tr><td>Business API</td><td>Laravel 12, PHP 8.4, Sanctum</td><td>Autentikasi, ownership, consent, filtering, resource API, notifikasi, dan persistence.</td></tr>
+      <tr><td>AI service</td><td>FastAPI, Pydantic, Python 3.12</td><td>Orkestrasi AI, safety, validasi schema, tren statistik, emotion, RAG, dan community moderation.</td></tr>
+      <tr><td>LLM</td><td>Groq OpenAI-compatible API</td><td>Structured output untuk percakapan, klasifikasi terarah, rekomendasi, caregiver coach, dan synthesis.</td></tr>
+      <tr><td>Data</td><td>MySQL, Qdrant</td><td>MySQL menyimpan data aplikasi; Qdrant menyimpan embedding dokumen terkurasi.</td></tr>
+      <tr><td>Deployment</td><td>Docker Compose, HTTPS reverse proxy</td><td>Menjalankan service secara terisolasi dengan jaringan privat dan volume persisten.</td></tr>
+      <tr><td>Quality</td><td>Pytest, Ruff, PHPUnit, Flutter analyze/test</td><td>Verifikasi unit, feature, kontrak, lint, dan widget sesuai lapisan aplikasi.</td></tr>
+    </table>
+    <h3>E. Prediksi Hasil Implementasi</h3>
+    <p>Implementasi Hopely Care diharapkan menghasilkan pengalaman pendampingan yang lebih teratur bagi pasien dan caregiver. Pasien memiliki satu ruang untuk mencatat pengalaman, menerima dukungan, melihat pola data, dan menyiapkan percakapan dengan tenaga kesehatan. Caregiver memperoleh informasi yang lebih terarah tanpa mengorbankan privasi pasien.</p>
+    <p>Dari sisi teknis, implementasi saat ini telah memiliki kontrak API, service AI terpisah, consent gate, provider abstraction, mode mock untuk demo offline, adapter Groq untuk mode live, komunitas dengan moderasi, dan dokumentasi arsitektur. Suite FastAPI yang dijalankan pada pengembangan ini menghasilkan <b>53 tes lulus</b> dan pemeriksaan Ruff lulus.</p>
+    <p>Hasil tersebut belum boleh ditafsirkan sebagai bukti efektivitas klinis. Evaluasi lanjutan masih diperlukan untuk mengukur usability, kualitas respons Bahasa Indonesia, kalibrasi sinyal keselamatan, performa pada perangkat nyata, evaluasi RAG, dan tata kelola data pasien dengan mitra yang berwenang.</p>
+    <h3>F. Peran dan Kontribusi Pihak yang Terlibat</h3>
+    <table>
+      <tr><th>Pihak</th><th>Peran dan kontribusi</th></tr>
+      <tr><td>Pasien</td><td>Pengguna utama, pemilik data, pemberi consent, dan sumber umpan balik pengalaman penggunaan.</td></tr>
+      <tr><td>Caregiver</td><td>Penerima informasi yang telah diizinkan dan pemberi dukungan interpersonal sesuai batas yang ditetapkan pasien.</td></tr>
+      <tr><td>Tim pengembang</td><td>Merancang UX, mengembangkan mobile/API/AI, melakukan pengujian, memelihara keamanan, dan menindaklanjuti feedback.</td></tr>
+      <tr><td>Tenaga kesehatan</td><td>Mitra konsultatif untuk meninjau konten, batas keselamatan, bahasa komunikasi, dan evaluasi non-klinis.</td></tr>
+      <tr><td>Komunitas penyintas</td><td>Membantu validasi kebutuhan, sensitivitas bahasa, dan relevansi fitur komunitas secara partisipatif.</td></tr>
+      <tr><td>Administrator/moderator</td><td>Meninjau sumber pengetahuan, moderasi komunitas, laporan, dan kebijakan publikasi.</td></tr>
+    </table>
+    <h3>G. Tahapan-Tahapan Strategis</h3>
+    <p>Pengembangan menggunakan pendekatan Agile dengan sprint pendek dan validasi bertahap. Setiap increment melewati requirement, design, develop, test, review, dan deploy ke lingkungan pengujian. Prioritas utama adalah alur yang paling dekat dengan kebutuhan pasien dan risiko keselamatan tertinggi.</p>
+    <table>
+      <tr><th>Tahap</th><th>Fokus</th><th>Luaran</th></tr>
+      <tr class="sprint"><td><strong>Sprint 1</strong></td><td>Fondasi mobile, autentikasi, role, consent, API dasar.</td><td>Alur onboarding, login, profil, dan permission gate.</td></tr>
+      <tr class="sprint"><td><strong>Sprint 2</strong></td><td>Check-in, jurnal, symptom log, treatment journey, insight.</td><td>Pencatatan harian dan statistik deskriptif.</td></tr>
+      <tr class="sprint"><td><strong>Sprint 3</strong></td><td>Hopely AI, FastAPI, safety, RAG, integrasi provider Groq.</td><td>Chat, emotion, recommendations, summary, dan caregiver coach.</td></tr>
+      <tr class="sprint"><td><strong>Sprint 4</strong></td><td>Community, moderation, reports, notifications, caregiver.</td><td>Support Circle dengan privacy dan human review.</td></tr>
+      <tr class="sprint"><td><strong>Sprint 5</strong></td><td>Stitch V2 UI, regresi, deployment, dokumentasi.</td><td>Implementasi lintas lapisan, test suite, dan panduan operasi.</td></tr>
+    </table>
+    <figure class="figure wide"><img src="../stitch v2/17._hopely_ai/screen.png" alt="Hopely AI"><figcaption>Gambar 2.10 Contoh tahapan pengalaman pengguna pada modul Hopely AI.</figcaption></figure>
+  </section>
+
+  <section class="chapter">
+    <div class="chapter-title"><div class="chapter-number">BAB 3</div><div class="chapter-name">Kesimpulan</div></div>
+    <p>Pasien kanker membutuhkan dukungan yang melampaui layanan klinis. Mereka membutuhkan ruang untuk memahami pengalaman sehari-hari, menjaga komunikasi dengan orang terdekat, memperoleh informasi yang dapat dipercaya, dan mendapatkan pendampingan emosional tanpa kehilangan kendali atas data pribadi.</p>
+    <p>Hopely Care menjawab kebutuhan tersebut melalui aplikasi mobile yang menggabungkan check-in, jurnal privat, perjalanan perawatan, insight deskriptif, aktivitas dukungan, komunitas terarah, caregiver berbasis consent, ringkasan untuk diskusi dengan dokter, dan Hopely AI. AI pada aplikasi diintegrasikan melalui service internal dengan Groq sebagai provider live, structured output, validasi Pydantic, pemeriksaan keselamatan, dan perilaku fail-closed.</p>
+    <p>Keunggulan Hopely Care bukan hanya jumlah fiturnya, tetapi cara fitur tersebut dibatasi dan dihubungkan. Pasien tetap menjadi pemilik data. Caregiver hanya melihat informasi yang diizinkan. Jurnal dan chat tetap privat. Sumber pengetahuan harus direview. AI tidak diberi posisi sebagai dokter. Ketika sistem tidak yakin atau provider gagal, sistem memilih abstain atau memberi error tersanitasi.</p>
+    <p>Dengan pengujian dan evaluasi bersama pengguna serta tenaga kesehatan, Hopely Care berpotensi menjadi fondasi ekosistem pendampingan psikososial digital yang lebih aman, manusiawi, dan sesuai konteks Indonesia. Pengembangan berikutnya perlu memprioritaskan evaluasi usability, validasi keselamatan, governance provider Groq, pengujian perangkat nyata, dan kesiapan deployment production.</p>
+    <div class="callout"><p><b>Catatan batasan:</b> Hopely Care bukan perangkat medis, tidak memberikan diagnosis atau resep, dan belum mengklaim validasi klinis. Dalam keadaan darurat, pengguna tetap perlu menghubungi layanan darurat atau tenaga kesehatan yang sesuai.</p></div>
+  </section>
+
+  <section class="chapter references">
+    <div class="chapter-title"><div class="chapter-name">Daftar Pustaka</div></div>
+    <p>[1] Bray, F., Laversanne, M., Sung, H., Ferlay, J., Siegel, R. L., Soerjomataram, I., &amp; Jemal, A. (2024). Global cancer statistics 2022: GLOBOCAN estimates of incidence and mortality worldwide for 36 cancers. <i>CA: A Cancer Journal for Clinicians, 74</i>(3), 229-263.</p>
+    <p>[2] World Health Organization. (2023). <i>Cancer</i>. Geneva: WHO. https://www.who.int/news-room/fact-sheets/detail/cancer</p>
+    <p>[3] Kementerian Kesehatan Republik Indonesia. (2023). <i>Profil Kesehatan Indonesia 2023</i>. Jakarta: Kemenkes RI.</p>
+    <p>[4] Linden, W., Vordermaier, A., MacKenzie, R., &amp; Greig, D. (2012). Anxiety and depression after cancer diagnosis: Prevalence rates by cancer type, gender, and age. <i>Journal of Affective Disorders, 141</i>(2-3), 343-351.</p>
+    <p>[5] OpenAI. (2026). <i>OpenAI Python SDK documentation</i>. Digunakan sebagai client OpenAI-compatible; provider live aplikasi Hopely Care adalah Groq.</p>
+    <p>[6] Groq. (2026). <i>Groq API documentation: OpenAI-compatible API and structured outputs</i>. Digunakan sebagai referensi integrasi provider live.</p>
+    <p>[7] Hopely Care. (2026). <i>Dokumentasi internal: AI Engine, Architecture, Privacy and Safety, Verification, dan Support Circle</i>.</p>
+  </section>
+
+  <section class="appendix">
+    <div class="chapter-title"><div class="chapter-number">LAMPIRAN 1</div><div class="chapter-name">Status Implementasi dan Verifikasi</div></div>
+    <table>
+      <tr><th>Komponen</th><th>Status</th><th>Keterangan</th></tr>
+      <tr><td>Flutter mobile</td><td>Diimplementasikan</td><td>Alur pasien, caregiver, Hopely AI, check-in, jurnal, insight, community, profile, dan settings.</td></tr>
+      <tr><td>Laravel API</td><td>Diimplementasikan</td><td>Auth, Sanctum, consent, ownership, caregiver, community, records, notifications, dan AI client.</td></tr>
+      <tr><td>FastAPI AI service</td><td>Diimplementasikan</td><td>AI engine, provider abstraction, Groq adapter, safety, emotion, trend, RAG, community AI.</td></tr>
+      <tr><td>Groq live integration</td><td>Siap diaktifkan</td><td>Memerlukan `MOCK_AI_MODE=false`, `LLM_PROVIDER=groq`, API key Groq, dan model structured output.</td></tr>
+      <tr><td>Testing</td><td>Terverifikasi sebagian</td><td>53 tes FastAPI lulus dan Ruff lulus pada lingkungan pengembangan. Live inference Groq, delivery FCM, evaluasi klinis, dan physical-device E2E masih memerlukan pengujian deployment.</td></tr>
+      <tr><td>Production deployment</td><td>Perlu konfigurasi operator</td><td>Docker server, HTTPS reverse proxy, secret management, backup, monitoring tanpa PHI, dan review privasi provider.</td></tr>
+    </table>
+    <h3>Konfigurasi live AI</h3>
+    <div class="callout"><p><code>MOCK_AI_MODE=false</code><br><code>LLM_PROVIDER=groq</code><br><code>GROQ_API_KEY=&lt;secret&gt;</code><br><code>LLM_MODEL=openai/gpt-oss-20b</code></p></div>
+    <p>Key provider hanya disimpan di environment server/service AI. Key tidak disimpan di mobile dan tidak dimasukkan ke repository.</p>
+  </section>
+
+  <section class="appendix">
+    <div class="chapter-title"><div class="chapter-number">LAMPIRAN 2</div><div class="chapter-name">Mockup Aplikasi</div></div>
+    <p class="center">Berikut beberapa mockup utama dari Stitch V2 yang menjadi referensi antarmuka implementasi Hopely Care.</p>
+    <div class="mockup-grid">
+      <figure class="figure"><img src="../stitch v2/9._patient_home/screen.png" alt="Beranda pasien"><figcaption>Beranda pasien</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/18._chat_conversation/screen.png" alt="Chat"><figcaption>Hopely AI chat</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/10._daily_check_in/screen.png" alt="Check-in"><figcaption>Check-in harian</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/19._journal_home/screen.png" alt="Jurnal"><figcaption>Jurnal privat</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/26._community_home/screen.png" alt="Community"><figcaption>Support Circle</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/37._caregiver_home/screen.png" alt="Caregiver"><figcaption>Dashboard caregiver</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/42._trusted_knowledge/screen.png" alt="Knowledge"><figcaption>Pengetahuan terkurasi</figcaption></figure>
+      <figure class="figure"><img src="../stitch v2/39._doctor_summary_home/screen.png" alt="Doctor summary"><figcaption>Ringkasan untuk dokter</figcaption></figure>
+    </div>
+  </section>
+</body>
+</html>

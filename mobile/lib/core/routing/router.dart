@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../api/api.dart';
 import '../theme/theme.dart';
 import '../widgets/stitch.dart';
-import 'navigation.dart';
 import '../../features/auth/onboarding_screen.dart';
 import '../../features/activities/tools_screen.dart';
 import '../../features/caregiver/support_alert_screen.dart';
@@ -29,6 +28,7 @@ import '../../features/community/presentation/community_detail.dart';
 import '../../features/community/presentation/community_compose.dart';
 import '../../features/community/presentation/community_post_detail.dart';
 import '../../features/community/presentation/community_safety.dart';
+import '../../features/stitch_v2/stitch_v2_detail_screens.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final session = ref.read(sessionProvider);
@@ -65,7 +65,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (session.caregiver &&
           !path.startsWith('/caregiver') &&
           !path.startsWith('/community') &&
-          !['/profile', '/privacy', '/notifications'].contains(path)) {
+          !['/profile', '/privacy', '/notifications', '/data-account',
+                  '/notification-settings']
+              .contains(path)) {
         return '/caregiver';
       }
       if (!session.caregiver &&
@@ -154,16 +156,41 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, s) => const CheckinSavedScreen(),
       ),
       GoRoute(path: '/checkin', builder: (_, s) => const CheckinScreen()),
+      GoRoute(path: '/history', builder: (_, s) => const HistoryScreen()),
       GoRoute(
         path: '/symptoms',
         builder: (_, s) => const CheckinScreen(symptoms: true),
       ),
       GoRoute(path: '/journal', builder: (_, s) => const JournalScreen()),
       GoRoute(
+        path: '/journal/new',
+        builder: (_, s) => JournalEditor(
+          initialTitle: s.uri.queryParameters['letter'] == '1'
+              ? 'Surat untuk diriku'
+              : '',
+        ),
+      ),
+      GoRoute(
+        path: '/journal/:id/reflection',
+        builder: (_, s) => JournalReflectionScreen(id: s.pathParameters['id']!),
+      ),
+      GoRoute(
         path: '/doctor-summary',
         builder: (_, s) => const SummaryScreen(),
       ),
+      GoRoute(
+        path: '/doctor-summary/new',
+        builder: (_, s) => const SummaryScreen(),
+      ),
+      GoRoute(
+        path: '/doctor-summary/:id',
+        builder: (_, s) => SavedSummaryScreen(id: s.pathParameters['id']!),
+      ),
       GoRoute(path: '/activities', builder: (_, s) => const ActivitiesScreen()),
+      GoRoute(
+        path: '/activities/:id',
+        builder: (_, s) => ActivityRouteScreen(id: s.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/care-circle',
         builder: (_, s) => const CareCircleScreen(),
@@ -175,10 +202,48 @@ final routerProvider = Provider<GoRouter>((ref) {
             CaregiverPatientScreen(patientId: s.pathParameters['id']!),
       ),
       GoRoute(path: '/knowledge', builder: (_, s) => const KnowledgeScreen()),
+      GoRoute(
+        path: '/knowledge/articles/:id',
+        builder: (_, s) => KnowledgeArticleScreen(id: s.pathParameters['id']!),
+      ),
       GoRoute(path: '/edit-profile', builder: (_, s) => const ProfileEditor()),
+      GoRoute(
+        path: '/treatment-profile',
+        builder: (_, s) => const TreatmentProfileScreen(),
+      ),
+      GoRoute(
+        path: '/notification-settings',
+        builder: (_, s) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/data-account',
+        builder: (_, s) => const DataAccountScreen(),
+      ),
       GoRoute(
         path: '/notifications',
         builder: (_, s) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/insights/detail',
+        builder: (_, s) => InsightDetailScreen(
+          days: int.tryParse(s.uri.queryParameters['days'] ?? '') ?? 14,
+        ),
+      ),
+      GoRoute(
+        path: '/treatment/new',
+        builder: (_, s) => const TreatmentEditor(),
+      ),
+      GoRoute(
+        path: '/treatment/:id',
+        builder: (_, s) => TreatmentDetailScreen(id: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/chat/voice',
+        builder: (_, s) => const VoiceAssistantUnavailableScreen(),
+      ),
+      GoRoute(
+        path: '/chat/audio',
+        builder: (_, s) => const VoiceAssistantUnavailableScreen(kind: 'audio'),
       ),
       ShellRoute(
         builder: (context, state, child) =>
@@ -210,75 +275,122 @@ class AppShell extends ConsumerWidget {
   final Widget child;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const paths = patientTabPaths;
     final caregiver = ref.watch(sessionProvider).caregiver;
+    final titles = const {
+      '/home': 'Beranda',
+      '/treatment': 'Perjalanan',
+      '/chat': 'Hopely AI',
+      '/insights': 'Insight',
+      '/profile': 'Profil',
+    };
     return Scaffold(
+      backgroundColor: canvas,
       appBar: AppBar(
+        toolbarHeight: 64,
         centerTitle: false,
+        leadingWidth: 56,
         leading: caregiver
             ? const BackHomeButton(fallback: '/caregiver')
-            : const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+            : const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Center(child: HopelyMark(size: 36)),
+              ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Hopely Care',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 12,
+                height: 16 / 12,
+                fontWeight: FontWeight.w500,
+                color: tertiaryInk,
+                letterSpacing: 0.24,
+              ),
             ),
             Text(
-              const {
-                    '/home': 'Beranda',
-                    '/treatment': 'Perjalanan',
-                    '/chat': 'Hopely AI',
-                    '/insights': 'Insight',
-                    '/profile': 'Profil',
-                  }[path] ??
-                  '',
-              style: const TextStyle(fontSize: 11, color: mutedInk),
+              titles[path] ?? '',
+              style: const TextStyle(
+                fontSize: 18,
+                height: 26 / 18,
+                fontWeight: FontWeight.w600,
+                color: ink,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            onPressed: () => context.push('/notifications'),
-            icon: const Icon(Icons.notifications_none),
-            tooltip: 'Notifikasi',
+            onPressed: () => context.push('/tools'),
+            icon: const Icon(Icons.support_agent_outlined),
+            tooltip: 'Bantuan cepat',
           ),
           IconButton(
-            onPressed: () => context.go('/profile'),
-            icon: const ProfileAvatar(radius: 16),
-            tooltip: 'Profil',
+            onPressed: () => context.push('/notifications'),
+            icon: const Icon(Icons.notifications_none_outlined),
+            tooltip: 'Notifikasi',
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              onPressed: () => context.go('/profile'),
+              icon: const ProfileAvatar(radius: 16),
+              tooltip: 'Profil',
+            ),
           ),
         ],
       ),
       body: SafeArea(top: false, child: child),
       bottomNavigationBar: caregiver
           ? null
-          : NavigationBar(
-              selectedIndex: paths.indexOf(path).clamp(0, 4).toInt(),
-              onDestinationSelected: (i) => context.go(paths[i]),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  label: 'Beranda',
+          : Material(
+              color: Colors.white.withValues(alpha: 0.94),
+              elevation: 0,
+              shadowColor: hopelyBlue.withValues(alpha: 0.06),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  height: 64,
+                  child: Row(
+                    children: [
+                      for (final item in const [
+                        (Icons.home_outlined, 'Beranda', '/home'),
+                        (Icons.calendar_today_outlined, 'Perjalanan', '/treatment'),
+                        (Icons.psychology_outlined, 'Hopely AI', '/chat'),
+                        (Icons.insights_outlined, 'Insight', '/insights'),
+                        (Icons.account_circle_outlined, 'Profil', '/profile'),
+                      ])
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => context.go(item.$3),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  item.$1,
+                                  color: path == item.$3 ? hopelyBlue : mutedInk,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.$2,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: path == item.$3
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: path == item.$3
+                                        ? hopelyBlue
+                                        : mutedInk,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                NavigationDestination(
-                  icon: Icon(Icons.timeline),
-                  label: 'Perjalanan',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.auto_awesome_outlined),
-                  label: 'Hopely AI',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.health_and_safety_outlined),
-                  label: 'Insight',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  label: 'Profil',
-                ),
-              ],
+              ),
             ),
     );
   }

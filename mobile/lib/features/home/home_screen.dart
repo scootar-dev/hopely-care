@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
@@ -36,59 +35,74 @@ class HomeScreen extends ConsumerWidget {
                   b['scheduled_at'] as String,
                 ),
               );
-        final name =
-            session.profile?['display_name'] ?? session.user?['name'] ?? '';
+        final name = firstName(
+          session.profile?['display_name'] ?? session.user?['name'] as String?,
+        );
+        final phase = session.profile?['treatment_phase']?.toString();
         return PageBody(
           children: [
-            Heading('Halo, $name', 'Senang bertemu denganmu hari ini.'),
-            if (session.profile?['treatment_phase']?.toString().isNotEmpty ==
-                true)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: SoftLabel(
-                  session.profile!['treatment_phase'],
-                  icon: Icons.eco_outlined,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name.isEmpty ? dayGreeting() : '${dayGreeting()}, $name',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  phase?.isNotEmpty == true
+                      ? phase!
+                      : 'Hari ini, pelan-pelan saja.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             CareCard(
               color: skySoft,
               padding: 24,
-              radius: 28,
+              radius: 24,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.favorite_outline, color: hopelyBlue, size: 32),
+                      IconWell(Icons.favorite, size: 48, radius: 16, background: surfaceHighest),
                       SizedBox(width: 16),
                       Expanded(
-                        child: Text(
-                          'Bagaimana keadaanmu hari ini?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bagaimana keadaanmu hari ini?',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: ink,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Luangkan 1 menit untuk mencatat kondisi fisik dan emosimu.',
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    today == null
-                        ? 'Luangkan 1 menit untuk mencatat kondisi fisik dan emosimu.'
-                        : 'Catatan hari ini tersimpan. Kamu dapat memperbaruinya kapan saja.',
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton.icon(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ),
                       onPressed: () async {
                         await context.push('/checkin');
                         reload();
                       },
-                      icon: const Icon(Icons.auto_awesome_outlined),
-                      label: Text(
+                      child: Text(
                         today == null ? 'Check-in' : 'Perbarui Check-In',
                       ),
                     ),
@@ -96,106 +110,130 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            SectionHeading(
-              'Jadwal Mendatang',
-              icon: Icons.calendar_month_outlined,
-              action: 'Lihat semua',
-              onTap: () => context.go('/treatment'),
-            ),
-            if (upcoming.isEmpty)
-              const CareCard(
-                child: Text(
-                  'Belum ada jadwal mendatang. Tambahkan jadwal di Perjalanan.',
+            if (upcoming.isNotEmpty)
+              CareCard(
+                padding: 16,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_month_outlined, size: 18, color: mutedInk),
+                        const SizedBox(width: 6),
+                        const Expanded(
+                          child: Text(
+                            'Jadwal Berikutnya',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: mutedInk,
+                            ),
+                          ),
+                        ),
+                        SoftLabel(
+                          relativeScheduleLabel(
+                            DateTime.parse(upcoming.first['scheduled_at']),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                upcoming.first['title'],
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                              if (upcoming.first['hospital_name']
+                                      ?.toString()
+                                      .isNotEmpty ==
+                                  true)
+                                Text(
+                                  upcoming.first['hospital_name'],
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.go('/treatment'),
+                          child: const Row(
+                            children: [
+                              Text('Lihat'),
+                              Icon(Icons.arrow_forward, size: 18),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               )
             else
               CareCard(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: skySoft,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                    const Expanded(
                       child: Text(
-                        DateFormat('dd\nMM').format(
-                          DateTime.parse(
-                            upcoming.first['scheduled_at'],
-                          ).toLocal(),
-                        ),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: hopelyBlue,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        'Belum ada jadwal mendatang. Tambahkan di Perjalanan.',
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            upcoming.first['title'],
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            DateFormat('dd/MM/yyyy • HH:mm').format(
-                              DateTime.parse(
-                                upcoming.first['scheduled_at'],
-                              ).toLocal(),
-                            ),
-                          ),
-                          if (upcoming.first['hospital_name']
-                                  ?.toString()
-                                  .isNotEmpty ==
-                              true)
-                            Text(upcoming.first['hospital_name']),
-                        ],
-                      ),
+                    TextButton(
+                      onPressed: () => context.go('/treatment'),
+                      child: const Text('Lihat'),
                     ),
                   ],
                 ),
               ),
             CareCard(
-              color: skySoft,
+              color: surfaceContainer,
+              padding: 24,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      HopelyMark(),
-                      SizedBox(width: 12),
+                      IconWell(
+                        Icons.psychology,
+                        size: 44,
+                        radius: 16,
+                        background: Colors.white,
+                      ),
+                      SizedBox(width: 16),
                       Expanded(
-                        child: Text(
-                          'Mau cerita?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 17,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Mau cerita?',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              'Hopely ada di sini untuk mendengarkan tanpa menghakimi.',
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Hopely ada di sini untuk mendengarkan tanpa menghakimi.',
-                  ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: TextButton.icon(
-                      style: TextButton.styleFrom(
+                    height: 50,
+                    child: FilledButton.tonal(
+                      style: FilledButton.styleFrom(
                         backgroundColor: Colors.white,
-                        padding: const EdgeInsets.all(14),
+                        foregroundColor: hopelyBlue,
+                        shape: const StadiumBorder(),
                       ),
                       onPressed: () => context.go('/chat'),
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      label: const Text('Mulai ngobrol'),
+                      child: const Text('Mulai ngobrol'),
                     ),
                   ),
                 ],
@@ -204,66 +242,92 @@ class HomeScreen extends ConsumerWidget {
             const HomeRecommendation(),
             CareCard(
               color: skySoft,
+              padding: 24,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(
-                        Icons.diversity_1_outlined,
-                        color: Color(0xFF1E40AF),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Support Circle',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
                           ),
                         ),
                       ),
+                      SoftLabel('Aktif'),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text('Temukan orang-orang yang memahami perjalananmu.'),
-                  const SizedBox(height: 8),
-                  TextButton.icon(
-                    onPressed: () => context.push('/community'),
-                    icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Masuk Komunitas'),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Temukan teman seperjalanan yang saling menguatkan.',
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      ...List.generate(
+                        3,
+                        (i) => Transform.translate(
+                          offset: Offset(-10.0 * i, 0),
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: [primaryFixed, surfaceHigh, surfaceContainer][i],
+                            child: Icon(
+                              [
+                                Icons.favorite_outline,
+                                Icons.spa_outlined,
+                                Icons.diversity_1_outlined,
+                              ][i],
+                              size: 18,
+                              color: hopelyBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: surfaceContainer,
+                          foregroundColor: hopelyBlue,
+                          shape: const StadiumBorder(),
+                          minimumSize: const Size(88, 40),
+                        ),
+                        onPressed: () => context.push('/community'),
+                        child: const Text('Masuk'),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const CareCard(
-              child: Column(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ActionLink('Insight', '/insights', icon: Icons.insights_outlined),
+                ActionLink('Jurnal', '/journal', icon: Icons.edit_note),
+                ActionLink('Tools', '/tools', icon: Icons.health_and_safety_outlined),
+                ActionLink('Kerabat', '/care-circle', icon: Icons.people_outline),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ActionLink(
-                    'Lihat insight',
-                    '/insights',
-                    icon: Icons.insights_outlined,
-                  ),
-                  ActionLink(
-                    'Tulis jurnal pribadi',
-                    '/journal',
-                    icon: Icons.edit_note,
-                  ),
-                  ActionLink(
-                    'Jelajahi Tools Kesehatan',
-                    '/tools',
-                    icon: Icons.health_and_safety_outlined,
-                  ),
-                  ActionLink(
-                    'Undang kerabat tepercaya',
-                    '/care-circle',
-                    icon: Icons.people_outline,
+                  Icon(Icons.spa, size: 18, color: hopelyBlue),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'Pelan-pelan saja, setiap langkahmu sangat berharga.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: mutedInk),
+                    ),
                   ),
                 ],
               ),
-            ),
-            const PrivacyNote(
-              'Pelan-pelan saja, setiap langkahmu sangat berharga.',
             ),
           ],
         );
@@ -287,14 +351,23 @@ class _HomeRecommendationState extends ConsumerState<HomeRecommendation> {
     future: recommendation,
     builder: (context, snapshot) {
       if (snapshot.hasError) {
-        return const CareCard(
-          child: Column(
+        return CareCard(
+          child: Row(
             children: [
-              Text('Pilihan personal belum tersedia.'),
-              ActionLink(
-                'Buka aktivitas dukungan',
-                '/activities',
-                icon: Icons.spa_outlined,
+              const IconWell(Icons.air, size: 48, radius: 16),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Text('Pilihan personal belum tersedia.'),
+              ),
+              FilledButton.tonal(
+                style: FilledButton.styleFrom(
+                  backgroundColor: surfaceHigh,
+                  foregroundColor: hopelyBlue,
+                  shape: const StadiumBorder(),
+                  minimumSize: const Size(72, 40),
+                ),
+                onPressed: () => context.push('/activities'),
+                child: const Text('Mulai'),
               ),
             ],
           ),
@@ -309,27 +382,44 @@ class _HomeRecommendationState extends ConsumerState<HomeRecommendation> {
       }
       final row = rows.first;
       return CareCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: 16,
+        child: Row(
           children: [
-            MockNotice(row['metadata']),
-            Text(
-              row['activity']['title'],
-              style: Theme.of(context).textTheme.titleMedium,
+            const IconWell(Icons.air, size: 48, radius: 16),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MockNotice(row['metadata']),
+                  Text(
+                    row['activity']['title'],
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Text(
+                    row['reason']?.toString() ??
+                        '${row['activity']['duration_minutes']} menit',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              '${row['activity']['duration_minutes']} menit • ${row['reason']}',
-            ),
-            TextButton.icon(
+            FilledButton.tonal(
+              style: FilledButton.styleFrom(
+                backgroundColor: surfaceHigh,
+                foregroundColor: hopelyBlue,
+                shape: const StadiumBorder(),
+                minimumSize: const Size(72, 40),
+              ),
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
                   builder: (_) => ActivityDetail(recommendation: row),
                 ),
               ),
-              icon: const Icon(Icons.play_circle_outline),
-              label: const Text('Mulai aktivitas'),
+              child: const Text('Mulai'),
             ),
           ],
         ),

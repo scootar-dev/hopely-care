@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
+import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
 
 class TreatmentScreen extends ConsumerStatefulWidget {
@@ -12,14 +14,6 @@ class TreatmentScreen extends ConsumerStatefulWidget {
 
 class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
   int version = 0;
-  Future<void> edit([Json? entry]) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => TreatmentEditor(entry: entry)),
-    );
-    if (mounted) {
-      setState(() => version++);
-    }
-  }
 
   @override
   Widget build(BuildContext context) => DataPage(
@@ -34,16 +28,60 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
         );
       return PageBody(
         children: [
-          const Heading(
+          const SoftLabel('Ruang Teduh Perawatan', icon: Icons.spa_outlined),
+          const SizedBox(height: 10),
+          Text(
             'Perjalanan Perawatan',
-            'Satu langkah, satu hari. Catat jadwal sesuai arahan tim perawatanmu.',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 4),
+          const Text('Siklus perawatanmu, satu langkah dalam satu waktu.'),
+          const SizedBox(height: 16),
+          CareCard(
+            padding: 16,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(child: Text('Progres Siklus')),
+                    Text(
+                      '${(rows.where((t) => t['status'] == 'completed').length / (rows.isEmpty ? 1 : rows.length) * 100).round()}% Selesai',
+                      style: const TextStyle(
+                        color: hopelyBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                LinearProgressIndicator(
+                  value: rows.isEmpty
+                      ? 0
+                      : rows.where((t) => t['status'] == 'completed').length /
+                            rows.length,
+                  minHeight: 8,
+                  backgroundColor: surfaceHighest,
+                  color: hopelyBlue,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  rows.isEmpty
+                      ? 'Belum ada jadwal yang tercatat.'
+                      : '${rows.length} catatan perawatan tersimpan',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
           ),
           FilledButton.icon(
-            onPressed: edit,
+            onPressed: () => context.push('/treatment/new'),
             icon: const Icon(Icons.add),
-            label: const Text('Tambah jadwal'),
+            label: const Text('Tambah Jadwal / Catatan Dokter'),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
+          const SectionHeading('Agenda Perawatan'),
           if (rows.isEmpty)
             const CareCard(
               child: Text(
@@ -52,19 +90,45 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             ),
           for (final t in rows)
             CareCard(
+              padding: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.event_outlined,
+                        size: 18,
+                        color: hopelyBlue,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          DateTime.parse(
+                            t['scheduled_at'],
+                          ).toLocal().toString().substring(0, 16),
+                          style: const TextStyle(
+                            color: hopelyBlue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      SoftLabel(
+                        t['status'] == 'completed' ? 'Selesai' : 'Terjadwal',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   Text(
                     t['title'],
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  Text(
-                    DateTime.parse(
-                      t['scheduled_at'],
-                    ).toLocal().toString().substring(0, 16),
-                  ),
-                  Text('${t['treatment_type']} • ${t['status']}'),
+                  if (t['location']?.toString().isNotEmpty == true)
+                    Text(
+                      t['location'],
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  Text(t['treatment_type'] ?? 'Catatan perawatan'),
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
@@ -85,7 +149,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () => edit(t),
+                    onPressed: () => context.push('/treatment/${t['id']}'),
                     child: const Text('Lihat / ubah jadwal'),
                   ),
                 ],
