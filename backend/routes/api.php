@@ -35,6 +35,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     Route::delete("devices/{id}", [NotificationController::class, "removeDevice"]);
     Route::middleware(["role:PATIENT", "health.consent"])->group(function () {
         Route::put("profile", [AuthController::class, "profile"]);
+        Route::get("journals/{id}/reflection", [AiController::class, "journalReflection"]);
         foreach (["checkins", "symptoms", "treatments", "journals"] as $kind) {
             foreach (
                 [
@@ -63,6 +64,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
             Route::get("insights", [AiController::class, "insights"]);
             Route::get("activities/recommended", [AiController::class, "recommended"]);
             Route::post("doctor-summary", [AiController::class, "summary"]);
+            Route::get("doctor-summary/{id}", [AiController::class, "savedSummary"]);
             Route::post("knowledge/query", [AiController::class, "knowledge"]);
         });
         Route::post("caregivers/invite", [CaregiverController::class, "invite"]);

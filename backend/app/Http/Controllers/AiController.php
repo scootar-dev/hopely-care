@@ -3,12 +3,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Services\AiApplicationService;
+use App\Models\{DoctorVisitReport, JournalAiInsight};
 class AiController extends Controller
 {
     public function __construct(private AiApplicationService $service) {}
     public function analyzeJournal(Request $r)
     {
         return $this->ok($this->service->analyzeJournal($r->user()->id, $r->route("id")));
+    }
+    public function journalReflection(Request $r)
+    {
+        $reflection = JournalAiInsight::where("user_id", $r->user()->id)
+            ->where("journal_id", $r->route("id"))
+            ->first();
+        return $this->ok($reflection ? [
+            "available" => true,
+            "journal_id" => $reflection->journal_id,
+            "primary_emotion" => $reflection->primary_emotion,
+            "emotion_scores" => $reflection->emotion_scores,
+            "themes" => $reflection->themes,
+            "generated_at" => $reflection->generated_at,
+            "model_version" => $reflection->model_version,
+        ] : [
+            "available" => false,
+            "journal_id" => $r->route("id"),
+        ]);
     }
     public function analyzeCheckin(Request $r)
     {
@@ -55,6 +74,17 @@ class AiController extends Controller
             "reported_concerns.*" => "string|max:1000",
         ]);
         return $this->ok($this->service->summary($r->user()->id, $v));
+    }
+    public function savedSummary(Request $r)
+    {
+        $report = DoctorVisitReport::where("user_id", $r->user()->id)
+            ->findOrFail($r->route("id"));
+        return $this->ok([
+            "id" => $report->id,
+            "period_start" => $report->period_start,
+            "period_end" => $report->period_end,
+            ...$report->report_json,
+        ]);
     }
     public function knowledge(Request $r)
     {

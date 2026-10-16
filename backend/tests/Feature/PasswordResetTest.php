@@ -90,4 +90,16 @@ class PasswordResetTest extends TestCase
             ->assertStatus(503)
             ->assertDontSee("private transport detail");
     }
+
+    public function test_mobile_login_token_has_no_automatic_expiration(): void
+    {
+        $u = $this->account();
+        $this->assertNull(config("sanctum.expiration"));
+        $plainToken = $u->createToken("mobile")->plainTextToken;
+        $tokenId = (int) (string) str($plainToken)->before("|");
+        $this->assertDatabaseHas("personal_access_tokens", [
+            "id" => $tokenId,
+            "expires_at" => null,
+        ]);
+    }
 }
