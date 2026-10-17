@@ -165,7 +165,7 @@ class CommunityBody extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 620),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
         physics: const AlwaysScrollableScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: children,
@@ -255,7 +255,11 @@ class CommunityEmptyState extends StatelessWidget {
             color: circleSurface,
             borderRadius: BorderRadius.circular(28),
           ),
-          child: const Icon(Icons.volunteer_activism, color: circleBlue, size: 28),
+          child: const Icon(
+            Icons.volunteer_activism,
+            color: circleBlue,
+            size: 28,
+          ),
         ),
         const SizedBox(height: 16),
         Text(
@@ -271,10 +275,7 @@ class CommunityEmptyState extends StatelessWidget {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
         ),
         if (action != null) ...[const SizedBox(height: 16), action!],
       ],
@@ -316,7 +317,9 @@ class CommunityCard extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: onOpen ?? () => context.push('/community/groups/${community['id']}'),
+        onTap:
+            onOpen ??
+            () => context.push('/community/groups/${community['id']}'),
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +362,11 @@ class CommunityCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.group_outlined, size: 15, color: Colors.grey.shade500),
+                          Icon(
+                            Icons.group_outlined,
+                            size: 15,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '$memberCount Teman Seperjalanan',
@@ -396,7 +403,11 @@ class CommunityCard extends StatelessWidget {
                 if (showJoinButton && status != 'banned')
                   _CommunityActionButton(
                     isJoined: isJoined,
-                    onOpen: onOpen ?? () => context.push('/community/groups/${community['id']}'),
+                    onOpen:
+                        onOpen ??
+                        () => context.push(
+                          '/community/groups/${community['id']}',
+                        ),
                   ),
               ],
             ),
@@ -428,7 +439,11 @@ class _AvatarStack extends StatelessWidget {
       const Color(0xFFDDE1FF), // secondary fixed
       const Color(0xFFE5EEFF), // surface container
     ];
-    final textColors = [circleBlue, const Color(0xFF3755C3), Colors.grey.shade600];
+    final textColors = [
+      circleBlue,
+      const Color(0xFF3755C3),
+      Colors.grey.shade600,
+    ];
     return SizedBox(
       height: 26,
       child: Row(
@@ -490,8 +505,10 @@ class _AvatarStack extends StatelessWidget {
     if (words.isEmpty) return ['?'];
     if (words.length == 1) return [words[0][0].toUpperCase()];
     return [
-      words[0][0].toUpperCase() + (words[0].length > 1 ? words[0][1].toUpperCase() : ''),
-      words[1][0].toUpperCase() + (words[1].length > 1 ? words[1][1].toUpperCase() : ''),
+      words[0][0].toUpperCase() +
+          (words[0].length > 1 ? words[0][1].toUpperCase() : ''),
+      words[1][0].toUpperCase() +
+          (words[1].length > 1 ? words[1][1].toUpperCase() : ''),
     ];
   }
 }
@@ -566,6 +583,16 @@ class CommunityImage extends ConsumerStatefulWidget {
 
 class _CommunityImageState extends ConsumerState<CommunityImage> {
   late Future<dynamic> image = load();
+  @override
+  void didUpdateWidget(covariant CommunityImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.postId != widget.postId ||
+        oldWidget.revision != widget.revision ||
+        oldWidget.review != widget.review) {
+      image = load();
+    }
+  }
+
   Future<dynamic> load() => ref
       .read(apiProvider)
       .get(
@@ -613,11 +640,13 @@ class CommunityReactionBar extends StatelessWidget {
     required this.count,
     required this.onReact,
     this.commentCount = 0,
+    this.onComment,
   });
   final String? selected;
   final int count;
   final int commentCount;
   final ValueChanged<String>? onReact;
+  final VoidCallback? onComment;
   @override
   Widget build(BuildContext context) => Row(
     children: [
@@ -636,7 +665,7 @@ class CommunityReactionBar extends StatelessWidget {
         label: 'Komentar',
         count: commentCount,
         isSelected: false,
-        onTap: null, // handled by parent navigation
+        onTap: onComment,
       ),
       const Spacer(),
       // Safety indicator
@@ -740,6 +769,7 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
   }
 
   Future<void> react(String type) async {
+    if (busy) return;
     setState(() {
       busy = true;
       error = null;
@@ -901,22 +931,7 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
           ),
           // Image
           if (post['has_image'] == true)
-            if (widget.detail)
-              CommunityImage(post['id'], revision: post['revision'])
-            else
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.image_outlined, color: circleBlue, size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Foto dalam cerita',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
-              ),
+            CommunityImage(post['id'], revision: post['revision']),
           // Topic tag
           if (post['community_name'] != null) ...[
             const SizedBox(height: 12),
@@ -929,7 +944,11 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.favorite_outline, size: 14, color: circleBlue),
+                  const Icon(
+                    Icons.favorite_outline,
+                    size: 14,
+                    color: circleBlue,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     post['community_name'] as String,
@@ -953,7 +972,23 @@ class _CommunityPostCardState extends ConsumerState<CommunityPostCard> {
             count: post['reaction_count'] as int? ?? 0,
             commentCount: post['comment_count'] as int? ?? 0,
             onReact: !busy && post['can_participate'] == true ? react : null,
+            onComment: () async {
+              await context.push('/community/posts/${post['id']}');
+              if (mounted) widget.onChanged();
+            },
           ),
+          if (post['can_participate'] != true)
+            TextButton(
+              onPressed: () async {
+                await context.push('/community/groups/${post['community_id']}');
+                if (mounted) widget.onChanged();
+              },
+              child: Text(
+                post['moderation_status'] == 'approved'
+                    ? 'Gabung komunitas untuk memberi dukungan'
+                    : 'Interaksi tersedia setelah cerita diterbitkan',
+              ),
+            ),
           if (error != null) ErrorNotice(error!),
           if (!widget.detail)
             Padding(
@@ -1064,12 +1099,18 @@ class CommunityCommentItem extends StatelessWidget {
                       children: [
                         Text(
                           authorName,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         // Role badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: circleBlue,
                             borderRadius: BorderRadius.circular(8),
@@ -1087,14 +1128,21 @@ class CommunityCommentItem extends StatelessWidget {
                     ),
                     Text(
                       shortDate(comment['created_at']),
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
               ),
               PopupMenuButton<String>(
                 tooltip: 'Pilihan komentar',
-                icon: Icon(Icons.more_horiz, size: 20, color: Colors.grey.shade400),
+                icon: Icon(
+                  Icons.more_horiz,
+                  size: 20,
+                  color: Colors.grey.shade400,
+                ),
                 onSelected: onAction,
                 itemBuilder: (_) => [
                   if (comment['is_own'] == true)
@@ -1124,7 +1172,11 @@ class CommunityCommentItem extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.favorite_outline, size: 16, color: Colors.grey.shade400),
+              Icon(
+                Icons.favorite_outline,
+                size: 16,
+                color: Colors.grey.shade400,
+              ),
               const SizedBox(width: 4),
               Text(
                 'Terbantu',
@@ -1200,7 +1252,9 @@ class CommunityTabBar extends StatelessWidget {
                     tabs[i],
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: selected == i ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: selected == i
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       color: selected == i ? circleBlue : Colors.grey.shade500,
                     ),
                   ),

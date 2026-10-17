@@ -40,10 +40,7 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
               padding: const EdgeInsets.only(top: 4, bottom: 12),
               child: Text(
                 'Temukan teman seperjalanan.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ),
             // Tab bar: Untukmu / Komunitasku
@@ -74,7 +71,8 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
                 CommunityCard(
                   Map<String, dynamic>.from(r['community']),
                   reason: r['reason'] as String?,
-                  onOpen: () => open('/community/groups/${r['community']['id']}'),
+                  onOpen: () =>
+                      open('/community/groups/${r['community']['id']}'),
                 ),
               // Show joined communities in "Untukmu" too
               for (final c in joined)
@@ -86,12 +84,17 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
               if (recent.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 for (final p in recent)
-                  CommunityPostCard(p, key: ValueKey(p['id']), onChanged: reload),
+                  CommunityPostCard(
+                    p,
+                    key: ValueKey(p['id']),
+                    onChanged: reload,
+                  ),
               ],
             ] else ...[
               // Komunitasku tab
               _KomunitaskuView(
                 joined: joined,
+                stats: data['stats'] as Map?,
                 onOpen: open,
                 onReload: reload,
               ),
@@ -108,10 +111,12 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
 class _KomunitaskuView extends ConsumerWidget {
   const _KomunitaskuView({
     required this.joined,
+    this.stats,
     required this.onOpen,
     required this.onReload,
   });
   final List<Json> joined;
+  final Map? stats;
   final Future<void> Function(String) onOpen;
   final VoidCallback onReload;
 
@@ -151,7 +156,11 @@ class _KomunitaskuView extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.shield_outlined, color: circleBlue, size: 18),
+                      const Icon(
+                        Icons.shield_outlined,
+                        color: circleBlue,
+                        size: 18,
+                      ),
                       const SizedBox(width: 6),
                       const Text(
                         'Jejak Berbagimu',
@@ -164,7 +173,10 @@ class _KomunitaskuView extends ConsumerWidget {
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: .6),
                       borderRadius: BorderRadius.circular(12),
@@ -204,7 +216,7 @@ class _KomunitaskuView extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${joined.length}',
+                            stats?['shared_posts']?.toString() ?? '-',
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -213,7 +225,10 @@ class _KomunitaskuView extends ConsumerWidget {
                           ),
                           const Text(
                             'Cerita Dibagikan',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF526079)),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF526079),
+                            ),
                           ),
                         ],
                       ),
@@ -227,20 +242,23 @@ class _KomunitaskuView extends ConsumerWidget {
                         color: Colors.white.withValues(alpha: .7),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '38',
-                            style: TextStyle(
+                            stats?['support_received']?.toString() ?? '-',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                               color: circleDeepBlue,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Dukungan Diterima',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF526079)),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF526079),
+                            ),
                           ),
                         ],
                       ),
@@ -251,7 +269,11 @@ class _KomunitaskuView extends ConsumerWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.lock_outline, size: 14, color: Colors.grey.shade500),
+                  Icon(
+                    Icons.lock_outline,
+                    size: 14,
+                    color: Colors.grey.shade500,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Semua interaksi tersimpan aman & terlindungi.',
@@ -387,7 +409,10 @@ class _JoinedCommunityCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8F5E9),
                       borderRadius: BorderRadius.circular(8),
@@ -419,7 +444,11 @@ class _JoinedCommunityCard extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, size: 20, color: Colors.grey.shade400),
+              icon: Icon(
+                Icons.more_vert,
+                size: 20,
+                color: Colors.grey.shade400,
+              ),
               itemBuilder: (_) => const [
                 PopupMenuItem(value: 'notif', child: Text('Notifikasi')),
                 PopupMenuItem(value: 'leave', child: Text('Keluar')),
@@ -434,7 +463,11 @@ class _JoinedCommunityCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.notifications_active_outlined, size: 16, color: Colors.grey.shade500),
+                Icon(
+                  Icons.notifications_active_outlined,
+                  size: 16,
+                  color: Colors.grey.shade500,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Notifikasi aktif',
@@ -481,11 +514,11 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
   int _cancerFilter = 0;
   int _phaseFilter = -1;
   int _focusFilter = -1;
-  
+
   final _cancerTypes = const ['Semua', 'Payudara', 'Kolorektal', 'Paru'];
   final _phases = const ['Baru Didiagnosis', 'Kemoterapi', 'Radioterapi'];
   final _focuses = const ['Emosional', 'Nutrisi Sehat', 'Caregiver'];
-  
+
   @override
   void dispose() {
     search.dispose();
@@ -497,7 +530,7 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
     submitted = search.text.trim();
     version++;
   });
-  
+
   @override
   Widget build(BuildContext context) => CommunityScaffold(
     title: 'Grup Dukungan Kanker ...',
@@ -507,15 +540,16 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          decoration: BoxDecoration(
-            color: circleCanvas,
-          ),
+          decoration: BoxDecoration(color: circleCanvas),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: circleSurface,
                   borderRadius: BorderRadius.circular(8),
@@ -549,7 +583,10 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
               const SizedBox(height: 16),
               // Search bar
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
@@ -572,7 +609,9 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                           ),
                           border: InputBorder.none,
                           filled: false,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -611,19 +650,28 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                       refresh();
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: _cancerFilter == i ? circleBlue : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: _cancerFilter == i ? circleBlue : Colors.grey.shade200,
+                          color: _cancerFilter == i
+                              ? circleBlue
+                              : Colors.grey.shade200,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (_cancerFilter == i) ...[
-                            const Icon(Icons.check, size: 14, color: Colors.white),
+                            const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                             const SizedBox(width: 4),
                           ],
                           Text(
@@ -631,7 +679,9 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: _cancerFilter == i ? Colors.white : Colors.grey.shade600,
+                              color: _cancerFilter == i
+                                  ? Colors.white
+                                  : Colors.grey.shade600,
                             ),
                           ),
                         ],
@@ -658,14 +708,21 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                   itemCount: _phases.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => GestureDetector(
-                    onTap: () => setState(() => _phaseFilter = _phaseFilter == i ? -1 : i),
+                    onTap: () => setState(
+                      () => _phaseFilter = _phaseFilter == i ? -1 : i,
+                    ),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: _phaseFilter == i ? circleBlue : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: _phaseFilter == i ? circleBlue : Colors.grey.shade200,
+                          color: _phaseFilter == i
+                              ? circleBlue
+                              : Colors.grey.shade200,
                         ),
                       ),
                       child: Text(
@@ -673,7 +730,9 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: _phaseFilter == i ? Colors.white : Colors.grey.shade600,
+                          color: _phaseFilter == i
+                              ? Colors.white
+                              : Colors.grey.shade600,
                         ),
                       ),
                     ),
@@ -698,16 +757,27 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                   itemCount: _focuses.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) {
-                    final icons = [Icons.favorite_outline, Icons.spa_outlined, Icons.favorite_border];
+                    final icons = [
+                      Icons.favorite_outline,
+                      Icons.spa_outlined,
+                      Icons.favorite_border,
+                    ];
                     return GestureDetector(
-                      onTap: () => setState(() => _focusFilter = _focusFilter == i ? -1 : i),
+                      onTap: () => setState(
+                        () => _focusFilter = _focusFilter == i ? -1 : i,
+                      ),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: _focusFilter == i ? circleBlue : Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: _focusFilter == i ? circleBlue : Colors.grey.shade200,
+                            color: _focusFilter == i
+                                ? circleBlue
+                                : Colors.grey.shade200,
                           ),
                         ),
                         child: Row(
@@ -716,7 +786,9 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                             Icon(
                               icons[i],
                               size: 14,
-                              color: _focusFilter == i ? Colors.white : circleBlue,
+                              color: _focusFilter == i
+                                  ? Colors.white
+                                  : circleBlue,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -724,7 +796,9 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: _focusFilter == i ? Colors.white : Colors.grey.shade600,
+                                color: _focusFilter == i
+                                    ? Colors.white
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           ],
@@ -752,7 +826,10 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: circleBlue,
                   borderRadius: BorderRadius.circular(10),
@@ -817,7 +894,10 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
 }
 
 class _DiscoveryCommunityCard extends StatelessWidget {
-  const _DiscoveryCommunityCard({required this.community, required this.onOpen});
+  const _DiscoveryCommunityCard({
+    required this.community,
+    required this.onOpen,
+  });
   final Json community;
   final VoidCallback onOpen;
   @override
@@ -826,7 +906,7 @@ class _DiscoveryCommunityCard extends StatelessWidget {
     final memberCount = community['member_count'] ?? 0;
     final description = community['description'] as String;
     final category = community['category'] as String?;
-    
+
     // Category badge
     String categoryLabel;
     Color categoryColor;
@@ -882,7 +962,11 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                   color: circleSurface,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(Icons.diversity_1_outlined, color: circleBlue, size: 28),
+                child: Icon(
+                  Icons.diversity_1_outlined,
+                  color: circleBlue,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -893,7 +977,10 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: categoryColor.withValues(alpha: .1),
                             borderRadius: BorderRadius.circular(8),
@@ -901,7 +988,11 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(categoryIcon, size: 12, color: categoryColor),
+                              Icon(
+                                categoryIcon,
+                                size: 12,
+                                color: categoryColor,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 categoryLabel,
@@ -917,7 +1008,10 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           '• $memberCount Anggota',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
@@ -956,7 +1050,11 @@ class _DiscoveryCommunityCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey.shade500),
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 16,
+                    color: Colors.grey.shade500,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     '12 diskusi aktif hari ini',
@@ -971,7 +1069,10 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   onTap: onOpen,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -984,7 +1085,11 @@ class _DiscoveryCommunityCard extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 4),
-                        Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       ],
                     ),
                   ),

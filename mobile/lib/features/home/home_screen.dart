@@ -68,7 +68,12 @@ class HomeScreen extends ConsumerWidget {
                   const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconWell(Icons.favorite, size: 48, radius: 16, background: surfaceHighest),
+                      IconWell(
+                        Icons.favorite,
+                        size: 48,
+                        radius: 16,
+                        background: surfaceHighest,
+                      ),
                       SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -117,7 +122,11 @@ class HomeScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.calendar_month_outlined, size: 18, color: mutedInk),
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          size: 18,
+                          color: mutedInk,
+                        ),
                         const SizedBox(width: 6),
                         const Expanded(
                           child: Text(
@@ -232,7 +241,7 @@ class HomeScreen extends ConsumerWidget {
                         foregroundColor: hopelyBlue,
                         shape: const StadiumBorder(),
                       ),
-                      onPressed: () => context.go('/chat'),
+                      onPressed: () => context.push('/chat'),
                       child: const Text('Mulai ngobrol'),
                     ),
                   ),
@@ -273,7 +282,11 @@ class HomeScreen extends ConsumerWidget {
                           offset: Offset(-10.0 * i, 0),
                           child: CircleAvatar(
                             radius: 20,
-                            backgroundColor: [primaryFixed, surfaceHigh, surfaceContainer][i],
+                            backgroundColor: [
+                              primaryFixed,
+                              surfaceHigh,
+                              surfaceContainer,
+                            ][i],
                             child: Icon(
                               [
                                 Icons.favorite_outline,
@@ -306,10 +319,22 @@ class HomeScreen extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                ActionLink('Insight', '/insights', icon: Icons.insights_outlined),
+                ActionLink(
+                  'Insight',
+                  '/insights',
+                  icon: Icons.insights_outlined,
+                ),
                 ActionLink('Jurnal', '/journal', icon: Icons.edit_note),
-                ActionLink('Tools', '/tools', icon: Icons.health_and_safety_outlined),
-                ActionLink('Kerabat', '/care-circle', icon: Icons.people_outline),
+                ActionLink(
+                  'Tools',
+                  '/tools',
+                  icon: Icons.health_and_safety_outlined,
+                ),
+                ActionLink(
+                  'Kerabat',
+                  '/care-circle',
+                  icon: Icons.people_outline,
+                ),
               ],
             ),
             const Padding(
@@ -356,9 +381,7 @@ class _HomeRecommendationState extends ConsumerState<HomeRecommendation> {
             children: [
               const IconWell(Icons.air, size: 48, radius: 16),
               const SizedBox(width: 16),
-              const Expanded(
-                child: Text('Pilihan personal belum tersedia.'),
-              ),
+              const Expanded(child: Text('Pilihan personal belum tersedia.')),
               FilledButton.tonal(
                 style: FilledButton.styleFrom(
                   backgroundColor: surfaceHigh,

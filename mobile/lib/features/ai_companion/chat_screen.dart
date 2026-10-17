@@ -147,20 +147,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               icon: const Icon(Icons.mic_none_outlined),
                               tooltip: 'Mode suara',
                             ),
-                            FilledButton.tonalIcon(
-                              onPressed: () => setState(
-                                () => input.text =
-                                    'Boleh, pandu aku hening 2 menit.',
-                              ),
-                              icon: const Icon(Icons.air, size: 18),
-                              label: const Text('Latihan Napas'),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: skySoft,
-                                foregroundColor: hopelyBlue,
-                                shape: const StadiumBorder(),
-                              ),
-                            ),
                           ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: FilledButton.tonalIcon(
+                            onPressed: () => setState(
+                              () => input.text =
+                                  'Boleh, pandu aku hening 2 menit.',
+                            ),
+                            icon: const Icon(Icons.air, size: 18),
+                            label: const Text('Latihan Napas'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: skySoft,
+                              foregroundColor: hopelyBlue,
+                              shape: const StadiumBorder(),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 20),
                         if (!allowed)
@@ -292,7 +295,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 children: [
                   Icon(Icons.info_outline, size: 15, color: tertiaryInk),
                   SizedBox(width: 6),
-                  Text('Hopely bukan pengganti tenaga kesehatan.'),
+                  Flexible(
+                    child: Text(
+                      'Hopely bukan pengganti tenaga kesehatan.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
             ),

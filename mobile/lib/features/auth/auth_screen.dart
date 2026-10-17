@@ -104,9 +104,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       backgroundColor: role == option.key
                           ? hopelyBlue
                           : skySoft,
-                      foregroundColor: role == option.key
-                          ? Colors.white
-                          : ink,
+                      foregroundColor: role == option.key ? Colors.white : ink,
                     ),
                     onPressed: busy
                         ? null
@@ -155,19 +153,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             v == null || !v.contains('@') ? 'Isi email yang sesuai' : null,
       ),
       const SizedBox(height: 18),
-      Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 12,
-        children: [
-          const Text('Kata Sandi', style: TextStyle(color: ink)),
-          if (!widget.register)
-            TextButton(
-              onPressed: busy ? null : () => context.push('/forgot-password'),
-              child: const Text('Lupa kata sandi?'),
-            ),
-        ],
-      ),
+      const Text('Kata Sandi', style: TextStyle(color: ink)),
       const SizedBox(height: 6),
       TextFormField(
         controller: password,
@@ -197,6 +183,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   : 'Isi kata sandi')
             : null,
       ),
+      if (!widget.register)
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: busy ? null : () => context.push('/forgot-password'),
+            child: const Text('Lupa kata sandi?'),
+          ),
+        ),
       if (widget.register) ...[
         const SizedBox(height: 18),
         _label('Konfirmasi Kata Sandi'),
@@ -363,9 +357,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             children: [
               const HopelyMark(),
               const SizedBox(width: 12),
-              const Expanded(
-                child: Text('Ruang Tenang & Aman'),
-              ),
+              const Expanded(child: Text('Ruang Tenang & Aman')),
             ],
           ),
         ),
@@ -396,9 +388,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         item.$4,
                         size: 56,
                         radius: 16,
-                        background: role == item.$1
-                            ? primaryFixed
-                            : skySoft,
+                        background: role == item.$1 ? primaryFixed : skySoft,
                       ),
                       const SizedBox(width: 16),
                       Expanded(

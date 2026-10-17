@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'summary_report.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -57,28 +58,6 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     }
   }
 
-  List<String> lines() {
-    final r = report!;
-    final wellbeing = r['wellbeing'] as Json;
-    return [
-      'Periode: ${r['period']}',
-      'Hari tercatat: ${r['recorded_days']}',
-      for (final e in wellbeing.entries)
-        '${e.key}: rata-rata ${e.value['mean'] ?? '-'} / 5; arah ${e.value['direction']}',
-      for (final p in r['symptom_patterns'] as List)
-        '${p['metric']}: ${p['mean']} / 5 (${p['record_count']} catatan)',
-      for (final t in r['treatment_context'] as List)
-        'Perawatan tercatat: ${t['treatment_type']} - ${t['scheduled_at']}',
-      'Hal yang ingin disampaikan:',
-      ...(r['reported_concerns'] as List).map((s) => s.toString()),
-      'Pertanyaan untuk didiskusikan:',
-      ...(r['questions_patient_may_want_to_discuss'] as List).map(
-        (q) => q.toString(),
-      ),
-      r['disclaimer'] as String,
-    ];
-  }
-
   Future<void> export() async {
     try {
       final font = pw.Font.ttf(
@@ -96,7 +75,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
             ),
             if (report!['metadata']['mode'] == 'mock')
               pw.Paragraph(text: 'DEMO OFFLINE - bukan hasil AI nyata'),
-            ...lines().map((l) => pw.Paragraph(text: l)),
+            for (final section in summarySections(report!)) ...[
+              pw.Header(level: 1, text: section.$1),
+              ...section.$2.map((line) => pw.Paragraph(text: line)),
+            ],
           ],
         ),
       );
@@ -195,8 +177,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
         const SizedBox(height: 24),
         if (error != null) ErrorNotice(error!),
         if (report != null) ...[
-          MockNotice(report!['metadata']),
-          for (final line in lines()) CareCard(child: Text(line)),
+          SummaryReport(report!),
           FilledButton.icon(
             onPressed: export,
             icon: const Icon(Icons.picture_as_pdf_outlined),

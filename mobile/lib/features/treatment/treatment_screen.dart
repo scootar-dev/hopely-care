@@ -5,6 +5,8 @@ import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import '../../core/notifications/treatment_reminders.dart';
+import '../../core/notifications/reminder_host.dart';
 
 class TreatmentScreen extends ConsumerStatefulWidget {
   const TreatmentScreen({super.key});
@@ -36,6 +38,33 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           ),
           const SizedBox(height: 4),
           const Text('Siklus perawatanmu, satu langkah dalam satu waktu.'),
+          TextButton.icon(
+            icon: const Icon(Icons.notifications_active_outlined),
+            label: const Text('Aktifkan pengingat jadwal di HP'),
+            onPressed: () async {
+              String message;
+              try {
+                final enabled = await TreatmentReminders.instance.enable();
+                if (!context.mounted) return;
+                await TreatmentReminders.instance.refresh(
+                  ref.read(apiProvider),
+                );
+                message = enabled
+                    ? 'Pengingat diaktifkan. Izinkan alarm tepat waktu di pengaturan HP agar sesuai jam jadwal.'
+                    : 'Izinkan notifikasi Hopely Care di pengaturan HP untuk menerima pengingat.';
+              } catch (_) {
+                message =
+                    'Pengingat belum dapat diaktifkan. Periksa koneksi dan izin perangkat.';
+              }
+              if (context.mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(message)));
+              }
+            },
+          ),
+          if (ref.watch(reminderErrorProvider) case final String message)
+            Text(message, style: const TextStyle(color: mutedInk)),
           const SizedBox(height: 16),
           CareCard(
             padding: 16,
@@ -76,7 +105,10 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             ),
           ),
           FilledButton.icon(
-            onPressed: () => context.push('/treatment/new'),
+            onPressed: () async {
+              await context.push('/treatment/new');
+              if (mounted) setState(() => version++);
+            },
             icon: const Icon(Icons.add),
             label: const Text('Tambah Jadwal / Catatan Dokter'),
           ),
@@ -149,7 +181,10 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () => context.push('/treatment/${t['id']}'),
+                    onPressed: () async {
+                      await context.push('/treatment/${t['id']}');
+                      if (mounted) setState(() => version++);
+                    },
                     child: const Text('Lihat / ubah jadwal'),
                   ),
                 ],
@@ -256,6 +291,28 @@ class _TreatmentEditorState extends ConsumerState<TreatmentEditor> {
             .put('/treatments/${widget.entry!['id']}', data);
       }
       if (mounted) {
+        var message = 'Jadwal tersimpan.';
+        try {
+          await TreatmentReminders.instance.clear();
+          final enabled =
+              status == 'scheduled' && scheduled.isAfter(DateTime.now())
+              ? await TreatmentReminders.instance.enable()
+              : true;
+          if (!mounted) return;
+          await TreatmentReminders.instance.refresh(ref.read(apiProvider));
+          if (!enabled) {
+            message +=
+                ' Izinkan notifikasi di pengaturan HP untuk menerima pengingat.';
+          }
+        } catch (_) {
+          message +=
+              ' Pengingat belum tersinkron. Aktifkan kembali dari halaman Perjalanan.';
+        }
+        if (!mounted) return;
+        ref.read(reminderRevisionProvider.notifier).state++;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
         Navigator.pop(context);
       }
     } catch (e) {

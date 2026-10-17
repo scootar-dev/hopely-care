@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/notifications/push_service.dart';
+import '../../core/notifications/treatment_reminders.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
 import 'profile_photo.dart';
@@ -306,13 +307,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: TextButton.icon(
             onPressed: () async {
               try {
-                await PushService.enable(ref.read(apiProvider));
+                final api = ref.read(apiProvider);
+                String message;
+                if (api.session.caregiver) {
+                  await PushService.enable(api);
+                  message = 'Pengaturan notifikasi perangkat diperbarui.';
+                } else {
+                  message = await enableTreatmentReminders(api);
+                }
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Pengaturan pengingat diperbarui.'),
-                    ),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(message)));
                 }
               } catch (_) {
                 if (context.mounted) {

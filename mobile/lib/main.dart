@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/api/api.dart';
 import 'core/routing/router.dart';
 import 'core/theme/theme.dart';
+import 'core/notifications/reminder_host.dart';
 import 'features/settings/profile_photo.dart';
 import 'features/community/data/community_photo.dart';
 
@@ -60,6 +61,8 @@ class HopelyApp extends ConsumerWidget {
     title: 'Hopely Care',
     debugShowCheckedModeBanner: false,
     theme: hopelyTheme(),
+    builder: (context, child) =>
+        ReminderHost(child: child ?? const SizedBox.shrink()),
     routerConfig: ref.watch(routerProvider),
   );
 }

@@ -1,3 +1,4 @@
+import '../doctor_summary/summary_report.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api.dart';
@@ -99,10 +100,10 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
               ],
             ),
           ),
-          const CareCard(
+          CareCard(
             child: ActionLink(
               'Buka detail insight',
-              '/insights/detail',
+              '/insights/detail?days=$days',
               icon: Icons.open_in_new,
             ),
           ),
@@ -119,44 +120,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
           ),
           const SizedBox(height: 16),
           for (final key in ['mood', 'anxiety', 'energy', 'sleep', 'pain'])
-            CareCard(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      const {
-                        'mood': 'Suasana hati',
-                        'anxiety': 'Kecemasan',
-                        'energy': 'Energi',
-                        'sleep': 'Kualitas tidur',
-                        'pain': 'Nyeri',
-                      }[key]!,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        metrics[key]['mean'] == null
-                            ? 'Belum tercatat'
-                            : '${metrics[key]['mean']} / 5',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Text(
-                        const {
-                              'increasing': 'Meningkat',
-                              'declining': 'Menurun',
-                              'stable': 'Relatif stabil',
-                              'insufficient_data': 'Belum cukup data',
-                            }[metrics[key]['direction']] ??
-                            '',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            MetricSummaryTile(key, metrics[key] as Map? ?? {}),
           for (final pattern in data['contextual_patterns'] as List)
             CareCard(child: Text(pattern['observation'])),
           const CareCard(
@@ -223,7 +187,7 @@ class TrendPainter extends CustomPainter {
       sorted.last['checkin_date'],
     ).difference(first).inDays.clamp(1, 365);
     for (final entry in {
-      'anxiety_score': const Color(0xFF8050CE),
+      'anxiety_score': const Color(0xFFA94316),
       'sleep_score': Colors.blueGrey,
       'mood_score': forest,
     }.entries) {

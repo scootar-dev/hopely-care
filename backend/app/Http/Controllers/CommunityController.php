@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\{Community, CommunityMember, CommunityPost};
+use App\Models\{Community, CommunityMember, CommunityPost, CommunityReaction};
 use App\Services\CommunityService;
 use App\Http\Resources\{CommunityResource, CommunityPostResource};
 use Illuminate\Http\Request;
@@ -66,7 +66,17 @@ class CommunityController extends Controller
     {
         $u = $r->user();
         $recommendations = $this->service->recommend($u);
+        $shared = $this->service->posts($u)
+            ->where("user_id", $u->id)
+            ->where("moderation_status", "approved")
+            ->where("is_demo", false);
         return $this->ok([
+            "stats" => [
+                "shared_posts" => (clone $shared)->count(),
+                "support_received" => CommunityReaction::whereIn("post_id", (clone $shared)->select("id"))
+                    ->whereNotIn("user_id", array_merge([$u->id], $this->service->blockedIds($u)))
+                    ->count()
+            ],
             "recommended" => array_map(
                 fn($row) => [
                     "community" => new CommunityResource($row["community"]),
@@ -82,7 +92,6 @@ class CommunityController extends Controller
                         "members",
                         fn($q) => $q->where("user_id", $u->id)->where("status", "active")
                     )
-                    ->limit(4)
                     ->get()
             ),
             "recent" => CommunityPostResource::collection(

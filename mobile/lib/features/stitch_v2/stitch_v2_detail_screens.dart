@@ -1,3 +1,5 @@
+import '../doctor_summary/summary_report.dart';
+import '../../core/notifications/treatment_reminders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,10 +32,7 @@ class HistoryScreen extends ConsumerWidget {
       api.get('/checkins'),
       api.get('/symptoms'),
     ]);
-    return {
-      'checkins': items(result[0]),
-      'symptoms': items(result[1]),
-    };
+    return {'checkins': items(result[0]), 'symptoms': items(result[1])};
   }
 
   @override
@@ -41,7 +40,9 @@ class HistoryScreen extends ConsumerWidget {
     appBar: AppBar(
       leading: const BackHomeButton(),
       title: const Text('Riwayat Tracking'),
-      actions: const [Padding(padding: EdgeInsets.all(10), child: HopelyMark())],
+      actions: const [
+        Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+      ],
     ),
     body: DataPage(
       load: () => _load(ref),
@@ -58,10 +59,15 @@ class HistoryScreen extends ConsumerWidget {
             ),
             if (checkins.isEmpty && symptoms.isEmpty)
               const CareCard(
-                child: Text('Belum ada riwayat. Catatan baru akan muncul di sini.'),
+                child: Text(
+                  'Belum ada riwayat. Catatan baru akan muncul di sini.',
+                ),
               ),
             if (checkins.isNotEmpty) ...[
-              const SectionHeading('Check-in harian', icon: Icons.favorite_outline),
+              const SectionHeading(
+                'Check-in harian',
+                icon: Icons.favorite_outline,
+              ),
               for (final row in checkins)
                 CareCard(
                   child: ListTile(
@@ -76,7 +82,10 @@ class HistoryScreen extends ConsumerWidget {
                 ),
             ],
             if (symptoms.isNotEmpty) ...[
-              const SectionHeading('Log gejala', icon: Icons.monitor_heart_outlined),
+              const SectionHeading(
+                'Log gejala',
+                icon: Icons.monitor_heart_outlined,
+              ),
               for (final row in symptoms)
                 CareCard(
                   child: ListTile(
@@ -102,7 +111,9 @@ class HistoryScreen extends ConsumerWidget {
 
 String _dateTimeLabel(dynamic value) {
   final date = DateTime.tryParse(value?.toString() ?? '');
-  return date == null ? value.toString() : date.toLocal().toString().substring(0, 16);
+  return date == null
+      ? value.toString()
+      : date.toLocal().toString().substring(0, 16);
 }
 
 class TreatmentDetailScreen extends ConsumerStatefulWidget {
@@ -147,11 +158,17 @@ class _TreatmentDetailState extends ConsumerState<TreatmentDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SoftLabel('Jadwal', icon: Icons.calendar_month_outlined),
+                  const SoftLabel(
+                    'Jadwal',
+                    icon: Icons.calendar_month_outlined,
+                  ),
                   const SizedBox(height: 10),
                   Text(_dateTimeLabel(row['scheduled_at'])),
                   const SizedBox(height: 18),
-                  const SoftLabel('Jenis perawatan', icon: Icons.medical_services_outlined),
+                  const SoftLabel(
+                    'Jenis perawatan',
+                    icon: Icons.medical_services_outlined,
+                  ),
                   const SizedBox(height: 10),
                   Text(row['treatment_type']?.toString() ?? '-'),
                   if (row['location']?.toString().isNotEmpty == true) ...[
@@ -273,9 +290,20 @@ class _JournalReflectionState extends ConsumerState<JournalReflectionScreen> {
               color: lavenderSoft,
               child: Text(journal['content']?.toString() ?? ''),
             ),
-            const SectionHeading('Refleksi Hopely AI', icon: Icons.auto_awesome_outlined),
+            const SectionHeading(
+              'Refleksi Hopely AI',
+              icon: Icons.auto_awesome_outlined,
+            ),
             if (available) ...[
-              MockNotice({'mode': reflection['model_version']?.toString().startsWith('mock') == true ? 'mock' : 'live'}),
+              MockNotice({
+                'mode':
+                    reflection['model_version']?.toString().startsWith(
+                          'mock',
+                        ) ==
+                        true
+                    ? 'mock'
+                    : 'live',
+              }),
               CareCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +317,9 @@ class _JournalReflectionState extends ConsumerState<JournalReflectionScreen> {
                       Text('Tema: $themes'),
                     ],
                     const SizedBox(height: 12),
-                    const Text('Ini adalah refleksi berbasis catatan, bukan diagnosis.'),
+                    const Text(
+                      'Ini adalah refleksi berbasis catatan, bukan diagnosis.',
+                    ),
                   ],
                 ),
               ),
@@ -337,25 +367,16 @@ class InsightDetailScreen extends ConsumerWidget {
             CareCard(
               color: skySoft,
               child: Text(
-                '${data['recorded_days']} dari $days hari tercatat. Arah umum: ${data['overall_direction']}.',
+                '${data['recorded_days']} dari $days hari tercatat. Arah umum: ${directionLabel(data['overall_direction'])}.',
               ),
             ),
             for (final key in ['mood', 'anxiety', 'energy', 'sleep', 'pain'])
-              CareCard(
-                child: Row(
-                  children: [
-                    Expanded(child: Text(_metricName(key))),
-                    Text(
-                      metrics[key]['mean'] == null
-                          ? 'Belum tercatat'
-                          : '${metrics[key]['mean']} / 5\n${metrics[key]['direction']}',
-                      textAlign: TextAlign.end,
-                    ),
-                  ],
-                ),
-              ),
+              MetricSummaryTile(key, metrics[key] as Map? ?? {}),
             if (patterns.isNotEmpty) ...[
-              const SectionHeading('Pola kontekstual', icon: Icons.insights_outlined),
+              const SectionHeading(
+                'Pola kontekstual',
+                icon: Icons.insights_outlined,
+              ),
               for (final pattern in patterns)
                 CareCard(child: Text(pattern['observation'].toString())),
             ],
@@ -368,14 +389,6 @@ class InsightDetailScreen extends ConsumerWidget {
     ),
   );
 }
-
-String _metricName(String key) => const {
-  'mood': 'Suasana hati',
-  'anxiety': 'Kecemasan',
-  'energy': 'Energi',
-  'sleep': 'Kualitas tidur',
-  'pain': 'Nyeri',
-}[key]!;
 
 class SavedSummaryScreen extends ConsumerWidget {
   const SavedSummaryScreen({super.key, required this.id});
@@ -398,8 +411,7 @@ class SavedSummaryScreen extends ConsumerWidget {
               '${report['period_start']} - ${report['period_end']}',
               badge: 'ARSIP PRIBADI',
             ),
-            for (final line in _summaryLines(report))
-              CareCard(child: Text(line)),
+            SummaryReport(report),
             const PrivacyNote(
               'Ringkasan ini dibuat dari catatanmu dan tidak menggantikan penilaian tenaga kesehatan.',
             ),
@@ -408,35 +420,6 @@ class SavedSummaryScreen extends ConsumerWidget {
       },
     ),
   );
-}
-
-List<String> _summaryLines(Json report) {
-  final lines = <String>[];
-  final wellbeing = report['wellbeing'];
-  if (wellbeing is Map) {
-    for (final entry in wellbeing.entries) {
-      final value = entry.value is Map ? entry.value['mean'] : entry.value;
-      lines.add('${entry.key}: rata-rata ${value ?? '-'} / 5');
-    }
-  }
-  final patterns = report['symptom_patterns'];
-  if (patterns is List) {
-    for (final pattern in patterns) {
-      lines.add('${pattern['metric']}: ${pattern['mean']} / 5 (${pattern['record_count']} catatan)');
-    }
-  }
-  final concerns = report['reported_concerns'];
-  if (concerns is List && concerns.isNotEmpty) {
-    lines.add('Hal yang ingin disampaikan: ${concerns.join('; ')}');
-  }
-  final questions = report['questions_patient_may_want_to_discuss'];
-  if (questions is List && questions.isNotEmpty) {
-    lines.add('Pertanyaan diskusi: ${questions.join('; ')}');
-  }
-  if (report['disclaimer'] != null) {
-    lines.add(report['disclaimer'].toString());
-  }
-  return lines.isEmpty ? ['Ringkasan belum memiliki isi yang dapat ditampilkan.'] : lines;
 }
 
 class KnowledgeArticleScreen extends StatelessWidget {
@@ -485,7 +468,8 @@ class TreatmentProfileScreen extends ConsumerStatefulWidget {
   const TreatmentProfileScreen({super.key});
 
   @override
-  ConsumerState<TreatmentProfileScreen> createState() => _TreatmentProfileState();
+  ConsumerState<TreatmentProfileScreen> createState() =>
+      _TreatmentProfileState();
 }
 
 class _TreatmentProfileState extends ConsumerState<TreatmentProfileScreen> {
@@ -510,7 +494,13 @@ class _TreatmentProfileState extends ConsumerState<TreatmentProfileScreen> {
 
   @override
   void dispose() {
-    for (final controller in [name, birthYear, cancerContext, treatmentPhase, timezone]) {
+    for (final controller in [
+      name,
+      birthYear,
+      cancerContext,
+      treatmentPhase,
+      timezone,
+    ]) {
       controller.dispose();
     }
     super.dispose();
@@ -556,18 +546,48 @@ class _TreatmentProfileState extends ConsumerState<TreatmentProfileScreen> {
           'Konteks perjalananmu',
           'Simpan informasi yang membantu fitur Hopely memberi konteks yang lebih relevan.',
         ),
-        TextField(controller: name, maxLength: 100, decoration: const InputDecoration(labelText: 'Nama panggilan')),
+        TextField(
+          controller: name,
+          maxLength: 100,
+          decoration: const InputDecoration(labelText: 'Nama panggilan'),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: birthYear, keyboardType: TextInputType.number, maxLength: 4, decoration: const InputDecoration(labelText: 'Tahun lahir (opsional)')),
+        TextField(
+          controller: birthYear,
+          keyboardType: TextInputType.number,
+          maxLength: 4,
+          decoration: const InputDecoration(
+            labelText: 'Tahun lahir (opsional)',
+          ),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: cancerContext, maxLines: 3, maxLength: 1000, decoration: const InputDecoration(labelText: 'Konteks kesehatan (opsional)')),
+        TextField(
+          controller: cancerContext,
+          maxLines: 3,
+          maxLength: 1000,
+          decoration: const InputDecoration(
+            labelText: 'Konteks kesehatan (opsional)',
+          ),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: treatmentPhase, maxLength: 100, decoration: const InputDecoration(labelText: 'Fase perawatan (opsional)')),
+        TextField(
+          controller: treatmentPhase,
+          maxLength: 100,
+          decoration: const InputDecoration(
+            labelText: 'Fase perawatan (opsional)',
+          ),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: timezone, decoration: const InputDecoration(labelText: 'Zona waktu')),
+        TextField(
+          controller: timezone,
+          decoration: const InputDecoration(labelText: 'Zona waktu'),
+        ),
         const SizedBox(height: 16),
         if (error != null) ErrorNotice(error!),
-        FilledButton(onPressed: busy ? null : save, child: Text(busy ? 'Menyimpan...' : 'Simpan profil')),
+        FilledButton(
+          onPressed: busy ? null : save,
+          child: Text(busy ? 'Menyimpan...' : 'Simpan profil'),
+        ),
       ],
     ),
   );
@@ -577,10 +597,12 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  ConsumerState<NotificationSettingsScreen> createState() => _NotificationSettingsState();
+  ConsumerState<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsState();
 }
 
-class _NotificationSettingsState extends ConsumerState<NotificationSettingsScreen> {
+class _NotificationSettingsState
+    extends ConsumerState<NotificationSettingsScreen> {
   bool busy = false;
   Object? error;
 
@@ -590,11 +612,18 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettingsScree
       error = null;
     });
     try {
-      await PushService.enable(ref.read(apiProvider));
+      final api = ref.read(apiProvider);
+      String message;
+      if (api.session.caregiver) {
+        await PushService.enable(api);
+        message = 'Pengaturan notifikasi perangkat diperbarui.';
+      } else {
+        message = await enableTreatmentReminders(api);
+      }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pengingat perangkat sudah diaktifkan.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
       if (mounted) setState(() => error = e);
@@ -619,9 +648,14 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettingsScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SoftLabel('Pengingat perangkat', icon: Icons.notifications_active_outlined),
+              const SoftLabel(
+                'Pengingat perangkat',
+                icon: Icons.notifications_active_outlined,
+              ),
               const SizedBox(height: 12),
-              const Text('Gunakan pengaturan ini untuk mendaftarkan perangkat pada layanan push yang sudah dikonfigurasi.'),
+              const Text(
+                'Aktifkan notifikasi untuk jadwal yang kamu simpan. Pengingat perjalanan di HP tetap tersedia saat aplikasi ditutup.',
+              ),
               const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: busy ? null : enableDeviceReminders,
@@ -672,16 +706,26 @@ class DataAccountScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SoftLabel('Akun aktif', icon: Icons.account_circle_outlined),
+                const SoftLabel(
+                  'Akun aktif',
+                  icon: Icons.account_circle_outlined,
+                ),
                 const SizedBox(height: 12),
-                Text(session.user?['email']?.toString() ?? 'Email akun tersimpan aman.'),
+                Text(
+                  session.user?['email']?.toString() ??
+                      'Email akun tersimpan aman.',
+                ),
                 const SizedBox(height: 8),
                 Text('Peran: ${session.caregiver ? 'Pendamping' : 'Pasien'}'),
               ],
             ),
           ),
           const CareCard(
-            child: ActionLink('Privasi & persetujuan', '/privacy', icon: Icons.lock_outline),
+            child: ActionLink(
+              'Privasi & persetujuan',
+              '/privacy',
+              icon: Icons.lock_outline,
+            ),
           ),
           if (!session.caregiver)
             const CareCard(
@@ -692,7 +736,11 @@ class DataAccountScreen extends ConsumerWidget {
               ),
             ),
           const CareCard(
-            child: ActionLink('Hapus akun dan data', '/profile', icon: Icons.delete_outline),
+            child: ActionLink(
+              'Hapus akun dan data',
+              '/profile',
+              icon: Icons.delete_outline,
+            ),
           ),
           const PrivacyNote(
             'Keluar akun atau reset kata sandi dapat mencabut sesi. Penghapusan akun bersifat permanen dan dikonfirmasi dari halaman profil.',
@@ -722,9 +770,14 @@ class VoiceAssistantUnavailableScreen extends StatelessWidget {
             children: [
               const Icon(Icons.mic_none_outlined, color: hopelyBlue, size: 42),
               const SizedBox(height: 12),
-              Text('Mode suara belum tersedia', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Mode suara belum tersedia',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 8),
-              const Text('Build ini belum memasang layanan rekam, transkripsi, atau pemutaran suara. Hopely tidak akan mensimulasikan rekaman atau respons audio.'),
+              const Text(
+                'Build ini belum memasang layanan rekam, transkripsi, atau pemutaran suara. Hopely tidak akan mensimulasikan rekaman atau respons audio.',
+              ),
             ],
           ),
         ),

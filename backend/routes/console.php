@@ -5,17 +5,18 @@ use App\Services\{NotificationService, ConsentService};
 Artisan::command("hopely:reminders", function () {
     $n = app(NotificationService::class);
     $c = app(ConsentService::class);
+    $now = now();
     foreach (
         Treatment::where("status", "scheduled")
-            ->whereBetween("scheduled_at", [now(), now()->addDay()])
+            ->whereBetween("scheduled_at", [$now->copy()->subDay(), $now->copy()->addDay()])
             ->get()
         as $t
     ) {
         if ($c->active($t->user_id, "HEALTH_DATA_PROCESSING")) {
             $n->send(
                 $t->user_id,
-                "treatment_reminder",
-                "treatment:" . $t->id . ":" . $t->scheduled_at,
+                $t->scheduled_at->lte($now) ? "treatment_due" : "treatment_reminder",
+                ($t->scheduled_at->lte($now) ? "treatment-due:" : "treatment:") . $t->id . ":" . $t->scheduled_at,
             );
         }
     }
@@ -36,7 +37,7 @@ Artisan::command("hopely:reminders", function () {
         }
     }
 });
-Schedule::command("hopely:reminders")->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command("hopely:reminders")->everyMinute()->withoutOverlapping();
 Schedule::command("sanctum:prune-expired --hours=24")->daily();
 
 Artisan::command("hopely:create-admin", function () {

@@ -15,6 +15,7 @@ class CommunityPostDetailScreen extends ConsumerStatefulWidget {
 
 class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
   final _commentController = TextEditingController();
+  final _commentFocus = FocusNode();
   int page = 1;
   bool busy = false;
   Object? error;
@@ -23,10 +24,12 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
   @override
   void dispose() {
     _commentController.dispose();
+    _commentFocus.dispose();
     super.dispose();
   }
 
   Future<void> send(VoidCallback reload) async {
+    if (busy) return;
     if (_commentController.text.trim().length < 2) {
       setState(() => notice = 'Tulis komentar minimal 2 karakter.');
       return;
@@ -126,7 +129,13 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                     ),
                   ),
                   // Post detail card
-                  _PostDetailCard(post: post, onChanged: reload),
+                  _PostDetailCard(
+                    post: post,
+                    onChanged: reload,
+                    onComment: canParticipate
+                        ? () => _commentFocus.requestFocus()
+                        : null,
+                  ),
                   // Safety note
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
@@ -211,8 +220,8 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                     comments,
                     (v) => setState(() => page = v),
                   ),
+
                   // Extra bottom padding for comment input
-                  if (canParticipate) const SizedBox(height: 80),
                   if (!canParticipate)
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
@@ -248,6 +257,7 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                       ),
                     ),
                   if (error != null) ErrorNotice(error!),
+                  if (canParticipate) const SizedBox(height: 100),
                 ],
               ),
               // Sticky comment input at bottom (only if can participate)
@@ -284,6 +294,7 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                                   child: TextField(
                                     key: const Key('community-comment-content'),
                                     controller: _commentController,
+                                    focusNode: _commentFocus,
                                     enabled: !busy,
                                     decoration: InputDecoration(
                                       hintText:
@@ -317,32 +328,36 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
                         ),
                         const SizedBox(width: 10),
                         // Send button
-                        Material(
-                          color: circleBlue,
-                          shape: const CircleBorder(),
-                          elevation: 2,
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: busy ? null : () => send(reload),
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                              ),
-                              child: busy
-                                  ? const Padding(
-                                      padding: EdgeInsets.all(12),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                        Semantics(
+                          button: true,
+                          label: 'Kirim komentar',
+                          child: Material(
+                            color: circleBlue,
+                            shape: const CircleBorder(),
+                            elevation: 2,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: busy ? null : () => send(reload),
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: busy
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.send,
                                         color: Colors.white,
+                                        size: 22,
                                       ),
-                                    )
-                                  : const Icon(
-                                      Icons.send,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
+                              ),
                             ),
                           ),
                         ),
@@ -359,7 +374,12 @@ class _PostDetailState extends ConsumerState<CommunityPostDetailScreen> {
 }
 
 class _PostDetailCard extends ConsumerStatefulWidget {
-  const _PostDetailCard({required this.post, required this.onChanged});
+  const _PostDetailCard({
+    required this.post,
+    required this.onChanged,
+    this.onComment,
+  });
+  final VoidCallback? onComment;
   final Json post;
   final VoidCallback onChanged;
 
@@ -370,9 +390,20 @@ class _PostDetailCard extends ConsumerStatefulWidget {
 class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
   late Json post = widget.post;
   bool busy = false;
+  Object? error;
+
+  @override
+  void didUpdateWidget(covariant _PostDetailCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.post != widget.post) post = widget.post;
+  }
 
   Future<void> react(String type) async {
-    setState(() => busy = true);
+    if (busy) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
     try {
       final repo = ref.read(communityRepositoryProvider);
       Json updated;
@@ -383,6 +414,8 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
         updated = await repo.react(post['id'], type);
       }
       if (mounted) setState(() => post = updated);
+    } catch (e) {
+      if (mounted) setState(() => error = e);
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -394,7 +427,6 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
     final authorName = author['display_name'] as String;
     final reactionCount = post['reaction_count'] as int? ?? 0;
     final commentCount = post['comment_count'] as int? ?? 0;
-    final isLiked = post['my_reaction'] != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -491,89 +523,16 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
             ),
           ),
           // Image if present
+          if (error != null) ErrorNotice(error!),
           if (post['has_image'] == true)
             CommunityImage(post['id'], revision: post['revision']),
           const SizedBox(height: 16),
-          // Reaction bar (Dukung + Komentar + Bookmark)
-          Row(
-            children: [
-              // Dukung button
-              InkWell(
-                onTap: !busy && post['can_participate'] == true
-                    ? () => react('support')
-                    : null,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isLiked
-                        ? const Color(0xFFE5EEFF)
-                        : const Color(0xFFF0F4FF),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isLiked ? Icons.favorite : Icons.favorite_outline,
-                        size: 20,
-                        color: circleBlue,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Dukung ($reactionCount)',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: circleBlue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              // Komentar count
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F4FF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.chat_bubble_outline,
-                      size: 20,
-                      color: Colors.grey.shade500,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Komentar ($commentCount)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              // Bookmark
-              Icon(
-                Icons.bookmark_border,
-                size: 24,
-                color: Colors.grey.shade400,
-              ),
-            ],
+          CommunityReactionBar(
+            selected: post['my_reaction'] as String?,
+            count: reactionCount,
+            commentCount: commentCount,
+            onReact: !busy && post['can_participate'] == true ? react : null,
+            onComment: widget.onComment,
           ),
         ],
       ),

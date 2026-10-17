@@ -15,7 +15,11 @@ class NotificationService
             "user_id" => $user,
             "notification_type" => $type,
             "title" => "Hopely Care",
-            "body" => "Ada pengingat baru. Buka Hopely Care untuk melihatnya.",
+            "body" => match ($type) {
+                "treatment_due" => "Waktu jadwal perjalananmu telah tiba. Buka Hopely Care untuk melihatnya.",
+                "treatment_reminder" => "Ada jadwal perjalanan dalam 24 jam ke depan. Buka Hopely Care untuk melihatnya.",
+                default => "Ada pengingat baru. Buka Hopely Care untuk melihatnya.",
+            },
         ])->save();
         $file = config("services.firebase.credentials");
         $project = config("services.firebase.project_id");

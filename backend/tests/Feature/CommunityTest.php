@@ -100,6 +100,33 @@ class CommunityTest extends TestCase
         return ["content" => $content, "sharing_acknowledged" => true];
     }
 
+    public function test_home_stats_count_published_owned_stories_and_received_support(): void
+    {
+        $owner = $this->user();
+        $reader = $this->user();
+        $community = $this->community();
+        $this->member($owner, $community);
+        $this->member($reader, $community);
+        $published = $this->story($owner, $community);
+        $this->story($owner, $community, 'pending');
+        $this->story($reader, $community);
+        $demo = $this->story($owner, $community);
+        $demo->update(['is_demo' => true]);
+        Sanctum::actingAs($reader);
+        $this->postJson('/api/community/posts/' . $published->id . '/reactions', [
+            'reaction_type' => 'support'
+        ])->assertOk();
+        Sanctum::actingAs($owner);
+        $this->getJson('/api/community/home')->assertOk()
+            ->assertJsonPath('data.stats.shared_posts', 1)
+            ->assertJsonPath('data.stats.support_received', 1);
+        Sanctum::actingAs($reader);
+        $this->deleteJson('/api/community/posts/' . $published->id . '/reactions')->assertOk();
+        Sanctum::actingAs($owner);
+        $this->getJson('/api/community/home')->assertOk()
+            ->assertJsonPath('data.stats.support_received', 0);
+    }
+
     public function test_auth_membership_and_explicit_sharing_are_required(): void
     {
         $c = $this->community();
