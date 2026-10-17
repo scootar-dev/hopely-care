@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/api/api.dart';
 import '../../../core/widgets/ui.dart';
+import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_widgets.dart';
 import 'community_dialogs.dart';
@@ -329,7 +330,10 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(Icons.spa_outlined, color: circleBlue, size: 18),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: HopelyMark(size: 24),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

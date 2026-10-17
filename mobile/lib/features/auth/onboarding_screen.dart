@@ -133,12 +133,7 @@ class WelcomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const IconWell(
-                Icons.favorite,
-                size: 32,
-                radius: 12,
-                background: surfaceHigh,
-              ),
+              const HopelyMark(size: 32),
               const SizedBox(width: 8),
               const Text(
                 'Hopely',
@@ -267,7 +262,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     const Expanded(
                       child: Row(
                         children: [
-                          Icon(Icons.spa, color: hopelyBlue),
+                          HopelyMark(size: 28),
                           SizedBox(width: 6),
                           Flexible(
                             child: Text(

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/api/api.dart';
 import '../../../core/widgets/ui.dart';
+import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import '../data/community_photo.dart';
 import 'community_widgets.dart';
@@ -229,7 +230,10 @@ class _ComposeFormState extends ConsumerState<_ComposeForm> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.spa_outlined, color: circleBlue, size: 22),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: HopelyMark(size: 28),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

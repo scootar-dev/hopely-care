@@ -5,22 +5,15 @@ import '../theme/theme.dart';
 import 'ui.dart';
 
 class HopelyMark extends StatelessWidget {
-  const HopelyMark({super.key, this.size = 36, this.filled = false});
+  const HopelyMark({super.key, this.size = 36});
   final double size;
-  final bool filled;
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => Image.asset(
+    'assets/branding/hopely-mark.png',
     width: size,
     height: size,
-    decoration: BoxDecoration(
-      color: filled ? hopelyBlue : surfaceHigh,
-      shape: BoxShape.circle,
-    ),
-    child: Icon(
-      Icons.spa_outlined,
-      color: filled ? Colors.white : hopelyBlue,
-      size: size * .55,
-    ),
+    fit: BoxFit.contain,
+    semanticLabel: 'Logo Hopely Care',
   );
 }
 
