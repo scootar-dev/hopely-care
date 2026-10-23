@@ -63,7 +63,7 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const BackHomeButton(fallback: '/profile'),
-      title: const Text('Care Circle'),
+      title: const Text('Undang Kerabat'),
       actions: const [
         Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
       ],
@@ -264,7 +264,8 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                       'can_view_symptom_summary': 'Ringkasan keluhan',
                       'can_view_treatment_schedule': 'Jadwal perawatan',
                       'can_view_activity_status': 'Status aktivitas',
-                      'can_receive_support_alert': 'Menerima alert Bantuan Cepat',
+                      'can_receive_support_alert':
+                          'Menerima alert Bantuan Cepat',
                     }.entries)
                       if (row['invitation_status'] != 'revoked')
                         SwitchListTile(

@@ -15,7 +15,7 @@ class CaregiverScreen extends ConsumerWidget {
     appBar: AppBar(
       centerTitle: false,
       leading: const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
-      title: const Text('Caregiver Home'),
+      title: const Text('Dashboard Kerabat'),
       actions: [
         IconButton(
           onPressed: () => context.push('/notifications'),
@@ -103,9 +103,7 @@ class CaregiverScreen extends ConsumerWidget {
                 ),
               ),
             if (patients.isNotEmpty)
-              const SectionHeading(
-                'Orang yang kamu dampingi',
-              ),
+              const SectionHeading('Orang yang kamu dampingi'),
             for (final patient in patients)
               CareCard(
                 child: ListTile(

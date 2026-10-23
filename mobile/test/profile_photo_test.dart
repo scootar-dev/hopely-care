@@ -87,6 +87,11 @@ Future<(ProviderContainer, PhotoApi, FixturePhotoPicker)> openProfile(
 }
 
 void main() {
+  Finder profileImages() => find.descendant(
+    of: find.byType(ProfileAvatar),
+    matching: find.byType(Image),
+  );
+
   testWidgets('photo is confirmed, uploaded, replaced, reloaded and removed', (
     tester,
   ) async {
@@ -100,19 +105,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.uploads, attempt);
       expect(find.text('Foto profil berhasil diperbarui.'), findsOneWidget);
-      expect(find.byType(Image), findsNWidgets(2)); // Header and profile.
+      expect(profileImages(), findsOneWidget);
     }
     container.read(routerProvider).go('/home');
     await tester.pumpAndSettle();
     container.read(routerProvider).go('/profile');
     await tester.pumpAndSettle();
-    expect(find.byType(Image), findsNWidgets(2));
+    expect(profileImages(), findsOneWidget);
     await tester.tap(find.text('Hapus foto'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Hapus foto'));
     await tester.pumpAndSettle();
     expect(api.photos, isEmpty);
-    expect(find.byType(Image), findsNothing);
+    expect(profileImages(), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -138,11 +143,11 @@ void main() {
     api.photos['user-1'] = photoBytes;
     container.invalidate(profilePhotoProvider('user-1'));
     await tester.pumpAndSettle();
-    expect(find.byType(Image), findsNWidgets(2));
+    expect(profileImages(), findsOneWidget);
     final session = container.read(sessionProvider);
     session.user = {...session.user!, 'id': 'user-2'};
     session.notifyListeners();
     await tester.pumpAndSettle();
-    expect(find.byType(Image), findsNothing);
+    expect(profileImages(), findsNothing);
   });
 }

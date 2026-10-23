@@ -522,6 +522,18 @@ class _PostDetailCardState extends ConsumerState<_PostDetailCard> {
               color: Color(0xFF0B1C30),
             ),
           ),
+          if (post['moderation_status'] != null &&
+              post['moderation_status'] != 'approved') ...[
+            const SizedBox(height: 8),
+            Text(
+              moderationLabel(post['moderation_status']),
+              style: const TextStyle(
+                color: circleDeepBlue,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           // Image if present
           if (error != null) ErrorNotice(error!),
           if (post['has_image'] == true)
@@ -554,6 +566,7 @@ class _PostOptionMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final own = post['is_own'] == true;
     return PopupMenuButton<String>(
+      tooltip: 'Pilihan cerita',
       icon: Icon(Icons.more_vert, color: Colors.grey.shade400),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       onSelected: (action) async {
@@ -575,12 +588,12 @@ class _PostOptionMenu extends StatelessWidget {
           const PopupMenuItem(
             value: 'report',
             child: Text(
-              'Laporkan Cerita',
+              'Laporkan cerita',
               style: TextStyle(color: Color(0xFFBA1A1A)),
             ),
           ),
         if (!own)
-          const PopupMenuItem(value: 'block', child: Text('Blokir Pengguna')),
+          const PopupMenuItem(value: 'block', child: Text('Blokir pengguna')),
       ],
     );
   }

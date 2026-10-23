@@ -241,27 +241,27 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Mulai Sekarang  →'),
+      find.text('Mulai Sekarang'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Mulai Sekarang  →'));
+    await tester.tap(find.text('Mulai Sekarang'));
     await tester.pumpAndSettle();
     for (var i = 0; i < 2; i++) {
       await tester.scrollUntilVisible(
-        find.text('Lanjut  →'),
+        find.text('Lanjut'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Lanjut  →'));
+      await tester.tap(find.text('Lanjut'));
       await tester.pumpAndSettle();
     }
     await tester.scrollUntilVisible(
-      find.text('Mulai Sekarang  →'),
+      find.text('Mulai Sekarang'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Mulai Sekarang  →'));
+    await tester.tap(find.text('Mulai Sekarang'));
     await tester.pumpAndSettle();
     expect(find.text('Pasien'), findsOneWidget);
     container.read(routerProvider).go('/onboarding');

@@ -164,9 +164,11 @@ class WelcomeScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.circle, size: 8, color: Color(0xFF3755C3)),
                     SizedBox(width: 6),
-                    Text(
-                      'Ruang Teduh',
-                      style: TextStyle(fontSize: 12, color: mutedInk),
+                    Flexible(
+                      child: Text(
+                        'Ruang Teduh',
+                        style: TextStyle(fontSize: 12, color: mutedInk),
+                      ),
                     ),
                   ],
                 ),

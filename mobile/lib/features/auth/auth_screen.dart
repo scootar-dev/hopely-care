@@ -114,7 +114,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       children: [
                         Icon(option.value.$2, size: 18),
                         const SizedBox(width: 6),
-                        Text(option.value.$1),
+                        Flexible(
+                          child: Text(
+                            option.value.$1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ],
                     ),
                   ),

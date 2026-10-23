@@ -275,7 +275,7 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
                 FilledButton.icon(
                   onPressed: busy ? null : save,
                   icon: const Icon(Icons.check_circle_outline),
-                  label: Text(busy ? 'Menyimpan...' : 'Simpan Check-In'),
+                  label: Text(busy ? 'Menyimpan...' : 'Simpan Ringkasan'),
                 ),
                 const SizedBox(height: 24),
               ],

@@ -431,6 +431,11 @@ class AppShell extends ConsumerWidget {
               ),
               actions: [
                 IconButton(
+                  onPressed: () => context.push('/quick-help'),
+                  icon: const Icon(Icons.support_agent_outlined),
+                  tooltip: 'Bantuan cepat',
+                ),
+                IconButton(
                   onPressed: () => context.push('/notifications'),
                   icon: const Icon(Icons.notifications_none_outlined),
                   tooltip: 'Notifikasi',
@@ -445,77 +450,53 @@ class AppShell extends ConsumerWidget {
       body: SafeArea(top: false, child: child),
       bottomNavigationBar: caregiver || MediaQuery.sizeOf(context).width >= 1024
           ? null
-          : Material(
-              color: Colors.white.withValues(alpha: 0.94),
-              elevation: 0,
-              shadowColor: hopelyBlue.withValues(alpha: 0.06),
-              child: SafeArea(
-                top: false,
-                child: SizedBox(
-                  height: 64,
-                  child: Row(
-                    children: [
-                      for (final item in const [
-                        (Icons.home_outlined, 'Beranda', '/home'),
-                        (
-                          Icons.calendar_today_outlined,
-                          'Perjalanan',
-                          '/treatment',
-                        ),
-                        (Icons.shield_outlined, 'Bantuan', '/quick-help'),
-                        (Icons.chat_bubble_outline, 'Hopely AI', '/chat'),
-                        (Icons.insights_outlined, 'Insight', '/insights'),
-                      ])
-                        Expanded(
-                          child: InkWell(
-                            onTap: () =>
-                                item.$3 == '/quick-help' || item.$3 == '/chat'
-                                ? context.push(item.$3)
-                                : context.go(item.$3),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (item.$3 == '/quick-help')
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF2563EB),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      item.$1,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                  )
-                                else
-                                  Icon(
-                                    item.$1,
-                                    color: path == item.$3
-                                        ? hopelyBlue
-                                        : mutedInk,
-                                  ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item.$2,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: path == item.$3
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
-                                    color: path == item.$3
-                                        ? hopelyBlue
-                                        : mutedInk,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+          : NavigationBar(
+              height: 68,
+              backgroundColor: Colors.white,
+              indicatorColor: skySoft,
+              selectedIndex: switch (path) {
+                '/treatment' => 1,
+                '/community' => 2,
+                '/insights' => 3,
+                '/profile' => 4,
+                _ => 0,
+              },
+              onDestinationSelected: (index) => context.go(
+                const [
+                  '/home',
+                  '/treatment',
+                  '/community',
+                  '/insights',
+                  '/profile',
+                ][index],
               ),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'Beranda',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.calendar_today_outlined),
+                  selectedIcon: Icon(Icons.calendar_today),
+                  label: 'Perjalanan',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.groups_outlined),
+                  selectedIcon: Icon(Icons.groups),
+                  label: 'Komunitas',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: 'Insight',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.account_circle_outlined),
+                  selectedIcon: Icon(Icons.account_circle),
+                  label: 'Profil',
+                ),
+              ],
             ),
     );
   }

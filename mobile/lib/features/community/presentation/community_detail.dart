@@ -123,11 +123,18 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Icon(Icons.verified_outlined, size: 14, color: Colors.grey.shade500),
+                                  Icon(
+                                    Icons.verified_outlined,
+                                    size: 14,
+                                    color: Colors.grey.shade500,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     '$memberCount Pejuang Tergabung',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -136,18 +143,27 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                         ),
                         // Pedoman Aman button
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: circleBlue.withValues(alpha: .2)),
+                            border: Border.all(
+                              color: circleBlue.withValues(alpha: .2),
+                            ),
                           ),
                           child: InkWell(
                             onTap: () => context.push('/community/safety'),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.chevron_left, size: 14, color: circleBlue),
+                                const Icon(
+                                  Icons.chevron_left,
+                                  size: 14,
+                                  color: circleBlue,
+                                ),
                                 const Text(
                                   'Pedoman\nAman',
                                   textAlign: TextAlign.center,
@@ -158,7 +174,11 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                                     height: 1.3,
                                   ),
                                 ),
-                                const Icon(Icons.chevron_right, size: 14, color: circleBlue),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  size: 14,
+                                  color: circleBlue,
+                                ),
                               ],
                             ),
                           ),
@@ -181,7 +201,11 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                         if (joined)
                           Row(
                             children: [
-                              Icon(Icons.check_circle, size: 18, color: Colors.green.shade600),
+                              Icon(
+                                Icons.check_circle,
+                                size: 18,
+                                color: Colors.green.shade600,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 'Sudah Bergabung',
@@ -195,16 +219,23 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                           )
                         else
                           FilledButton.icon(
-                            onPressed: busy ? null : () => membership(community, reload),
-                            icon: const Icon(Icons.group_add_outlined, size: 18),
+                            onPressed: busy
+                                ? null
+                                : () => membership(community, reload),
+                            icon: const Icon(
+                              Icons.group_add_outlined,
+                              size: 18,
+                            ),
                             label: const Text('Gabung komunitas'),
                           ),
                         const Spacer(),
                         if (joined)
                           InkWell(
-                            onTap: busy ? null : () => membership(community, reload),
+                            onTap: busy
+                                ? null
+                                : () => membership(community, reload),
                             child: Text(
-                              'Keluar Komunitas',
+                              'Keluar dari komunitas',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -228,7 +259,11 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.spa_outlined, size: 20, color: circleBlue.withValues(alpha: .6)),
+                    Icon(
+                      Icons.spa_outlined,
+                      size: 20,
+                      color: circleBlue.withValues(alpha: .6),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -270,16 +305,25 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                   children: [
                     for (int i = 0; i < _storyFilters.length; i++)
                       Padding(
-                        padding: EdgeInsets.only(right: i < _storyFilters.length - 1 ? 8 : 0),
+                        padding: EdgeInsets.only(
+                          right: i < _storyFilters.length - 1 ? 8 : 0,
+                        ),
                         child: GestureDetector(
                           onTap: () => setState(() => _storyFilter = i),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: _storyFilter == i ? circleBlue : Colors.white,
+                              color: _storyFilter == i
+                                  ? circleBlue
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: _storyFilter == i ? circleBlue : Colors.grey.shade200,
+                                color: _storyFilter == i
+                                    ? circleBlue
+                                    : Colors.grey.shade200,
                               ),
                             ),
                             child: Text(
@@ -289,7 +333,9 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: _storyFilter == i ? Colors.white : Colors.grey.shade600,
+                                color: _storyFilter == i
+                                    ? Colors.white
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           ),
@@ -378,7 +424,9 @@ class _DetailState extends ConsumerState<CommunityDetailScreen> {
           },
           backgroundColor: circleBlue,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           icon: const Icon(Icons.edit_note, size: 20),
           label: const Text(
             '+ Bagikan Cerita',
@@ -402,7 +450,7 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
   int page = 1, version = 0;
   int _feedFilter = 0;
   final _feedFilters = const ['Semua Cerita', 'Pertanyaan', 'Kabar Baik'];
-  
+
   @override
   Widget build(BuildContext context) => CommunityScaffold(
     title: 'Komunitas',
@@ -427,7 +475,11 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.verified_outlined, size: 14, color: circleBlue),
+                  const Icon(
+                    Icons.verified_outlined,
+                    size: 14,
+                    color: circleBlue,
+                  ),
                   const SizedBox(width: 4),
                   const Text(
                     'RUANG SILATURAHMI AMAN',
@@ -461,7 +513,11 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.edit_note, size: 20, color: circleBlue),
+                    icon: const Icon(
+                      Icons.edit_note,
+                      size: 20,
+                      color: circleBlue,
+                    ),
                     onPressed: () async {
                       await context.push('/community/compose');
                       if (mounted) {
@@ -493,16 +549,23 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
                 children: [
                   for (int i = 0; i < _feedFilters.length; i++)
                     Padding(
-                      padding: EdgeInsets.only(right: i < _feedFilters.length - 1 ? 8 : 0),
+                      padding: EdgeInsets.only(
+                        right: i < _feedFilters.length - 1 ? 8 : 0,
+                      ),
                       child: GestureDetector(
                         onTap: () => setState(() => _feedFilter = i),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           decoration: BoxDecoration(
                             color: _feedFilter == i ? circleBlue : Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: _feedFilter == i ? circleBlue : Colors.grey.shade200,
+                              color: _feedFilter == i
+                                  ? circleBlue
+                                  : Colors.grey.shade200,
                             ),
                           ),
                           child: Text(
@@ -510,7 +573,9 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: _feedFilter == i ? Colors.white : Colors.grey.shade600,
+                              color: _feedFilter == i
+                                  ? Colors.white
+                                  : Colors.grey.shade600,
                             ),
                           ),
                         ),
@@ -531,16 +596,26 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.emoji_emotions_outlined, size: 22, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.emoji_emotions_outlined,
+                    size: 22,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Ada kelegaan kecil atau pert...',
-                      style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: circleSurface,
                       borderRadius: BorderRadius.circular(8),
@@ -558,7 +633,11 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.edit_outlined, size: 14, color: circleBlue),
+                          const Icon(
+                            Icons.edit_outlined,
+                            size: 14,
+                            color: circleBlue,
+                          ),
                           const SizedBox(width: 4),
                           const Text(
                             'Tulis',
@@ -614,7 +693,11 @@ class _FeedState extends ConsumerState<CommunityFeedScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.verified_user_outlined, color: circleBlue, size: 18),
+                    child: const Icon(
+                      Icons.verified_user_outlined,
+                      color: circleBlue,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -667,7 +750,11 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.verified_outlined, size: 14, color: circleBlue),
+                  const Icon(
+                    Icons.verified_outlined,
+                    size: 14,
+                    color: circleBlue,
+                  ),
                   const SizedBox(width: 4),
                   const Text(
                     'Ruang Aman Terverifikasi',
@@ -727,7 +814,11 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.shield_outlined, color: circleBlue, size: 18),
+                          const Icon(
+                            Icons.shield_outlined,
+                            color: circleBlue,
+                            size: 18,
+                          ),
                           const SizedBox(width: 6),
                           const Text(
                             'Jejak Berbagimu',
@@ -740,7 +831,10 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: .6),
                           borderRadius: BorderRadius.circular(12),
@@ -759,7 +853,10 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                             const SizedBox(width: 4),
                             const Text(
                               'Privasi Aktif',
-                              style: TextStyle(fontSize: 12, color: circleDeepBlue),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: circleDeepBlue,
+                              ),
                             ),
                           ],
                         ),
@@ -789,7 +886,10 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                               ),
                               const Text(
                                 'Cerita Dibagikan',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF526079)),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF526079),
+                                ),
                               ),
                             ],
                           ),
@@ -816,7 +916,10 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                               ),
                               Text(
                                 'Dukungan Diterima',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF526079)),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF526079),
+                                ),
                               ),
                             ],
                           ),
@@ -827,11 +930,18 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(Icons.lock_outline, size: 14, color: Colors.grey.shade500),
+                      Icon(
+                        Icons.lock_outline,
+                        size: 14,
+                        color: Colors.grey.shade500,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Semua interaksi tersimpan aman & terlindungi.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -855,7 +965,10 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                     ),
                     Text(
                       '${items(data).length} ruang aktif',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -907,15 +1020,13 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                     return;
                   }
                   try {
-                    await ref
-                        .read(communityRepositoryProvider)
-                        .leave(c['id']);
+                    await ref.read(communityRepositoryProvider).leave(c['id']);
                     if (context.mounted) reload();
                   } catch (e) {
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(friendlyError(e))),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(friendlyError(e))));
                     }
                   }
                 },
@@ -939,7 +1050,11 @@ class _MyCommunitiesState extends ConsumerState<MyCommunitiesScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.shield_outlined, color: circleBlue, size: 18),
+                    child: const Icon(
+                      Icons.shield_outlined,
+                      color: circleBlue,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1058,7 +1173,10 @@ class _MyJoinedCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8F5E9),
                       borderRadius: BorderRadius.circular(8),
@@ -1090,7 +1208,12 @@ class _MyJoinedCard extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, size: 20, color: Colors.grey.shade400),
+              tooltip: 'Opsi komunitas',
+              icon: Icon(
+                Icons.more_vert,
+                size: 20,
+                color: Colors.grey.shade400,
+              ),
               itemBuilder: (_) => const [
                 PopupMenuItem(value: 'notif', child: Text('Notifikasi')),
                 PopupMenuItem(value: 'leave', child: Text('Keluar')),
@@ -1107,7 +1230,11 @@ class _MyJoinedCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.notifications_active_outlined, size: 16, color: Colors.grey.shade500),
+                Icon(
+                  Icons.notifications_active_outlined,
+                  size: 16,
+                  color: Colors.grey.shade500,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Notifikasi aktif',

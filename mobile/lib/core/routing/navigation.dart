@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 const patientTabPaths = [
   '/home',
   '/treatment',
-  '/chat',
+  '/community',
   '/insights',
   '/profile',
 ];

@@ -39,7 +39,7 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 12),
               child: Text(
-                'Temukan teman seperjalanan.',
+                'Kamu tidak sendiri.',
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ),
@@ -63,7 +63,7 @@ class _CommunityHomeState extends ConsumerState<CommunityHomeScreen> {
               // Recommended communities
               if (recommended.isEmpty && joined.isEmpty)
                 const CommunityEmptyState(
-                  'Mulai dari ruang yang nyaman',
+                  'Ruang sedang disiapkan',
                   'Belum ada komunitas yang ditemukan. Coba kategori lain atau jelajahi lebih banyak.',
                 ),
               // Show recommended communities
@@ -614,6 +614,11 @@ class _DiscoveryState extends ConsumerState<CommunityDiscoveryScreen> {
                           ),
                         ),
                       ),
+                    ),
+                    IconButton(
+                      tooltip: 'Jalankan pencarian',
+                      onPressed: refresh,
+                      icon: const Icon(Icons.arrow_forward),
                     ),
                   ],
                 ),

@@ -62,18 +62,23 @@ class CommunityFixtureApi extends FixtureApi {
   Future<dynamic> get(String path) async {
     reads.add(path);
     final uri = Uri.parse(path), p = uri.path;
+    DioException failure(int status) => DioException(
+      requestOptions: RequestOptions(path: path),
+      response: Response(
+        requestOptions: RequestOptions(path: path),
+        statusCode: status,
+      ),
+    );
     if (p == '/community/home') {
       if (homePending != null) return homePending!.future;
-      if (failHome) {
-        throw DioException(
-          requestOptions: RequestOptions(path: path),
-          response: Response(
-            requestOptions: RequestOptions(path: path),
-            statusCode: 503,
-          ),
-        );
-      }
+      if (failHome) throw failure(503);
       return homeData;
+    }
+    if (failHome &&
+        (p == '/communities' ||
+            p == '/community/my-communities' ||
+            p == '/community/feed')) {
+      throw failure(503);
     }
     if (p == '/communities') return page(empty ? [] : [group]);
     if (p == '/communities/g1') {
@@ -88,6 +93,12 @@ class CommunityFixtureApi extends FixtureApi {
     }
     if (p == '/community/posts/p1/comments') return page(comments);
     if (p == '/community/posts/p1') {
+      if (blocked) {
+        return {
+          ...story,
+          'content': 'Konten ini disembunyikan karena pengguna diblokir.',
+        };
+      }
       return {
         ...story,
         'can_participate': joined && story['moderation_status'] == 'approved',
@@ -357,14 +368,7 @@ void main() {
     );
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
-    await tapVisible(
-      tester,
-      find.byKey(const Key('community-sharing-consent')),
-    );
-    await tapVisible(
-      tester,
-      find.widgetWithText(FilledButton, 'Bagikan Cerita'),
-    );
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Bagikan'));
     expect(api.writes.single.$1, '/communities/g1/posts');
     expect(api.writes.single.$2, {
       'content': 'Aku ingin berbagi langkah kecil hari ini.',
@@ -391,11 +395,7 @@ void main() {
     );
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
-    await tapVisible(
-      tester,
-      find.byKey(const Key('community-comment-consent')),
-    );
-    await tapVisible(tester, find.text('Kirim dukungan'));
+    await tapVisible(tester, find.byIcon(Icons.send));
     expect(api.writes.single.$1, '/community/posts/p1/comments');
     expect(api.writes.single.$2['sharing_acknowledged'], isTrue);
     expect(api.comments, hasLength(1));
@@ -412,9 +412,9 @@ void main() {
     final (container, api) = await setupCommunity(tester, joined: true);
     container.read(routerProvider).go('/community/posts/p1');
     await tester.pumpAndSettle();
-    await tapVisible(tester, find.widgetWithText(FilterChip, 'Dukungan'));
+    await tapVisible(tester, find.text('Dukung'));
     expect(api.story['my_reaction'], 'support');
-    await tapVisible(tester, find.widgetWithText(FilterChip, 'Dukungan'));
+    await tapVisible(tester, find.text('Dukung'));
     expect(api.story['my_reaction'], isNull);
   });
 
@@ -482,8 +482,11 @@ void main() {
     final (container, api) = await setupCommunity(tester, joined: true);
     container.read(routerProvider).go('/community/mine');
     await tester.pumpAndSettle();
-    await tapVisible(tester, find.text('Keluar dari komunitas'));
+    await tester.tap(find.byTooltip('Opsi komunitas'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Keluar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Keluar'));
     await tester.pumpAndSettle();
     expect(api.joined, isFalse);
     expect(api.writes.single.$1, '/communities/g1/leave');

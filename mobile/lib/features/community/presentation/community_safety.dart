@@ -281,7 +281,8 @@ class _SafetyState extends ConsumerState<CommunitySafetyScreen> {
                   _ProtectionRow(
                     icon: Icons.flag_outlined,
                     title: 'Laporan Konten Tidak Pantas',
-                    subtitle: 'Status laporan dapat dilihat pada riwayat di bawah',
+                    subtitle:
+                        'Status laporan dapat dilihat pada riwayat di bawah',
                     onTap: null,
                   ),
                   Divider(
@@ -905,19 +906,22 @@ class _PreferenceFormState extends State<_PreferenceForm> {
               ),
             ],
           ),
-          child: SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text(
-              'Notifikasi komunitas',
-              style: TextStyle(fontWeight: FontWeight.w600),
+          child: Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Notifikasi komunitas',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                'Pembaruan komentar, dukungan, laporan, dan moderasi. Tidak memuat isi cerita di notifikasi.',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              ),
+              value: notifications,
+              onChanged: busy ? null : (v) => setState(() => notifications = v),
+              activeThumbColor: circleBlue,
             ),
-            subtitle: Text(
-              'Pembaruan komentar, dukungan, laporan, dan moderasi. Tidak memuat isi cerita di notifikasi.',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-            ),
-            value: notifications,
-            onChanged: busy ? null : (v) => setState(() => notifications = v),
-            activeThumbColor: circleBlue,
           ),
         ),
         // Interests card
@@ -937,19 +941,22 @@ class _PreferenceFormState extends State<_PreferenceForm> {
           ),
           child: Column(
             children: [
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Cocokkan dengan minat saya',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+              Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Cocokkan dengan minat saya',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    'Izinkan minat yang saya isi di bawah dikirim ke layanan pencocokan komunitas.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  ),
+                  value: recommend,
+                  onChanged: busy ? null : (v) => setState(() => recommend = v),
+                  activeThumbColor: circleBlue,
                 ),
-                subtitle: Text(
-                  'Izinkan minat yang saya isi di bawah dikirim ke layanan pencocokan komunitas.',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                ),
-                value: recommend,
-                onChanged: busy ? null : (v) => setState(() => recommend = v),
-                activeThumbColor: circleBlue,
               ),
               if (recommend) ...[
                 const SizedBox(height: 16),
@@ -972,14 +979,17 @@ class _PreferenceFormState extends State<_PreferenceForm> {
                     hintText: 'Kemoterapi, baru didiagnosis, atau pemulihan',
                   ),
                 ),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: emotional,
-                  onChanged: busy
-                      ? null
-                      : (v) => setState(() => emotional = v!),
-                  title: const Text('Saya mencari dukungan emosional'),
-                  activeColor: circleBlue,
+                Material(
+                  type: MaterialType.transparency,
+                  child: CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: emotional,
+                    onChanged: busy
+                        ? null
+                        : (v) => setState(() => emotional = v!),
+                    title: const Text('Saya mencari dukungan emosional'),
+                    activeColor: circleBlue,
+                  ),
                 ),
               ],
               const SizedBox(height: 12),
