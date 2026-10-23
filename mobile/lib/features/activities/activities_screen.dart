@@ -5,6 +5,7 @@ import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/account_action.dart';
 
 class ActivitiesScreen extends ConsumerWidget {
   const ActivitiesScreen({super.key});
@@ -14,7 +15,7 @@ class ActivitiesScreen extends ConsumerWidget {
       leading: const BackHomeButton(),
       title: const Text('Untukmu'),
       actions: const [
-        Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
+        AccountAction(),
       ],
     ),
     body: DataPage(

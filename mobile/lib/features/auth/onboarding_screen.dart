@@ -131,7 +131,10 @@ class WelcomeScreen extends StatelessWidget {
     body: SafeArea(
       child: PageBody(
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const HopelyMark(size: 32),
               const SizedBox(width: 8),
@@ -147,7 +150,6 @@ class WelcomeScreen extends StatelessWidget {
                   color: hopelyBlue,
                 ),
               ),
-              const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -158,6 +160,7 @@ class WelcomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: const Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.circle, size: 8, color: Color(0xFF3755C3)),
                     SizedBox(width: 6),

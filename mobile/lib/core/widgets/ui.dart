@@ -9,8 +9,8 @@ class CareCard extends StatelessWidget {
     super.key,
     required this.child,
     this.color = Colors.white,
-    this.padding = 20,
-    this.radius = 24,
+    this.padding = 24,
+    this.radius = 16,
     this.borderColor,
   });
   final Widget child;
@@ -25,8 +25,13 @@ class CareCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: borderColor ?? Colors.transparent),
-      boxShadow: hopelyCardShadow,
+      border: Border.all(
+        color:
+            borderColor ??
+            (color == Colors.white
+                ? const Color(0xFFE2E8F0)
+                : Colors.transparent),
+      ),
     ),
     child: Material(type: MaterialType.transparency, child: child),
   );

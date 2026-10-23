@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'motion.dart';
 
 const hopelyBlue = Color(0xFF004AC6);
 const hopelyBlueDark = Color(0xFF2563EB);
@@ -23,15 +24,34 @@ const mint = pillBlue;
 const peach = warningSoft;
 
 const hopelyCardShadow = [
-  BoxShadow(
-    color: Color(0x0D0053DB),
-    blurRadius: 16,
-    offset: Offset(0, 4),
-  ),
+  BoxShadow(color: Color(0x0D0053DB), blurRadius: 16, offset: Offset(0, 4)),
 ];
 
 ThemeData hopelyTheme() => ThemeData(
   useMaterial3: true,
+  pageTransitionsTheme: const PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: HopelyPageTransitions(),
+      TargetPlatform.iOS: HopelyPageTransitions(),
+      TargetPlatform.windows: HopelyPageTransitions(),
+      TargetPlatform.macOS: HopelyPageTransitions(),
+      TargetPlatform.linux: HopelyPageTransitions(),
+      TargetPlatform.fuchsia: HopelyPageTransitions(),
+    },
+  ),
+  hoverColor: hopelyBlue.withValues(alpha: 0.05),
+  focusColor: hopelyBlue.withValues(alpha: 0.14),
+  highlightColor: hopelyBlue.withValues(alpha: 0.06),
+  splashFactory: NoSplash.splashFactory,
+  tooltipTheme: TooltipThemeData(
+    waitDuration: const Duration(milliseconds: 450),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    decoration: BoxDecoration(
+      color: ink,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    textStyle: const TextStyle(color: Colors.white, fontSize: 14),
+  ),
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: hopelyBlue,
@@ -135,31 +155,48 @@ ThemeData hopelyTheme() => ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: Colors.white,
-    hintStyle: const TextStyle(color: outlineVariant, fontSize: 16),
+    hintStyle: const TextStyle(color: tertiaryInk, fontSize: 16),
+    labelStyle: const TextStyle(color: mutedInk, fontSize: 16),
+    floatingLabelStyle: const TextStyle(color: hopelyBlue, fontSize: 16),
+    errorMaxLines: 3,
     border: OutlineInputBorder(
-      borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: outlineVariant),
+      borderRadius: BorderRadius.circular(12),
     ),
     enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: outlineVariant),
+      borderRadius: BorderRadius.circular(12),
     ),
     focusedBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: hopelyBlue, width: 1.5),
-      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: hopelyBlue, width: 2),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: const BorderSide(color: Color(0xFFBA1A1A), width: 2),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderSide: const BorderSide(color: outlineVariant),
+      borderRadius: BorderRadius.circular(12),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
+      animationDuration: const Duration(milliseconds: 180),
+      overlayColor: Colors.white.withValues(alpha: 0.12),
       backgroundColor: hopelyBlueDark,
       foregroundColor: Colors.white,
       disabledBackgroundColor: primaryFixed,
       disabledForegroundColor: mutedInk,
       minimumSize: const Size(48, 52),
-      elevation: 2,
+      elevation: 0,
       shadowColor: hopelyBlueDark.withValues(alpha: 0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       textStyle: const TextStyle(
         fontFamily: 'PlusJakartaSans',
         fontSize: 16,
@@ -171,14 +208,18 @@ ThemeData hopelyTheme() => ThemeData(
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
+      animationDuration: const Duration(milliseconds: 180),
+      overlayColor: hopelyBlue.withValues(alpha: 0.08),
       foregroundColor: hopelyBlue,
       minimumSize: const Size(48, 52),
-      side: const BorderSide(color: primaryFixed),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      side: const BorderSide(color: outlineVariant),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
+      animationDuration: const Duration(milliseconds: 180),
+      overlayColor: hopelyBlue.withValues(alpha: 0.08),
       foregroundColor: hopelyBlue,
       textStyle: const TextStyle(
         fontFamily: 'PlusJakartaSans',

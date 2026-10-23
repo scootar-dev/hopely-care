@@ -5,7 +5,8 @@ import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
-import '../settings/profile_photo.dart';
+import '../../core/widgets/account_action.dart';
+import 'quick_help_screen.dart';
 
 class CaregiverScreen extends ConsumerWidget {
   const CaregiverScreen({super.key});
@@ -21,11 +22,7 @@ class CaregiverScreen extends ConsumerWidget {
           icon: const Icon(Icons.notifications_none),
           tooltip: 'Notifikasi',
         ),
-        IconButton(
-          onPressed: () => context.push('/profile'),
-          icon: const ProfileAvatar(radius: 16),
-          tooltip: 'Profil',
-        ),
+        const AccountAction(),
       ],
     ),
     body: DataPage(
@@ -42,6 +39,7 @@ class CaregiverScreen extends ConsumerWidget {
         );
         return PageBody(
           children: [
+            const QuickHelpPanel(caregiver: true),
             const SoftLabel('Mode Kerabat Aktif', icon: Icons.people_outline),
             const SizedBox(height: 14),
             Text(

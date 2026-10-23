@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api.dart';
 import '../routing/router.dart';
+import 'feature_rail.dart';
 
 class AiLauncher extends ConsumerWidget {
   const AiLauncher({super.key, required this.child});
@@ -20,6 +21,7 @@ class AiLauncher extends ConsumerWidget {
             !session.caregiver &&
             !session.needsConsent &&
             !path.startsWith('/chat') &&
+            path != '/quick-help' &&
             path != '/splash' &&
             MediaQuery.viewInsetsOf(context).bottom == 0;
         final hasTabs = const [
@@ -31,7 +33,13 @@ class AiLauncher extends ConsumerWidget {
         ].contains(path);
         return Stack(
           children: [
-            child,
+            if (session.loggedIn &&
+                !session.caregiver &&
+                !session.needsConsent &&
+                MediaQuery.sizeOf(context).width >= 1024)
+              FeatureRail(child: child)
+            else
+              child,
             if (visible)
               Positioned(
                 right: 16,

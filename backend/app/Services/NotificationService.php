@@ -16,11 +16,17 @@ class NotificationService
             "notification_type" => $type,
             "title" => "Hopely Care",
             "body" => match ($type) {
+                "emergency_support" => "Seseorang di Care Circle meminta Bantuan Cepat. Buka Hopely Care untuk melihat dan menanggapi.",
+                "emergency_support_update" => "Status Bantuan Cepat telah diperbarui. Buka Hopely Care untuk melihat status terbaru.",
                 "treatment_due" => "Waktu jadwal perjalananmu telah tiba. Buka Hopely Care untuk melihatnya.",
                 "treatment_reminder" => "Ada jadwal perjalanan dalam 24 jam ke depan. Buka Hopely Care untuk melihatnya.",
                 default => "Ada pengingat baru. Buka Hopely Care untuk melihatnya.",
             },
         ])->save();
+        \Illuminate\Support\Facades\DB::afterCommit(fn() => $this->push($n, $user));
+    }
+    private function push(CareNotification $n, string $user): void
+    {
         $file = config("services.firebase.credentials");
         $project = config("services.firebase.project_id");
         if (!$file || !$project || !is_readable($file)) {

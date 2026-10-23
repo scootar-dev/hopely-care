@@ -264,7 +264,7 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                       'can_view_symptom_summary': 'Ringkasan keluhan',
                       'can_view_treatment_schedule': 'Jadwal perawatan',
                       'can_view_activity_status': 'Status aktivitas',
-                      'can_receive_support_alert': 'Pengingat dukungan',
+                      'can_receive_support_alert': 'Menerima alert Bantuan Cepat',
                     }.entries)
                       if (row['invitation_status'] != 'revoked')
                         SwitchListTile(

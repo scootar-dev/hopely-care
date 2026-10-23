@@ -11,6 +11,7 @@ use App\Http\Controllers\{
     ProfilePhotoController
 };
 Route::middleware("throttle:auth")->group(function () {
+    Route::post('admin/auth/login', [\App\Http\Controllers\AdminWorkspaceController::class, 'login']);
     Route::post("auth/register", [AuthController::class, "register"]);
     Route::post("auth/login", [AuthController::class, "login"]);
     Route::post("auth/forgot-password", [
@@ -22,6 +23,16 @@ Route::middleware("throttle:auth")->group(function () {
 Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     require __DIR__ . "/community.php";
     Route::get("me", [AuthController::class, "me"]);
+    Route::get('admin/workspace/{module}', [\App\Http\Controllers\AdminWorkspaceController::class, 'index'])
+        ->middleware('role:ADMIN,SUPER_ADMIN,CONTENT_ADMIN,COMMUNITY_MODERATOR');
+    Route::middleware('role:PATIENT')->group(function () {
+        Route::post('support-alerts', [\App\Http\Controllers\SupportAlertController::class, 'store'])->middleware('throttle:3,1');
+        Route::get('support-alerts/active', [\App\Http\Controllers\SupportAlertController::class, 'active']);
+    });
+    Route::get('caregiver/support-alerts', [\App\Http\Controllers\SupportAlertController::class, 'active'])->middleware('role:CAREGIVER');
+    foreach (['acknowledge', 'resolve', 'cancel'] as $action) {
+        Route::post("support-alerts/{id}/$action", [\App\Http\Controllers\SupportAlertController::class, 'transition'])->defaults('action', $action);
+    }
     Route::get("me/avatar", [ProfilePhotoController::class, "show"]);
     Route::post("me/avatar", [ProfilePhotoController::class, "store"]);
     Route::delete("me/avatar", [ProfilePhotoController::class, "destroy"]);

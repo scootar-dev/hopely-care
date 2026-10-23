@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/admin/admin_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,6 +10,7 @@ import '../widgets/ai_launcher.dart';
 import '../../features/auth/onboarding_screen.dart';
 import '../../features/activities/tools_screen.dart';
 import '../../features/caregiver/support_alert_screen.dart';
+import '../../features/caregiver/quick_help_screen.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/auth/password_screen.dart';
 import '../../features/home/home_screen.dart';
@@ -23,7 +25,7 @@ import '../../features/care_circle/care_circle_screen.dart';
 import '../../features/caregiver/caregiver_screen.dart';
 import '../../features/knowledge/knowledge_screen.dart';
 import '../../features/settings/settings_screen.dart';
-import '../../features/settings/profile_photo.dart';
+import '../widgets/account_action.dart';
 import '../../features/community/presentation/community_home.dart';
 import '../../features/community/presentation/community_detail.dart';
 import '../../features/community/presentation/community_compose.dart';
@@ -38,6 +40,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: session,
     redirect: (context, state) {
       final path = state.uri.path;
+      final admin = const [
+        'ADMIN',
+        'SUPER_ADMIN',
+        'CONTENT_ADMIN',
+        'COMMUNITY_MODERATOR',
+      ].contains(session.user?['role']);
+      if (session.initialized && session.loggedIn && admin) {
+        return path == '/admin' ? null : '/admin';
+      }
+      if (session.initialized && session.loggedIn && path == '/admin') {
+        return session.caregiver ? '/caregiver' : '/home';
+      }
       if (!session.initialized) {
         return path == '/splash' ? null : '/splash';
       }
@@ -82,6 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(path: '/admin', builder: (_, s) => const AdminScreen()),
       ShellRoute(
         builder: (context, state, child) => AiLauncher(child: child),
         routes: [
@@ -91,6 +106,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, s) => const OnboardingScreen(),
           ),
           GoRoute(path: '/tools', builder: (_, s) => const ToolsScreen()),
+          GoRoute(
+            path: '/quick-help',
+            builder: (_, s) => const QuickHelpScreen(),
+          ),
           GoRoute(
             path: '/caregiver/connect',
             builder: (_, s) => const CaregiverConnectScreen(),
@@ -128,8 +147,17 @@ final routerProvider = Provider<GoRouter>((ref) {
               barrierDismissible: true,
               barrierColor: Colors.black54,
               barrierLabel: 'Tutup Hopely AI',
-              transitionsBuilder: (_, animation, secondary, child) =>
-                  FadeTransition(opacity: animation, child: child),
+              transitionDuration: const Duration(milliseconds: 220),
+              reverseTransitionDuration: const Duration(milliseconds: 180),
+              transitionsBuilder: (context, animation, secondary, child) =>
+                  MediaQuery.disableAnimationsOf(context)
+                  ? child
+                  : FadeTransition(
+                      opacity: animation.drive(
+                        CurveTween(curve: Curves.easeOutCubic),
+                      ),
+                      child: child,
+                    ),
               child: SafeArea(
                 child: Dialog(
                   insetPadding: const EdgeInsets.all(12),
@@ -140,12 +168,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                       children: [
                         Align(
                           alignment: Alignment.centerRight,
-                          child: IconButton(
-                            tooltip: 'Tutup Hopely AI',
-                            icon: const Icon(Icons.close),
-                            onPressed: () => context.canPop()
-                                ? context.pop()
-                                : context.go('/home'),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const AccountAction(),
+                              IconButton(
+                                tooltip: 'Tutup Hopely AI',
+                                icon: const Icon(Icons.close),
+                                onPressed: () => context.canPop()
+                                    ? context.pop()
+                                    : context.go('/home'),
+                              ),
+                            ],
                           ),
                         ),
                         Expanded(
@@ -397,27 +431,19 @@ class AppShell extends ConsumerWidget {
               ),
               actions: [
                 IconButton(
-                  onPressed: () => context.push('/tools'),
-                  icon: const Icon(Icons.support_agent_outlined),
-                  tooltip: 'Bantuan cepat',
-                ),
-                IconButton(
                   onPressed: () => context.push('/notifications'),
                   icon: const Icon(Icons.notifications_none_outlined),
                   tooltip: 'Notifikasi',
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: IconButton(
-                    onPressed: () => context.go('/profile'),
-                    icon: const ProfileAvatar(radius: 16),
-                    tooltip: 'Profil',
+                if (path != '/profile')
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: const AccountAction(),
                   ),
-                ),
               ],
             ),
       body: SafeArea(top: false, child: child),
-      bottomNavigationBar: caregiver
+      bottomNavigationBar: caregiver || MediaQuery.sizeOf(context).width >= 1024
           ? null
           : Material(
               color: Colors.white.withValues(alpha: 0.94),
@@ -436,22 +462,39 @@ class AppShell extends ConsumerWidget {
                           'Perjalanan',
                           '/treatment',
                         ),
-                        (Icons.groups_outlined, 'Komunitas', '/community'),
+                        (Icons.shield_outlined, 'Bantuan', '/quick-help'),
+                        (Icons.chat_bubble_outline, 'Hopely AI', '/chat'),
                         (Icons.insights_outlined, 'Insight', '/insights'),
-                        (Icons.account_circle_outlined, 'Profil', '/profile'),
                       ])
                         Expanded(
                           child: InkWell(
-                            onTap: () => context.go(item.$3),
+                            onTap: () =>
+                                item.$3 == '/quick-help' || item.$3 == '/chat'
+                                ? context.push(item.$3)
+                                : context.go(item.$3),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  item.$1,
-                                  color: path == item.$3
-                                      ? hopelyBlue
-                                      : mutedInk,
-                                ),
+                                if (item.$3 == '/quick-help')
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2563EB),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      item.$1,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    item.$1,
+                                    color: path == item.$3
+                                        ? hopelyBlue
+                                        : mutedInk,
+                                  ),
                                 const SizedBox(height: 4),
                                 Text(
                                   item.$2,

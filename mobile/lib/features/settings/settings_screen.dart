@@ -488,6 +488,13 @@ class NotificationsScreen extends ConsumerWidget {
                         : Icons.done,
                   ),
                   onTap: () async {
+                    if ((n['notification_type'] as String).startsWith(
+                          'emergency_support',
+                        ) &&
+                        ref.read(sessionProvider).caregiver) {
+                      context.go('/caregiver');
+                      return;
+                    }
                     if (n['notification_type'] == 'support_alert' &&
                         ref.read(sessionProvider).caregiver) {
                       await context.push('/caregiver/alerts/${n['id']}');

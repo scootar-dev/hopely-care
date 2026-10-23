@@ -9,6 +9,7 @@ import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_dialogs.dart';
 import '../../settings/profile_photo.dart';
+import '../../../core/widgets/account_action.dart';
 
 const circleBlue = Color(0xFF2563EB);
 const circleDeepBlue = Color(0xFF1E40AF);
@@ -86,7 +87,7 @@ class CommunityScaffold extends StatelessWidget {
             foregroundColor: Colors.white,
             minimumSize: const Size(48, 48),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
@@ -140,12 +141,12 @@ class CommunityScaffold extends StatelessWidget {
               ),
               const Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: ProfileAvatar(radius: 16),
+                child: AccountAction(),
               ),
             ] else
               const Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: ProfileAvatar(radius: 16),
+                child: AccountAction(),
               ),
           ],
         ),

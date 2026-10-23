@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/account_action.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
@@ -30,6 +31,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       leading: const Padding(padding: EdgeInsets.all(10), child: HopelyMark()),
       title: const Text('Jurnal'),
       actions: [
+        const AccountAction(),
         IconButton(
           onPressed: () => context.push('/notifications'),
           icon: const Icon(Icons.notifications_none),
