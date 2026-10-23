@@ -58,19 +58,23 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                 ? '/caregiver/support-alerts'
                 : '/support-alerts/active',
           );
-      if (mounted)
+      if (mounted) {
         setState(() {
           _alerts = (data['alerts'] as List).cast<Json>();
           _eligible = data['eligible_count'] as int? ?? 0;
           _loading = false;
-          if (!_sendFailed) _error = null;
+          if (!_sendFailed) {
+            _error = null;
+          }
         });
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
           _error = 'Status bantuan belum dapat diperbarui. Periksa koneksimu.';
         });
+      }
     } finally {
       _fetching = false;
     }
@@ -121,26 +125,30 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
       });
       await _load();
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _sendFailed = send;
           _error = send
               ? 'Alert belum berhasil dikirim.'
               : 'Perubahan belum berhasil disimpan. Perbarui status dan coba lagi.';
         });
+      }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading)
+    if (_loading) {
       return const Center(
         child: CircularProgressIndicator(
           semanticsLabel: 'Memuat status bantuan',
         ),
       );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

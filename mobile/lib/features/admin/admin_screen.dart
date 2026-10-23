@@ -29,11 +29,14 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         'audit': 'Audit Log',
       },
     };
-    if (modules.isEmpty)
+    if (modules.isEmpty) {
       return const Scaffold(
         body: Center(child: Text('Akses admin diperlukan.')),
       );
-    if (!modules.containsKey(module)) module = modules.keys.first;
+    }
+    if (!modules.containsKey(module)) {
+      module = modules.keys.first;
+    }
     final menu = ListView(
       children: [
         const Padding(

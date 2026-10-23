@@ -8,7 +8,6 @@ import '../../../core/widgets/ui.dart';
 import '../../../core/widgets/stitch.dart';
 import '../data/community_repository.dart';
 import 'community_dialogs.dart';
-import '../../settings/profile_photo.dart';
 import '../../../core/widgets/account_action.dart';
 
 const circleBlue = Color(0xFF2563EB);

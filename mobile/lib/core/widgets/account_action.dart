@@ -29,16 +29,21 @@ class AccountAction extends ConsumerWidget {
           final device =
               session.deviceId ??
               await session.storage.read(key: 'hopely.device_id');
-          if (device != null) await api.delete('/devices/$device');
+          if (device != null) {
+            await api.delete('/devices/$device');
+          }
           await api.post('/auth/logout');
           await session.storage.delete(key: 'hopely.device_id');
           await session.clear();
-          if (context.mounted) context.go('/welcome');
+          if (context.mounted) {
+            context.go('/welcome');
+          }
         } catch (e) {
-          if (context.mounted)
+          if (context.mounted) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(friendlyError(e))));
+          }
         }
       },
       itemBuilder: (_) => [
