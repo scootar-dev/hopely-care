@@ -5,9 +5,8 @@ import 'package:hopely_care/core/api/api.dart';
 import 'package:hopely_care/core/routing/router.dart';
 import 'package:hopely_care/features/settings/profile_photo.dart';
 import 'package:hopely_care/main.dart';
-import 'package:image_picker/image_picker.dart';
 
-import 'profile_photo_test.dart' show PhotoApi, FixturePhotoPicker, photoBytes;
+import 'profile_photo_test.dart' show PhotoApi, FixturePhotoPicker;
 import 'stitch_v2_test.dart' show fixtureSession;
 
 void main() {
@@ -33,16 +32,16 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Simpan foto'));
     await tester.pumpAndSettle();
-    print('After upload: ${find.byType(Image).evaluate().length} images');
+    debugPrint('After upload: ${find.byType(Image).evaluate().length} images');
     await tester.tap(find.text('Hapus foto'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Hapus foto'));
     await tester.pumpAndSettle();
     final images = find.byType(Image).evaluate();
-    print('After delete: ${images.length} images');
+    debugPrint('After delete: ${images.length} images');
     for (final e in images) {
       final img = e.widget as Image;
-      print('  image: ${img.image}');
+      debugPrint('  image: ${img.image}');
     }
     debugDumpApp();
   });
