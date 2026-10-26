@@ -7,7 +7,8 @@ import '../../core/widgets/stitch.dart';
 import '../../core/theme/theme.dart';
 
 class CheckinScreen extends ConsumerStatefulWidget {
-  const CheckinScreen({super.key, this.symptoms = false});
+  const CheckinScreen({super.key, this.symptoms = false, this.entry});
+  final Json? entry;
   final bool symptoms;
   @override
   ConsumerState<CheckinScreen> createState() => _CheckinScreenState();
@@ -46,7 +47,15 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
       loadFailed = false;
     });
     try {
-      if (!widget.symptoms) {
+      if (widget.entry != null) {
+        final row = widget.entry!;
+        id = row['id'];
+        for (final k in scores.keys.toList()) {
+          scores[k] = (row[widget.symptoms ? k : '${k}_score'] as num).toInt();
+        }
+        note.text = row['optional_note'] ?? '';
+        analysis = row['ai_analysis_allowed'] == true;
+      } else if (!widget.symptoms) {
         final rows = items(await ref.read(apiProvider).get('/checkins'));
         final today = rows
             .where((c) => c['checkin_date'] == dateOnly(DateTime.now()))
@@ -84,13 +93,15 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
       final api = ref.read(apiProvider);
       final Json data = widget.symptoms
           ? {
-              'logged_at': DateTime.now().toUtc().toIso8601String(),
+              'logged_at':
+                  widget.entry?['logged_at'] ??
+                  DateTime.now().toUtc().toIso8601String(),
               ...scores,
               'optional_note': note.text.trim(),
             }
           : {
               ...Checkin(
-                date: dateOnly(DateTime.now()),
+                date: widget.entry?['checkin_date'] ?? dateOnly(DateTime.now()),
                 scores: scores,
               ).toJson(),
               'optional_note': note.text.trim(),
@@ -123,6 +134,10 @@ class _CheckinScreenState extends ConsumerState<CheckinScreen> {
         }
       }
       if (mounted) {
+        if (widget.entry != null) {
+          Navigator.of(context).pop(true);
+          return;
+        }
         context.pushReplacement('/checkin/saved');
       }
     } catch (e) {

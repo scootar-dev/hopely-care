@@ -18,12 +18,15 @@ class AdminController extends Controller
             "reviewed" => "required|accepted",
             "text" => "required|string|max:200000",
         ]);
-        return $this->ok($ai->post("/v1/knowledge/ingest", $v));
+        $result = $ai->post("/v1/knowledge/ingest", $v);
+        \Illuminate\Support\Facades\Storage::disk('local')->put('knowledge-articles/'.hash('sha256', $v['source_id']).'.json', json_encode($v, JSON_THROW_ON_ERROR));
+        return $this->ok($result);
     }
     public function activity(Request $r)
     {
         $v = $r->validate([
             "title" => "required|string|max:150",
+            "image_url" => "nullable|url:https|max:2000",
             "description" => "required|string|max:2000",
             "category" => "required|string|max:50",
             "duration_minutes" => "required|integer|between:1,60",

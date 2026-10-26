@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../features/admin/admin_screen.dart';
+import '../../features/checkin/record_history_screen.dart';
+import '../../features/doctor_summary/summary_history_screen.dart';
+import '../../features/knowledge/article_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,18 +42,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: session,
     redirect: (context, state) {
       final path = state.uri.path;
-      final admin = const [
-        'ADMIN',
-        'SUPER_ADMIN',
-        'CONTENT_ADMIN',
-        'COMMUNITY_MODERATOR',
-      ].contains(session.user?['role']);
-      if (session.initialized && session.loggedIn && admin) {
-        return path == '/admin' ? null : '/admin';
-      }
-      if (session.initialized && session.loggedIn && path == '/admin') {
-        return session.caregiver ? '/caregiver' : '/home';
-      }
       if (!session.initialized) {
         return path == '/splash' ? null : '/splash';
       }
@@ -96,7 +86,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/admin', builder: (_, s) => const AdminScreen()),
       ShellRoute(
         builder: (context, state, child) => AiLauncher(child: child),
         routes: [
@@ -241,7 +230,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, s) => const CheckinSavedScreen(),
           ),
           GoRoute(path: '/checkin', builder: (_, s) => const CheckinScreen()),
-          GoRoute(path: '/history', builder: (_, s) => const HistoryScreen()),
+          GoRoute(
+            path: '/history',
+            builder: (_, s) => const RecordHistoryScreen(),
+          ),
+          GoRoute(
+            path: '/summary-history',
+            builder: (_, s) => const SummaryHistoryScreen(),
+          ),
           GoRoute(
             path: '/symptoms',
             builder: (_, s) => const CheckinScreen(symptoms: true),
@@ -299,8 +295,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/knowledge/articles/:id',
-            builder: (_, s) =>
-                KnowledgeArticleScreen(id: s.pathParameters['id']!),
+            builder: (_, s) => ArticleScreen(id: s.pathParameters['id']!),
           ),
           GoRoute(
             path: '/edit-profile',

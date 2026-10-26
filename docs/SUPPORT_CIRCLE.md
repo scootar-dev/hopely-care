@@ -58,7 +58,7 @@ Desain menggunakan kartu putih, latar `#F8FAFF`, aksen `#2563EB`/`#1E40AF`, dan 
 
 ## Moderasi saat AI belum aktif
 
-`MOCK_AI_MODE=true` tidak memengaruhi login. Untuk komunitas, mode ini menahan pengajuan baru sampai moderator meninjaunya. Tidak ada persetujuan publikasi palsu dari fixture AI. Gangguan AI juga menyimpan cerita sebagai pending. Foto selalu memerlukan peninjauan manusia karena layanan moderasi MVP hanya memeriksa teks.
+`MOCK_AI_MODE=true` tidak memengaruhi login. Untuk komunitas, ketika layanan AI tidak tersedia atau hanya memberi hasil mock/manual, moderasi beralih ke pemeriksaan aturan lokal di Laravel (mode `rules`). Teks yang bersih dari pelanggaran langsung tayang sehingga komunitas tidak mati saat admin tidak online. Pelanggaran keras (arahan medis berbahaya, klaim kesembuhan/obat mujarab, promosi/penjualan, permintaan uang, kata kasar) dihapus otomatis, dan indikasi sensitif (krisis diri sendiri, kontak di luar platform, indikasi promosi) ditahan sebagai `flagged` untuk ditinjau manusia. Foto selalu memerlukan peninjauan manusia karena aturan hanya memeriksa teks. Alasan keputusan aturan disimpan di `moderation_meta.reason`.
 
 Operator perlu menunjuk akun moderator yang sudah terdaftar, per komunitas:
 
@@ -73,11 +73,15 @@ Moderator masuk ke akun itu, membuka Support Circle → Keamanan → Antrean mod
 | Hasil pemeriksaan | Penyimpanan Laravel | Perilaku |
 |---|---|---|
 | Live model: safe, keyakinan ≥0.8, tanpa kategori risiko, teks saja | approved | Terbit |
-| Ketidakpastian, tripwire, mock, provider gagal, atau ada foto | pending | Hanya penulis dan moderator yang berwenang dapat membacanya |
-| Hasil unsafe | flagged | Ditahan; dapat ditinjau manusia |
+| Aturan lokal: teks bersih (AI mati/mock/manual) | approved | Terbit tanpa menunggu moderator |
+| Aturan lokal: pelanggaran keras (AI mati/mock/manual) | removed | Dihapus otomatis; penulis masih dapat melihat statusnya |
+| Aturan lokal: indikasi sensitif (AI mati/mock/manual) | flagged | Tersembunyi dari anggota lain; masuk antrean moderator |
+| Live model: keyakinan <0.8, kategori risiko, atau ada foto | pending | Hanya penulis dan moderator yang berwenang dapat membacanya |
+| Hasil unsafe dengan keyakinan tinggi model | removed | Dihapus otomatis dengan alasan |
+| Hasil unsafe dengan keyakinan rendah | flagged | Ditahan; dapat ditinjau manusia |
 | Keputusan manusia menghapus publikasi | removed | Tidak terlihat oleh anggota lain; penulis dapat melihat status dan menghapusnya |
 
-Tripwire adalah pemeriksaan konservatif untuk mengarahkan ke peninjauan, bukan classifier klinis. Live inference menggunakan adapter LLM terstruktur yang sudah ada. Tidak ada penghapusan permanen otomatis berdasarkan keputusan model. Uji live provider dan evaluasi kualitas moderasi bahasa Indonesia tetap diperlukan sebelum penggunaan publik.
+Tripwire dan aturan lokal adalah pemeriksaan konservatif untuk menjaga komunitas tetap berjalan, bukan classifier klinis. Live inference menggunakan adapter LLM terstruktur yang sudah ada. Penghapusan otomatis hanya terjadi untuk pelanggaran keras yang jelas; kasus yang meragukan tetap ditahan untuk manusia. Uji live provider dan evaluasi kualitas moderasi bahasa Indonesia tetap diperlukan sebelum penggunaan publik.
 
 ## Privasi, data, dan notifikasi
 

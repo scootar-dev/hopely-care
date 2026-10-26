@@ -48,6 +48,10 @@ class Session extends ChangeNotifier {
     final api = Api(this);
     final result = await api.get('/me') as Json;
     user = result['user'] as Json;
+    if (!const ['PATIENT', 'CAREGIVER'].contains(user?['role'])) {
+      await clear();
+      throw StateError('Akun admin hanya dapat digunakan melalui website /admin.');
+    }
     profile = result['profile'] as Json?;
     final rows = await api.get('/consents') as List;
     consents = rows

@@ -65,6 +65,8 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
             }
         }
         Route::get("activities", [AiController::class, "activities"]);
+        Route::get('knowledge/articles', [\App\Http\Controllers\KnowledgeArticleController::class, 'index']);
+        Route::get('knowledge/articles/{id}', [\App\Http\Controllers\KnowledgeArticleController::class, 'show']);
         Route::post("activities/{id}/complete", [AiController::class, "complete"]);
         Route::get("chat/sessions", [AiController::class, "sessions"]);
         Route::get("chat/sessions/{id}/messages", [AiController::class, "messages"]);
@@ -75,6 +77,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
             Route::get("insights", [AiController::class, "insights"]);
             Route::get("activities/recommended", [AiController::class, "recommended"]);
             Route::post("doctor-summary", [AiController::class, "summary"]);
+            Route::get("doctor-summary", [AiController::class, "summaries"]);
             Route::get("doctor-summary/{id}", [AiController::class, "savedSummary"]);
             Route::post("knowledge/query", [AiController::class, "knowledge"]);
         });
@@ -92,9 +95,13 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
             "coach"
         ])->middleware("throttle:ai");
     });
-    Route::middleware("role:ADMIN")->group(function () {
+    Route::middleware("role:ADMIN,SUPER_ADMIN,CONTENT_ADMIN")->group(function () {
         Route::post("admin/knowledge/ingest", [AdminController::class, "ingest"]);
         Route::post("admin/activities", [AdminController::class, "activity"]);
         Route::put("admin/activities/{id}", [AdminController::class, "activity"]);
+    });
+    Route::middleware('role:ADMIN,SUPER_ADMIN')->group(function () {
+        Route::post('admin/communities', [\App\Http\Controllers\AdminCommunityController::class, 'save']);
+        Route::put('admin/communities/{id}', [\App\Http\Controllers\AdminCommunityController::class, 'save']);
     });
 });

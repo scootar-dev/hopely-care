@@ -67,8 +67,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 ],
                 $status
             );
+            if ($r->hasHeader("X-Debug-Trace")) { // TEMP-DEBUG
+                header("X-Debug-Exception: " . get_class($e) . " @ " . $e->getFile() . ":" . $e->getLine());
+            }
+            return $response;
         });
         $exceptions->report(function (Throwable $e) {
+            \Log::warning("UNHANDLED-EXCEPTION", ["class" => get_class($e), "msg" => $e->getMessage(), "at" => $e->getFile().":".$e->getLine()]); // TEMP-DEBUG
             return false;
         });
     })

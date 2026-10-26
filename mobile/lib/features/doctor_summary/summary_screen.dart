@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'summary_report.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,6 +105,11 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     ),
     body: PageBody(
       children: [
+        OutlinedButton.icon(
+          onPressed: () => context.push('/summary-history'),
+          icon: const Icon(Icons.history),
+          label: const Text('Arsip ringkasan konsultasi'),
+        ),
         CareCard(
           color: skySoft,
           child: Row(

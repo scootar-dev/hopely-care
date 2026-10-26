@@ -15,12 +15,12 @@ class TreatmentScreen extends ConsumerStatefulWidget {
 }
 
 class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
-  int version = 0;
+  int version = 0, page = 1;
 
   @override
   Widget build(BuildContext context) => DataPage(
-    key: ValueKey(version),
-    load: () => ref.read(apiProvider).get('/treatments'),
+    key: ValueKey('$version:$page'),
+    load: () => ref.read(apiProvider).get('/treatments?page=$page'),
     builder: (data, reload) {
       final rows = items(data)
         ..sort(
@@ -73,7 +73,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               children: [
                 Row(
                   children: [
-                    const Expanded(child: Text('Progres Siklus')),
+                    const Expanded(child: Text('Progres halaman ini')),
                     Text(
                       '${(rows.where((t) => t['status'] == 'completed').length / (rows.isEmpty ? 1 : rows.length) * 100).round()}% Selesai',
                       style: const TextStyle(
@@ -114,6 +114,22 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           ),
           const SizedBox(height: 8),
           const SectionHeading('Agenda Perawatan'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: page > 1 ? () => setState(() => page--) : null,
+                icon: const Icon(Icons.chevron_left),
+              ),
+              Text('Halaman $page / ${data['last_page']}'),
+              IconButton(
+                onPressed: page < (data['last_page'] as int)
+                    ? () => setState(() => page++)
+                    : null,
+                icon: const Icon(Icons.chevron_right),
+              ),
+            ],
+          ),
           if (rows.isEmpty)
             const CareCard(
               child: Text(

@@ -20,6 +20,53 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool busy = false, loading = true;
   Object? error;
   dynamic metadata;
+  Future<void> chooseSession() async {
+    try {
+      final sessions = items(await ref.read(apiProvider).get('/chat/sessions'));
+      if (!mounted) return;
+      final selected = await showModalBottomSheet<Json>(
+        context: context,
+        builder: (c) => SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const ListTile(title: Text('Percakapan tersimpan')),
+              if (sessions.isEmpty)
+                const ListTile(title: Text('Belum ada percakapan.')),
+              for (final s in sessions)
+                ListTile(
+                  leading: const Icon(Icons.chat_bubble_outline),
+                  title: Text(s['title'] ?? 'Percakapan'),
+                  subtitle: Text('${s['created_at']}'),
+                  onTap: () => Navigator.pop(c, s),
+                ),
+            ],
+          ),
+        ),
+      );
+      if (selected == null || !mounted) return;
+      setState(() => loading = true);
+      final rows = items(
+        await ref
+            .read(apiProvider)
+            .get('/chat/sessions/${selected['id']}/messages'),
+      );
+      if (mounted)
+        setState(() {
+          sessionId = selected['id'];
+          messages
+            ..clear()
+            ..addAll(rows);
+          metadata = null;
+          error = null;
+        });
+    } catch (e) {
+      if (mounted) setState(() => error = e);
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -146,6 +193,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               onPressed: () => context.push('/chat/voice'),
                               icon: const Icon(Icons.mic_none_outlined),
                               tooltip: 'Mode suara',
+                            ),
+                            IconButton(
+                              tooltip: 'Riwayat percakapan',
+                              icon: const Icon(Icons.history),
+                              onPressed: busy ? null : chooseSession,
+                            ),
+                            IconButton(
+                              tooltip: 'Percakapan baru',
+                              icon: const Icon(Icons.add_comment_outlined),
+                              onPressed: busy
+                                  ? null
+                                  : () => setState(() {
+                                      sessionId = null;
+                                      messages.clear();
+                                      metadata = null;
+                                      error = null;
+                                      input.clear();
+                                    }),
                             ),
                           ],
                         ),

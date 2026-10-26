@@ -91,4 +91,9 @@ class AiController extends Controller
         $v = $r->validate(["question" => "required|string|max:2000"]);
         return $this->ok($this->service->knowledge($v));
     }
+    public function summaries(Request $r)
+    {
+        $rows = DoctorVisitReport::where('user_id', $r->user()->id)->latest()->paginate(20, ['id', 'period_start', 'period_end', 'generated_at']);
+        return $this->ok(['items' => $rows->items(), 'page' => $rows->currentPage(), 'last_page' => $rows->lastPage()]);
+    }
 }

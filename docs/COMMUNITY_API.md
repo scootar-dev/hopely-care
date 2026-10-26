@@ -44,7 +44,7 @@ Both routes require `X-Internal-Service-Key` and reject unrecognized fields. The
 {"content_type":"post","content":"Terima kasih sudah menemani hari ini."}
 ```
 
-Response: `{status:safe|review|unsafe,categories:[],confidence:0..1,reason:string,mode:model|rules|manual_review}`. Mock mode routes submissions to manual review. Tripwires route potential medical claims/harassment/scams to review, with no claimed model confidence. Live structured decisions below 0.8 or with inconsistent safe/category results also require review. Laravel stores pending on provider failure and holds images for human review.
+Response: `{status:safe|review|unsafe,categories:[],confidence:0..1,reason:string,mode:model|rules|manual_review}`. Mock mode routes submissions to manual review. Tripwires route potential medical claims/harassment/scams to review, with no claimed model confidence. Live structured decisions below 0.8 or with inconsistent safe/category results also require review. A strong model verdict (`unsafe`, confidence ≥0.75) stores removed. On provider failure, or for mock/manual results, Laravel falls back to local rule moderation: clean text is stored approved, hard violations are stored removed, sensitive indications are stored flagged, and images still require human review.
 
 `POST /v1/ai/community/recommend`:
 

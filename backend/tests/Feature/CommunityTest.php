@@ -201,7 +201,7 @@ class CommunityTest extends TestCase
         $this->getJson("/api/community/posts/$p->id")->assertNotFound();
     }
 
-    public function test_offline_mock_and_low_confidence_moderation_never_auto_publish(): void
+    public function test_uncertain_live_model_results_still_require_human_review(): void
     {
         $c = $this->community();
         $u = $this->user();
@@ -209,19 +209,8 @@ class CommunityTest extends TestCase
         Sanctum::actingAs($u);
         foreach (
             [
-                [
-                    "status" => "safe",
-                    "mode" => "manual_review",
-                    "confidence" => 1,
-                    "categories" => []
-                ],
                 ["status" => "safe", "mode" => "model", "confidence" => 0.4, "categories" => []],
-                [
-                    "status" => "safe",
-                    "mode" => "model",
-                    "confidence" => 0.9,
-                    "categories" => ["spam"]
-                ]
+                ["status" => "safe", "mode" => "model", "confidence" => 0.9, "categories" => ["spam"]]
             ]
             as $result
         ) {
@@ -231,19 +220,68 @@ class CommunityTest extends TestCase
                 ->assertCreated()
                 ->assertJsonPath("data.moderation_status", "pending");
         }
+        // Even a confident live verdict cannot auto-publish an image post.
         Http::swap(new \Illuminate\Http\Client\Factory());
-        Http::fake(["*" => Http::response([], 503)]);
-        $p = $this->postJson("/api/communities/$c->id/posts", $this->text())
+        Http::fake(["*" => Http::response([
+            "status" => "safe", "mode" => "model", "confidence" => 0.99, "categories" => []
+        ])]);
+        $p = $this->post("/api/communities/$c->id/posts", [
+            "content" => "Cerita dengan foto.",
+            "sharing_acknowledged" => "1",
+            "image" => UploadedFile::fake()->image("photo.jpg", 20, 20)
+        ])
             ->assertCreated()
+            ->assertJsonPath("data.moderation_status", "pending")
             ->json("data.id");
-        $this->getJson("/api/community/posts/$p")
-            ->assertOk()
-            ->assertJsonPath("data.moderation_status", "pending");
         Sanctum::actingAs($this->user());
         $this->getJson("/api/community/posts/$p")->assertForbidden();
         $this->getJson("/api/communities/$c->id/posts")
             ->assertOk()
             ->assertJsonCount(0, "data.items");
+    }
+
+    public function test_offline_rules_fallback_publishes_clean_and_enforces_violations(): void
+    {
+        $c = $this->community();
+        $a = $this->user();
+        $b = $this->user();
+        $this->member($a, $c);
+        $this->member($b, $c);
+        Http::swap(new \Illuminate\Http\Client\Factory());
+        Http::fake(["*" => Http::response([], 503)]);
+        Sanctum::actingAs($a);
+        $p = $this->postJson("/api/communities/$c->id/posts", $this->text())
+            ->assertCreated()
+            ->assertJsonPath("data.moderation_status", "approved")
+            ->json("data.id");
+        $bad = $this->postJson("/api/communities/$c->id/posts", $this->text(
+            "Obat mujarab ini dijamin sembuh total, minum 3 tablet sehari dan berhenti konsumsi kemoterapi."
+        ))
+            ->assertCreated()
+            ->assertJsonPath("data.moderation_status", "removed")
+            ->json("data.id");
+        Sanctum::actingAs($a);
+        $this->getJson("/api/community/posts/$bad")
+            ->assertOk()
+            ->assertJsonPath("data.moderation_status", "removed");
+        Sanctum::actingAs($b);
+        $this->getJson("/api/community/posts/$p")->assertOk();
+        $this->getJson("/api/community/posts/$bad")->assertForbidden();
+        $flagged = $this->postJson(
+            "/api/community/posts/$p/comments",
+            $this->text("Aku ingin mengakhiri hidupku.")
+        )
+            ->assertCreated()
+            ->assertJsonPath("data.moderation_status", "flagged")
+            ->json("data.id");
+        Sanctum::actingAs($a);
+        $this->getJson("/api/community/posts/$p/comments")
+            ->assertOk()
+            ->assertJsonCount(0, "data.items");
+        Sanctum::actingAs($b);
+        $this->getJson("/api/community/posts/$p/comments")
+            ->assertOk()
+            ->assertJsonPath("data.items.0.moderation_status", "flagged");
     }
 
     public function test_reports_and_moderator_scope_have_working_human_review(): void
@@ -519,10 +557,10 @@ class CommunityTest extends TestCase
         Http::swap(new \Illuminate\Http\Client\Factory());
         Http::fake([
             "*" => Http::response([
-                "status" => "review",
-                "confidence" => 0,
+                "status" => "safe",
+                "confidence" => 0.4,
                 "categories" => [],
-                "mode" => "manual_review"
+                "mode" => "model"
             ])
         ]);
         Sanctum::actingAs($author);

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(AdminSeeder::class);
         if (app()->environment("production")) {
             throw new \RuntimeException("Synthetic seeding is disabled in production.");
         }
@@ -140,6 +141,8 @@ class DatabaseSeeder extends Seeder
                         "Orientasi Ruang yang Nyaman",
                         "grounding",
                         ["anxiety", "fear"],
+                        "Kembali ke momen ini lewat indera di sekitarmu, 1-3 menit saja.",
+                        "https://images.pexels.com/photos/6173718/pexels-photo-6173718.jpeg?cs=srgb&w=800",
                         [
                             "Cari posisi yang terasa nyaman.",
                             "Perhatikan beberapa benda yang ada di sekitarmu.",
@@ -150,6 +153,8 @@ class DatabaseSeeder extends Seeder
                         "Jeda Napas Alami",
                         "relaxation",
                         ["anxiety", "fatigue"],
+                        "Napas pelan tanpa dipaksa, cocok saat tenagamu terasa tipis.",
+                        "https://images.pexels.com/photos/6648567/pexels-photo-6648567.jpeg?cs=srgb&w=800",
                         [
                             "Pilih posisi yang nyaman dan tidak memaksakan tubuh.",
                             "Perhatikan napas sebagaimana adanya, tanpa menahan atau memaksakan kedalamannya.",
@@ -160,23 +165,49 @@ class DatabaseSeeder extends Seeder
                         "Refleksi Satu Hal Kecil",
                         "reflection",
                         ["hope", "loneliness"],
+                        "Catat satu momen kecil hari ini, cukup dua-tiga kalimat.",
+                        "https://images.pexels.com/photos/6541165/pexels-photo-6541165.jpeg?cs=srgb&w=800",
                         [
                             "Pikirkan satu momen kecil hari ini.",
                             "Apa yang ingin kamu akui dari usaha dirimu?",
                             "Kamu boleh menyimpannya untuk diri sendiri.",
                         ],
                     ],
+                    [
+                        "Peregangan Lembut",
+                        "relaxation",
+                        ["fatigue", "anxiety"],
+                        "Regangkan bahu dan leher pelan-pelan, boleh sambil duduk.",
+                        "https://images.pexels.com/photos/6958256/pexels-photo-6958256.jpeg?cs=srgb&w=800",
+                        [
+                            "Duduk tegak dengan bahu rileks.",
+                            "Putar bahu perlahan lima kali ke belakang.",
+                            "Condongkan kepala ke kanan lalu kiri, masing-masing lima detik.",
+                        ],
+                    ],
+                    [
+                        "Buku Harian Bunga Kecil",
+                        "reflection",
+                        ["hope", "gratitude"],
+                        "Tulis satu hal baik hari ini, sekecil apa pun itu.",
+                        "https://images.pexels.com/photos/9031745/pexels-photo-9031745.jpeg?cs=srgb&w=800",
+                        [
+                            "Siapkan buku atau catatan di ponsalmu.",
+                            "Tulis satu hal baik yang terjadi hari ini.",
+                            "Baca ulang saat hari terasa berat.",
+                        ],
+                    ],
                 ]
-                as [$title, $category, $tags, $steps]
+                as [$title, $category, $tags, $description, $image, $steps]
             ) {
                 $a = new SupportActivity();
                 $a->fill([
                     "title" => $title,
-                    "description" =>
-                        "Aktivitas dukungan umum yang dapat kamu pilih sesuai kenyamanan.",
+                    "description" => $description,
                     "category" => $category,
                     "duration_minutes" => 3,
                     "suitability_tags" => $tags,
+                    "image_url" => $image,
                     "steps" => $steps,
                     "contraindication_notes" =>
                         "Lewati jika tidak nyaman. Ini bukan terapi medis; ikuti arahan tim perawatan.",

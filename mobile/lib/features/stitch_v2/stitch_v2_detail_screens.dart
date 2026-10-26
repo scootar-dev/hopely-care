@@ -191,6 +191,46 @@ class _TreatmentDetailState extends ConsumerState<TreatmentDetailScreen> {
               icon: const Icon(Icons.edit_outlined),
               label: const Text('Ubah catatan'),
             ),
+            TextButton.icon(
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Hapus catatan'),
+              onPressed: () async {
+                final yes = await showDialog<bool>(
+                  context: context,
+                  builder: (c) => AlertDialog(
+                    title: const Text('Hapus catatan perawatan?'),
+                    content: const Text(
+                      'Catatan ini tidak dapat dikembalikan.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(c, false),
+                        child: const Text('Batal'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(c, true),
+                        child: const Text('Hapus'),
+                      ),
+                    ],
+                  ),
+                );
+                if (yes != true) return;
+                try {
+                  await ref
+                      .read(apiProvider)
+                      .delete('/treatments/${widget.id}');
+                  await TreatmentReminders.instance.refresh(
+                    ref.read(apiProvider),
+                  );
+                  if (context.mounted) context.go('/treatment');
+                } catch (e) {
+                  if (context.mounted)
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('$e')));
+                }
+              },
+            ),
           ],
         );
       },
@@ -316,6 +356,13 @@ class _JournalReflectionState extends ConsumerState<JournalReflectionScreen> {
                       const SizedBox(height: 10),
                       Text('Tema: $themes'),
                     ],
+                    if (reflection['emotion_scores'] is Map)
+                      for (final score
+                          in (reflection['emotion_scores'] as Map).entries)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text('${score.key}: ${score.value}'),
+                        ),
                     const SizedBox(height: 12),
                     const Text(
                       'Ini adalah refleksi berbasis catatan, bukan diagnosis.',

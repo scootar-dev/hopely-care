@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'article_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api.dart';
 import '../../core/theme/theme.dart';
@@ -62,6 +63,13 @@ class _KnowledgeScreenState extends ConsumerState<KnowledgeScreen> {
     ),
     body: PageBody(
       children: [
+        OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const ArticleScreen()),
+          ),
+          icon: const Icon(Icons.menu_book_outlined),
+          label: const Text('Jelajahi artikel terkurasi'),
+        ),
         CareCard(
           color: skySoft,
           child: Column(

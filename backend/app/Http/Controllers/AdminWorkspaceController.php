@@ -44,6 +44,9 @@ class AdminWorkspaceController extends Controller
             'audit' => [AuditLog::class, ['id', 'actor_user_id', 'event', 'resource_type', 'resource_id', 'created_at'], 'event'],
         };
         $query = $model::query()->select($columns);
+        if ($module === 'communities') {
+            $query->withCount(['members as active_members_count' => fn ($q) => $q->where('status', 'active')]);
+        }
         if (!empty($v['search'])) $query->where($search, 'like', '%'.$v['search'].'%');
         return $this->ok($query->latest()->paginate(25));
     }

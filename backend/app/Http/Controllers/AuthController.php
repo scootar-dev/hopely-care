@@ -42,6 +42,7 @@ class AuthController extends Controller
         $v = $r->validate(["email" => "required|email", "password" => "required|string"]);
         $u = User::where("email", strtolower($v["email"]))->first();
         abort_unless($u && Hash::check($v["password"], $u->password), 401);
+        abort_if(in_array($u->role, \App\Http\Controllers\AdminWorkspaceController::ROLES, true), 403, 'Gunakan website /admin untuk masuk sebagai administrator.');
         return $this->ok(["user" => $u, "token" => $u->createToken("mobile")->plainTextToken]);
     }
     public function me(Request $r)

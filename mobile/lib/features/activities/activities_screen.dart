@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'activity_image.dart';
+import 'activity_catalog_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
 import '../../core/widgets/ui.dart';
 import '../../core/widgets/stitch.dart';
@@ -14,9 +15,7 @@ class ActivitiesScreen extends ConsumerWidget {
     appBar: AppBar(
       leading: const BackHomeButton(),
       title: const Text('Untukmu'),
-      actions: const [
-        AccountAction(),
-      ],
+      actions: const [AccountAction()],
     ),
     body: DataPage(
       load: () => ref.read(apiProvider).get('/activities/recommended'),
@@ -61,6 +60,15 @@ class ActivitiesScreen extends ConsumerWidget {
               ),
             ),
             const SectionHeading('Rekomendasi Lembut Hari Ini'),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ActivityCatalogScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.grid_view_outlined),
+              label: const Text('Jelajahi semua aktivitas'),
+            ),
             if (rows.isEmpty)
               const CareCard(
                 child: Text(
@@ -91,7 +99,13 @@ class ActivitiesScreen extends ConsumerWidget {
                       '${row['activity']['duration_minutes']} menit • ${row['reason']}',
                     ),
                     const SizedBox(height: 12),
-                    Text(row['activity']['description']),
+                    ActivityImage(url: row['activity']['image_url']),
+                    const SizedBox(height: 12),
+                    Text(
+                      row['activity']['description'],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     if (row['activity']['contraindication_notes'] != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -99,7 +113,11 @@ class ActivitiesScreen extends ConsumerWidget {
                       ),
                     const SizedBox(height: 16),
                     FilledButton.icon(
-                    onPressed: () => context.push('/activities/${row['id']}'),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => ActivityDetail(recommendation: row),
+                        ),
+                      ),
                       icon: const Icon(Icons.play_arrow_rounded),
                       label: const Text('Mulai dengan nyaman'),
                       style: FilledButton.styleFrom(
@@ -143,12 +161,15 @@ class ActivityDetail extends ConsumerStatefulWidget {
 class _ActivityDetailState extends ConsumerState<ActivityDetail> {
   bool busy = false, completed = false;
   Object? error;
+  String? get activityId =>
+      widget.recommendation['id']?.toString() ??
+      widget.recommendation['activity']?['id']?.toString();
   Future<void> complete() async {
     setState(() => busy = true);
     try {
       await ref
           .read(apiProvider)
-          .post('/activities/${widget.recommendation['id']}/complete');
+          .post('/activities/$activityId/complete');
       if (mounted) {
         setState(() => completed = true);
       }
@@ -178,6 +199,11 @@ class _ActivityDetailState extends ConsumerState<ActivityDetail> {
             'Lakukan hanya selama terasa nyaman.',
             badge: 'AKTIVITAS LEMBUT',
           ),
+          ActivityImage(url: activity['image_url'], height: 210),
+          const SizedBox(height: 16),
+          Text(activity['description'] ?? ''),
+          if ((activity['contraindication_notes'] ?? '').toString().isNotEmpty)
+            CareCard(child: Text(activity['contraindication_notes'])),
           for (
             var index = 0;
             index < (activity['steps'] as List).length;
@@ -211,16 +237,17 @@ class _ActivityDetailState extends ConsumerState<ActivityDetail> {
             ),
           ),
           if (error != null) ErrorNotice(error!),
-          FilledButton(
-            onPressed: busy || completed ? null : complete,
-            child: Text(
-              completed
-                  ? 'Sudah dicatat selesai'
-                  : busy
-                  ? 'Menyimpan…'
-                  : 'Tandai selesai',
+          if (activityId != null)
+            FilledButton(
+              onPressed: busy || completed ? null : complete,
+              child: Text(
+                completed
+                    ? 'Sudah dicatat selesai'
+                    : busy
+                    ? 'Menyimpan…'
+                    : 'Tandai selesai',
+              ),
             ),
-          ),
         ],
       ),
     );
