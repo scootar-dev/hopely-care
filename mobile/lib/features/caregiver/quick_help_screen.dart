@@ -95,7 +95,7 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
           content: Text(
             cancel
                 ? 'Alert akan ditandai selesai.'
-                : 'Pendamping yang terhubung akan mendapat notifikasi bahwa kamu membutuhkan bantuan segera.',
+                : 'Permintaan akan dicatat dan pemberitahuan dicoba dikirim ke pendamping berizin. Pengiriman tidak menjamin pesan diterima atau bantuan datang.',
           ),
           actions: [
             TextButton(
@@ -152,6 +152,9 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const Text(
+          'Untuk keadaan medis darurat, segera hubungi layanan kegawatdaruratan setempat atau fasilitas kesehatan terdekat. Jangan menunggu tanggapan aplikasi.',
+        ),
         if (_error != null) ...[
           Semantics(
             liveRegion: true,
@@ -224,16 +227,22 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                   Text(
                     widget.caregiver
                         ? 'Bantuan Dibutuhkan'
-                        : 'Bantuan sudah dikirim',
+                        : 'Permintaan bantuan tercatat',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   Text(
                     widget.caregiver
                         ? '${a['patient_name']} meminta bantuan sekarang.'
-                        : 'Pendampingmu sudah diberi tahu.',
+                        : 'Belum berarti pendamping telah menerima atau membaca pemberitahuan.',
                   ),
                   if (!widget.caregiver)
-                    Text('${a['recipient_count']} pendamping menerima alert'),
+                    Text('${a['recipient_count']} pendamping dituju'),
+                  if (!widget.caregiver)
+                    Text(
+                      'Diterima layanan push: ${a['notification_status']?['provider_accepted_count'] ?? 0}. '
+                      'Belum terkonfirmasi terkirim: ${a['notification_status']?['unconfirmed_count'] ?? a['recipient_count']}. '
+                      'Jika belum ada tanggapan, hubungi pendamping secara langsung.',
+                    ),
                   if (a['status'] == 'ACKNOWLEDGED')
                     Text(
                       'Sedang ditangani oleh ${a['acknowledged_name'] ?? 'pendamping'}',

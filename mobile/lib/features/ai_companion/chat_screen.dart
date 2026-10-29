@@ -51,7 +51,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             .read(apiProvider)
             .get('/chat/sessions/${selected['id']}/messages'),
       );
-      if (mounted)
+      if (mounted) {
         setState(() {
           sessionId = selected['id'];
           messages
@@ -60,6 +60,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           metadata = null;
           error = null;
         });
+      }
     } catch (e) {
       if (mounted) setState(() => error = e);
     } finally {

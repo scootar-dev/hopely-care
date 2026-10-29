@@ -24,8 +24,17 @@ class SupportAlertController extends Controller
     }
     private function data(SupportAlert $a): array
     {
+        $delivery = DB::table('notifications')
+            ->where('notification_type', 'emergency_support')
+            ->where('dedupe_key', 'like', 'emergency:'.$a->id.':%')
+            ->get(['push_status']);
         return [...$a->toArray(), 'patient_name' => User::find($a->patient_id)?->name,
             'acknowledged_name' => $a->acknowledged_by ? User::find($a->acknowledged_by)?->name : null,
+            'notification_status' => [
+                'recorded_count' => $delivery->count(),
+                'provider_accepted_count' => $delivery->whereIn('push_status', ['provider_accepted', 'partial'])->count(),
+                'unconfirmed_count' => $delivery->whereNotIn('push_status', ['provider_accepted', 'partial'])->count(),
+            ],
             'recipient_count' => DB::table('support_alert_recipients')->where('alert_id', $a->id)->count()];
     }
     public function active(Request $r)

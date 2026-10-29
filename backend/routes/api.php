@@ -23,6 +23,7 @@ Route::middleware("throttle:auth")->group(function () {
 Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     require __DIR__ . "/community.php";
     Route::get("me", [AuthController::class, "me"]);
+    Route::put('me', [AuthController::class, 'account']);
     Route::get('admin/workspace/{module}', [\App\Http\Controllers\AdminWorkspaceController::class, 'index'])
         ->middleware('role:ADMIN,SUPER_ADMIN,CONTENT_ADMIN,COMMUNITY_MODERATOR');
     Route::middleware('role:PATIENT')->group(function () {
@@ -68,6 +69,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
         Route::get('knowledge/articles', [\App\Http\Controllers\KnowledgeArticleController::class, 'index']);
         Route::get('knowledge/articles/{id}', [\App\Http\Controllers\KnowledgeArticleController::class, 'show']);
         Route::post("activities/{id}/complete", [AiController::class, "complete"]);
+        Route::put('activities/{id}/reminder', [AiController::class, 'reminder']);
         Route::get("chat/sessions", [AiController::class, "sessions"]);
         Route::get("chat/sessions/{id}/messages", [AiController::class, "messages"]);
         Route::middleware("throttle:ai")->group(function () {
@@ -96,7 +98,12 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
         ])->middleware("throttle:ai");
     });
     Route::middleware("role:ADMIN,SUPER_ADMIN,CONTENT_ADMIN")->group(function () {
-        Route::post("admin/knowledge/ingest", [AdminController::class, "ingest"]);
+        Route::get('admin/knowledge/documents', [\App\Http\Controllers\KnowledgeManagementController::class, 'index']);
+        Route::post('admin/knowledge/documents', [\App\Http\Controllers\KnowledgeManagementController::class, 'save']);
+        Route::put('admin/knowledge/documents/{id}', [\App\Http\Controllers\KnowledgeManagementController::class, 'save']);
+        Route::post('admin/knowledge/documents/{id}/{action}', [\App\Http\Controllers\KnowledgeManagementController::class, 'transition']);
+        // Legacy callers now create a draft; publication requires independent review.
+        Route::post("admin/knowledge/ingest", [\App\Http\Controllers\KnowledgeManagementController::class, "save"]);
         Route::post("admin/activities", [AdminController::class, "activity"]);
         Route::put("admin/activities/{id}", [AdminController::class, "activity"]);
     });

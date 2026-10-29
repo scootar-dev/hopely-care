@@ -84,3 +84,12 @@ def test_empty_collection_abstains():
     result = asyncio.run(service.query(RagRequest(question="reference")))
     assert result.confidence == 0
     assert result.sources == []
+
+
+def test_withdrawn_source_is_not_retrievable():
+    service = make_service()
+    service.ingest_sync(request("Approved educational reference document."))
+    service.remove_sync("curated")
+    result = asyncio.run(service.query(RagRequest(question="reference")))
+    assert result.sources == []
+    assert result.confidence == 0

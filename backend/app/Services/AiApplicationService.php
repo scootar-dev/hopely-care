@@ -46,6 +46,7 @@ class AiApplicationService
                 "primary_emotion" => $out["primary_emotion"],
                 "emotion_scores" => $out["scores"],
                 "themes" => $out["themes"],
+                "reflection" => $out["reflection"] ?? null,
                 "generated_at" => now(),
                 "model_version" => $out["metadata"]["model_version"],
             ])->save();
@@ -158,7 +159,9 @@ class AiApplicationService
     public function recommended(string $id)
     {
         $before = $this->consents->fingerprint($id);
-        $activities = SupportActivity::where("active", true)->get();
+        $activities = SupportActivity::where("active", true)
+            ->where('medically_reviewed', true)
+            ->orderBy('id')->limit(30)->get();
         if ($activities->isEmpty()) {
             return [];
         }

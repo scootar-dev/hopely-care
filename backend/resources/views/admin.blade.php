@@ -19,7 +19,7 @@ const labels={activities:'Aktivitas kesehatan',knowledge:'Dokumen pengetahuan',c
 async function api(path,method='GET',body){const r=await fetch('/api/'+path,{method,headers:{Accept:'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok){if(r.status===401) signedOut();throw new Error(j.message||JSON.stringify(j.error||j.errors||j));}return j.data??j;}
 function notice(message,error=false){$('notice').textContent=message;$('notice').className=error?'error':'success';}
 function signedOut(){token=null;user=null;sessionStorage.removeItem('hopely.admin.token');$('workspace').classList.add('hidden');$('login').classList.remove('hidden');$('editor').close();}
-function modules(){if(['ADMIN','SUPER_ADMIN'].includes(user.role))return ['activities','knowledge','communities','reports',...(user.role==='ADMIN'?['moderation']:[]),'users','support-alerts','audit'];if(user.role==='CONTENT_ADMIN')return ['activities','knowledge'];if(user.role==='COMMUNITY_MODERATOR')return ['communities','reports'];return [];}
+function modules(){if(['ADMIN','SUPER_ADMIN'].includes(user.role))return ['activities','knowledge','communities','reports','moderation','users','support-alerts','audit'];if(user.role==='CONTENT_ADMIN')return ['activities','knowledge'];if(user.role==='COMMUNITY_MODERATOR')return ['communities','reports','moderation'];return [];}
 function signedIn(){const available=modules();if(!available.length){signedOut();return;}$('login').classList.add('hidden');$('workspace').classList.remove('hidden');$('identity').textContent=user.email+' · '+user.role;$('nav').replaceChildren();for(const key of available){const b=document.createElement('button');b.textContent=labels[key];b.onclick=()=>{module=key;page=1;search='';load();};b.dataset.module=key;$('nav').append(b);}module=available[0];load();}
 $('loginForm').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;$('loginError').classList.add('hidden');try{const data=await api('admin/auth/login','POST',Object.fromEntries(new FormData(e.target)));token=data.token;user=data.user;sessionStorage.setItem('hopely.admin.token',token);e.target.reset();signedIn();}catch(err){$('loginError').textContent=err.message;$('loginError').classList.remove('hidden');}finally{b.disabled=false;}};
 $('logout').onclick=async()=>{try{await api('auth/logout','POST',{});signedOut();}catch(e){notice(e.message,true);}};
@@ -69,6 +69,39 @@ load = async function() {
         $('previousCommunity').onclick=()=>{page--;load();};$('nextCommunity').onclick=()=>{page++;load();};
     } catch(e) { if(version===generation){$('content').textContent='Komunitas belum dapat dimuat.';notice(e.message,true);} }
 };
+knowledgeForm = async function() {
+    try {
+        const data = await api(`admin/knowledge/documents?page=${page}`);
+        if(module!=='knowledge') return;
+        $('content').innerHTML='<button id="newDocument">Tambah draf</button><div id="documents"></div><div class="toolbar"><button id="previousDocument">Sebelumnya</button><span id="documentPage"></span><button id="nextDocument">Berikutnya</button></div>';
+        $('documentPage').textContent=`Halaman ${page} / ${data.last_page}`;
+        $('previousDocument').disabled=page<=1;
+        $('nextDocument').disabled=page>=data.last_page;
+        $('previousDocument').onclick=()=>{page--;knowledgeForm();};
+        $('nextDocument').onclick=()=>{page++;knowledgeForm();};
+        $('newDocument').onclick=()=>editDocument();
+        for(const row of data.data) {
+            const card=document.createElement('section');card.className='card';
+            const title=document.createElement('h2');title.textContent=row.document.title;card.append(title);
+            const status=document.createElement('p');status.textContent=`Status: ${row.status} · revisi ${row.revision}`;card.append(status);
+            const body=document.createElement('pre');body.textContent=row.document.text;card.append(body);
+            if(row.status!=='published'){const edit=document.createElement('button');edit.textContent='Edit draf';edit.onclick=()=>editDocument(row);card.append(edit);}
+            const actions=row.status==='draft'?{review:'Setujui peninjauan'}:row.status==='reviewed'?{publish:'Terbitkan artikel'}:{index:'Indeks ke RAG',unpublish:'Tarik publikasi'};
+            for(const [action,label]of Object.entries(actions)) {
+                const button=document.createElement('button');button.textContent=label;
+                button.disabled=action==='review'&&row.author_id===user.id;
+                button.onclick=async()=>{if(!confirm(`${label}?`))return;button.disabled=true;try{await api(`admin/knowledge/documents/${row.id}/${action}`,'POST',{revision:row.revision});await knowledgeForm();notice('Perubahan dokumen tersimpan.');}catch(e){notice(e.message,true);button.disabled=false;}};
+                card.append(button);
+            }
+            $('documents').append(card);
+        }
+    } catch(e){notice(e.message,true);}
+};
+function editDocument(row=null) {
+    const d=row?.document??{};
+    dialog('Draf dokumen kesehatan',`<form id="documentForm">${field('source_id','ID sumber',d.source_id)}${field('title','Judul',d.title)}${field('publisher','Penerbit',d.publisher)}${field('source_url','URL sumber',d.source_url,'url',false)}${field('published_at','Tanggal sumber',d.published_at,'date',false)}${field('document_version','Versi',d.document_version??'1')}${field('text','Naskah',d.text,'textarea')}<p>Peninjau harus berbeda dari penulis terakhir. Artikel dapat diterbitkan sebelum indeks RAG tersedia.</p><button>Simpan draf</button><p id="documentError" class="error hidden"></p></form>`);
+    $('documentForm').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const value=Object.fromEntries(new FormData(e.target));for(const k of ['source_url','published_at'])if(!value[k])value[k]=null;if(row)value.revision=row.revision;await api('admin/knowledge/documents'+(row?'/'+row.id:''),row?'PUT':'POST',value);$('editor').close();await knowledgeForm();}catch(err){$('documentError').textContent=err.message;$('documentError').classList.remove('hidden');}finally{b.disabled=false;}};
+}
 if(token)api('me').then(d=>{user=d.user;signedIn();}).catch(()=>signedOut());
 </script>
 </body></html>

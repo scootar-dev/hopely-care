@@ -237,6 +237,25 @@ class _ActivityDetailState extends ConsumerState<ActivityDetail> {
             ),
           ),
           if (error != null) ErrorNotice(error!),
+          if (activityId != null && !completed)
+            OutlinedButton(
+              onPressed: busy ? null : () async {
+                final now = DateTime.now();
+                final day = await showDatePicker(context: context, firstDate: now, lastDate: now.add(const Duration(days: 365)), initialDate: now);
+                if (day == null || !context.mounted) return;
+                final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                if (time == null) return;
+                try {
+                  await ref.read(apiProvider).put('/activities/$activityId/reminder', {
+                    'remind_at': DateTime(day.year, day.month, day.day, time.hour, time.minute).toUtc().toIso8601String(),
+                  });
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jadwal pengingat disimpan. Push memerlukan izin perangkat.')));
+                } catch (e) {
+                  if (mounted) setState(() => error = e);
+                }
+              },
+              child: const Text('Jadwalkan pengingat aktivitas'),
+            ),
           if (activityId != null)
             FilledButton(
               onPressed: busy || completed ? null : complete,

@@ -89,7 +89,9 @@ class MockProvider:
     """Offline fixtures: deliberately not called a language model or clinical classifier."""
 
     async def structured(self, task: str, payload: dict, schema: type[T]) -> T:
-        if task == "emotion":
+        if task == "journal_reflection":
+            data = {"reflection": "Contoh refleksi demo, bukan analisis jurnal nyata. Apa yang ingin kamu pahami dari perasaanmu hari ini?"}
+        elif task == "emotion":
             data = {
                 "primary_emotion": "anxiety",
                 "scores": {

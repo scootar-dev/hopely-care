@@ -258,12 +258,12 @@ class CommunityTest extends TestCase
             "Obat mujarab ini dijamin sembuh total, minum 3 tablet sehari dan berhenti konsumsi kemoterapi."
         ))
             ->assertCreated()
-            ->assertJsonPath("data.moderation_status", "removed")
+            ->assertJsonPath("data.moderation_status", "flagged")
             ->json("data.id");
         Sanctum::actingAs($a);
         $this->getJson("/api/community/posts/$bad")
             ->assertOk()
-            ->assertJsonPath("data.moderation_status", "removed");
+            ->assertJsonPath("data.moderation_status", "flagged");
         Sanctum::actingAs($b);
         $this->getJson("/api/community/posts/$p")->assertOk();
         $this->getJson("/api/community/posts/$bad")->assertForbidden();

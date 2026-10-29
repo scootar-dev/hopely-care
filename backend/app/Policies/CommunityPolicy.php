@@ -27,7 +27,7 @@ class CommunityPolicy
     }
     public function moderate(User $user, Community $community): bool
     {
-        return $user->role === "ADMIN" ||
+        return in_array($user->role, ['ADMIN', 'SUPER_ADMIN', 'COMMUNITY_MODERATOR'], true) ||
             ($community->is_active &&
                 CommunityMember::where("community_id", $community->id)
                     ->where("user_id", $user->id)

@@ -34,6 +34,7 @@ from app.schemas.contracts import (
     TrendResponse,
 )
 from app.services.community import CommunityAI
+from pydantic import BaseModel, Field
 from app.services.engine import AIEngine
 
 settings = get_settings()
@@ -103,6 +104,15 @@ async def health():
 
 
 protect = [Depends(authenticate)]
+
+
+class RemoveKnowledgeRequest(BaseModel):
+    source_id: str = Field(min_length=1, max_length=100)
+
+
+@app.post('/v1/knowledge/remove', dependencies=protect)
+async def remove_knowledge(req: RemoveKnowledgeRequest):
+    return await asyncio.to_thread(rag.remove_sync, req.source_id)
 
 
 @app.post("/v1/ai/community/moderate", response_model=CommunityModerationResponse, dependencies=protect)

@@ -76,6 +76,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
             ),
             if (report!['metadata']['mode'] == 'mock')
               pw.Paragraph(text: 'DEMO OFFLINE - bukan hasil AI nyata'),
+            if (report!['metadata']['fallback'] == 'ai_narrative_unavailable')
+              pw.Paragraph(text: 'Pertanyaan AI tidak tersedia. Ringkasan hanya memuat statistik catatan pasien.'),
             for (final section in summarySections(report!)) ...[
               pw.Header(level: 1, text: section.$1),
               ...section.$2.map((line) => pw.Paragraph(text: line)),

@@ -136,17 +136,24 @@ class AIEngine:
                         "scale": "1–5; patient-reported",
                     }
                 )
-        narrative = await self.provider.structured(
-            "summary",
-            {
-                "recorded_days": trend.recorded_days,
-                "trends": trend.trends,
-                "symptom_patterns": patterns,
-                "instruction": "Suggest neutral questions to discuss the recorded observations with the care team. Do not introduce drugs, dosages, diagnosis or facts absent from records.",
-            },
-            SummaryNarrative,
-        )
-        await self.safety.checked(" ".join(narrative.questions_patient_may_want_to_discuss))
+        metadata = self.metadata("patient_reported_summary")
+        try:
+            narrative = await self.provider.structured(
+                "summary",
+                {
+                    "recorded_days": trend.recorded_days,
+                    "trends": trend.trends,
+                    "symptom_patterns": patterns,
+                    "instruction": "Suggest neutral questions to discuss the recorded observations with the care team. Do not introduce drugs, dosages, diagnosis or facts absent from records.",
+                },
+                SummaryNarrative,
+            )
+            await self.safety.checked(" ".join(narrative.questions_patient_may_want_to_discuss))
+        except ProviderError:
+            # Keep factual aggregates usable, but never present a fabricated AI narrative.
+            narrative = SummaryNarrative(questions_patient_may_want_to_discuss=[])
+            metadata.method = "patient_reported_statistics_only"
+            metadata.fallback = "ai_narrative_unavailable"
         return SummaryResponse(
             period=f"{start.isoformat()} / {ctx.as_of.isoformat()}",
             recorded_days=trend.recorded_days,
@@ -160,5 +167,5 @@ class AIEngine:
             ],
             questions_patient_may_want_to_discuss=narrative.questions_patient_may_want_to_discuss,
             disclaimer="This summary is generated from information reported by the patient and is not a medical diagnosis.",
-            metadata=self.metadata("patient_reported_summary"),
+            metadata=metadata,
         )

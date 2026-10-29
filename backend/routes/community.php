@@ -7,7 +7,7 @@ use App\Http\Controllers\{
 };
 
 // Included inside the existing Sanctum + API throttle group.
-Route::middleware("role:PATIENT,CAREGIVER,ADMIN")->group(function () {
+Route::middleware("role:PATIENT,CAREGIVER,ADMIN,SUPER_ADMIN,COMMUNITY_MODERATOR")->group(function () {
     Route::get("communities", [CommunityController::class, "index"]);
     Route::get("community/home", [CommunityController::class, "home"]);
     Route::get("community/my-communities", [CommunityController::class, "mine"]);

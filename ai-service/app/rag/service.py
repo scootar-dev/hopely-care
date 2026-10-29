@@ -123,6 +123,17 @@ class RAGService:
         )
         return result.points
 
+    def remove_sync(self, source_id: str):
+        if self.client.collection_exists(COLLECTION):
+            self.client.delete(
+                COLLECTION,
+                points_selector=models.FilterSelector(filter=models.Filter(must=[
+                    models.FieldCondition(key='source_id', match=models.MatchValue(value=source_id))
+                ])),
+                wait=True,
+            )
+        return {'source_id': source_id, 'removed': True}
+
     def abstain(self) -> RagResponse:
         return RagResponse(
             answer="Informasi dari sumber terkurasi belum cukup untuk menjawab pertanyaan ini. Bawa pertanyaan ini kepada tim perawatanmu.",

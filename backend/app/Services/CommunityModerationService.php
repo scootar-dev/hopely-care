@@ -4,9 +4,8 @@ namespace App\Services;
 class CommunityModerationService
 {
     /**
-     * Hard violations are auto-removed without waiting for a moderator, aligned
-     * with CommunityService::GUIDELINES. Patterns are conservative Indonesian
-     * phrases; uncertain content falls to flagged/pending for a human instead.
+     * Potential violations are hidden and queued for independent human review.
+     * Rules must not make a final decision about a sensitive personal story.
      */
     private const REMOVE_RULES = [
         "arahan medis berbahaya" => [
@@ -99,10 +98,10 @@ class CommunityModerationService
                 return ["moderation_status" => "approved", "moderation_meta" => $meta];
             }
             if ($status === "unsafe") {
-                // A strong model verdict removes violating content without waiting for a moderator.
+                // A model verdict hides the content pending a human decision.
                 if ($confidence !== null && $confidence >= 0.75) {
                     return [
-                        "moderation_status" => "removed",
+                        "moderation_status" => "flagged",
                         "moderation_meta" => [...$meta, "reason" => $result["reason"] ?? "melanggar pedoman"]
                     ];
                 }
@@ -131,7 +130,7 @@ class CommunityModerationService
         foreach (self::REMOVE_RULES as $reason => $patterns) {
             foreach ($patterns as $pattern) {
                 if (preg_match($pattern, $text)) {
-                    return ["moderation_status" => "removed", "moderation_meta" => [...$meta, "reason" => $reason]];
+                    return ["moderation_status" => "flagged", "moderation_meta" => [...$meta, "reason" => $reason]];
                 }
             }
         }

@@ -22,6 +22,7 @@ class AiController extends Controller
             "primary_emotion" => $reflection->primary_emotion,
             "emotion_scores" => $reflection->emotion_scores,
             "themes" => $reflection->themes,
+            "reflection" => $reflection->reflection,
             "generated_at" => $reflection->generated_at,
             "model_version" => $reflection->model_version,
         ] : [
@@ -65,6 +66,14 @@ class AiController extends Controller
     public function complete(Request $r)
     {
         return $this->ok($this->service->complete($r->user()->id, $r->route("id")));
+    }
+    public function reminder(Request $r, string $id)
+    {
+        $v = $r->validate(['remind_at' => 'required|date|after:now']);
+        $row = \App\Models\ActivityRecommendation::where('user_id', $r->user()->id)->findOrFail($id);
+        abort_if($row->completed_at, 409);
+        $row->forceFill(['remind_at' => \Carbon\Carbon::parse($v['remind_at'])->utc()])->save();
+        return $this->ok($row);
     }
     public function summary(Request $r)
     {

@@ -224,10 +224,11 @@ class _TreatmentDetailState extends ConsumerState<TreatmentDetailScreen> {
                   );
                   if (context.mounted) context.go('/treatment');
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text('$e')));
+                  }
                 }
               },
             ),
@@ -356,6 +357,8 @@ class _JournalReflectionState extends ConsumerState<JournalReflectionScreen> {
                       const SizedBox(height: 10),
                       Text('Tema: $themes'),
                     ],
+                    if ((reflection['reflection'] as String? ?? '').isNotEmpty)
+                      Text(reflection['reflection'] as String),
                     if (reflection['emotion_scores'] is Map)
                       for (final score
                           in (reflection['emotion_scores'] as Map).entries)

@@ -2,7 +2,8 @@ import asyncio
 
 from app.core.config import Settings
 from app.llm.provider import LLMProvider
-from app.schemas.contracts import EmotionResponse, EmotionResult, Metadata
+from app.schemas.contracts import EmotionResponse, EmotionResult, Metadata, JournalReflection
+from app.safety.service import SafetyService
 
 LABELS = ["fear", "sadness", "anxiety", "loneliness", "anger", "hope"]
 
@@ -30,12 +31,24 @@ class EmotionService:
         )
 
     async def analyze(self, text: str) -> EmotionResponse:
+        safety = SafetyService(self.provider, self.settings)
+        signal = await safety.assess(text)
+        if signal.level == "URGENT":
+            reflection = safety.support()
+        else:
+            narrative = await self.provider.structured(
+                "journal_reflection",
+                {"text": text, "instruction": "Reflect empathetically on this journal in Bahasa Indonesia. Acknowledge expressed feelings without diagnosis or invented facts. Offer one optional reflective question. Do not prescribe or repeat sensitive identifying details."},
+                JournalReflection,
+            )
+            reflection = await safety.checked(narrative.reflection)
         fallback = None
         if self.settings.emotion_model_name and not self.settings.mock_ai_mode:
             try:
                 result = await asyncio.to_thread(self._transformer, text)
                 return EmotionResponse(
                     **result.model_dump(),
+                    reflection=reflection,
                     metadata=Metadata(
                         mode="live",
                         model_version=self.settings.emotion_model_name,
@@ -56,6 +69,7 @@ class EmotionService:
         )
         return EmotionResponse(
             **result.model_dump(),
+            reflection=reflection,
             metadata=Metadata(
                 mode="mock" if self.settings.mock_ai_mode else "live",
                 model_version="mock-1.0" if self.settings.mock_ai_mode else self.settings.llm_model,

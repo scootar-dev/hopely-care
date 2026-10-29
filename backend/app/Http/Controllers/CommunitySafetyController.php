@@ -32,7 +32,7 @@ class CommunitySafetyController extends Controller
                     ]
                 ),
             "can_moderate" =>
-                $u->role === "ADMIN" || count($this->service->moderatorCommunityIds($u)) > 0
+                in_array($u->role, ['ADMIN', 'SUPER_ADMIN', 'COMMUNITY_MODERATOR'], true) || count($this->service->moderatorCommunityIds($u)) > 0
         ]);
     }
 
@@ -107,7 +107,8 @@ class CommunitySafetyController extends Controller
         $v = $r->validate(["kind" => "nullable|in:post,comment,report"]);
         $kind = $v["kind"] ?? "post";
         $ids = $this->service->moderatorCommunityIds($r->user());
-        abort_unless($r->user()->role === "ADMIN" || $ids, 403);
+        $staffModerator = in_array($r->user()->role, ['ADMIN', 'SUPER_ADMIN', 'COMMUNITY_MODERATOR'], true);
+        abort_unless($staffModerator || $ids, 403);
         $q = match ($kind) {
             "comment" => CommunityComment::whereHas("post")
                 ->with("post.community")
@@ -121,7 +122,7 @@ class CommunitySafetyController extends Controller
                 "flagged"
             ])
         };
-        if ($r->user()->role !== "ADMIN") {
+        if (!$staffModerator) {
             if ($kind === "comment") {
                 $q->whereHas(
                     "post.community",

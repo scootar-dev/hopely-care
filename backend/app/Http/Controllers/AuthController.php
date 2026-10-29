@@ -63,8 +63,20 @@ class AuthController extends Controller
             "onboarding_completed" => "sometimes|boolean"
         ]);
         $p = PatientProfile::where("user_id", $r->user()->id)->firstOrFail();
-        $p->fill($v)->save();
+        DB::transaction(function () use ($p, $v, $r) {
+            $p->fill($v)->save();
+            $r->user()->forceFill(['name' => $v['display_name']])->save();
+        });
         return $this->ok($p);
+    }
+    public function account(Request $r)
+    {
+        $v = $r->validate(['name' => 'required|string|max:100']);
+        DB::transaction(function () use ($r, $v) {
+            $r->user()->forceFill($v)->save();
+            PatientProfile::where('user_id', $r->user()->id)->update(['display_name' => $v['name']]);
+        });
+        return $this->ok(['user' => $r->user()]);
     }
     public function logout(Request $r)
     {

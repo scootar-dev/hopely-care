@@ -26,6 +26,9 @@ class SupportAlertTest extends TestCase
         Sanctum::actingAs($p);
         $id=$this->postJson('/api/support-alerts')->assertCreated()->assertJsonPath('data.recipient_count',2)->json('data.id');
         $this->assertDatabaseCount('notifications',2);
+        $this->getJson('/api/support-alerts/active')
+            ->assertJsonPath('data.alerts.0.notification_status.provider_accepted_count', 0)
+            ->assertJsonPath('data.alerts.0.notification_status.unconfirmed_count', 2);
         $this->postJson('/api/support-alerts')->assertJsonPath('data.id',$id);
         Sanctum::actingAs($a);
         $this->postJson("/api/support-alerts/$id/acknowledge")->assertOk()->assertJsonPath('data.status','ACKNOWLEDGED');

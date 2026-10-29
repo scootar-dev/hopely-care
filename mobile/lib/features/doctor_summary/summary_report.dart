@@ -115,6 +115,8 @@ class SummaryReport extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       MockNotice(report['metadata']),
+      if (report['metadata']?['fallback'] == 'ai_narrative_unavailable')
+        const Text('AI belum dapat menyusun pertanyaan. Ringkasan ini hanya berisi statistik catatanmu.'),
       for (final section in summarySections(report))
         CareCard(
           child: Column(

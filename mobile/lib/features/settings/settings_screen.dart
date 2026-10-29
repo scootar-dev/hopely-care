@@ -296,6 +296,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
         const _SettingsSectionLabel('DATA & AKUN'),
+        CareCard(
+          child: TextButton(
+            onPressed: () async {
+              final controller = TextEditingController(text: s.user?['name']?.toString() ?? '');
+              final name = await showDialog<String>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('Ubah nama akun'),
+                  content: TextField(controller: controller, maxLength: 100),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Batal')),
+                    FilledButton(onPressed: () {
+                      if (controller.text.trim().isNotEmpty) Navigator.pop(dialogContext, controller.text.trim());
+                    }, child: const Text('Simpan')),
+                  ],
+                ),
+              );
+              if (name == null) return;
+              try {
+                await ref.read(apiProvider).put('/me', {'name': name});
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama akun disimpan. Buka ulang profil untuk memuat perubahan.')));
+              } catch (_) {
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama belum tersimpan. Coba lagi.')));
+              }
+            },
+            child: const Text('Ubah nama akun'),
+          ),
+        ),
         const CareCard(
           child: ActionLink(
             'Support Circle • Komunitas',

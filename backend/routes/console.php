@@ -6,6 +6,12 @@ Artisan::command("hopely:reminders", function () {
     $n = app(NotificationService::class);
     $c = app(ConsentService::class);
     $now = now();
+    foreach (\App\Models\ActivityRecommendation::whereNull('completed_at')
+        ->whereBetween('remind_at', [$now->copy()->subDay(), $now])->get() as $activity) {
+        if ($c->active($activity->user_id, 'HEALTH_DATA_PROCESSING')) {
+            $n->send($activity->user_id, 'activity_reminder', 'activity:'.$activity->id.':'.$activity->remind_at);
+        }
+    }
     foreach (
         Treatment::where("status", "scheduled")
             ->whereBetween("scheduled_at", [$now->copy()->subDay(), $now->copy()->addDay()])
@@ -38,6 +44,10 @@ Artisan::command("hopely:reminders", function () {
     }
 });
 Schedule::command("hopely:reminders")->everyMinute()->withoutOverlapping();
+Artisan::command('hopely:retry-notifications', function () {
+    app(NotificationService::class)->retryPending();
+});
+Schedule::command('hopely:retry-notifications')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command("sanctum:prune-expired --hours=24")->daily();
 
 Artisan::command("hopely:create-admin", function () {
