@@ -4,6 +4,7 @@ import hmac
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from app.core.body_limit import BodySizeLimit
 from app.core.config import get_settings
@@ -34,7 +35,6 @@ from app.schemas.contracts import (
     TrendResponse,
 )
 from app.services.community import CommunityAI
-from pydantic import BaseModel, Field
 from app.services.engine import AIEngine
 
 settings = get_settings()

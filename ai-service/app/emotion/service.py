@@ -2,8 +2,8 @@ import asyncio
 
 from app.core.config import Settings
 from app.llm.provider import LLMProvider
-from app.schemas.contracts import EmotionResponse, EmotionResult, Metadata, JournalReflection
 from app.safety.service import SafetyService
+from app.schemas.contracts import EmotionResponse, EmotionResult, JournalReflection, Metadata
 
 LABELS = ["fear", "sadness", "anxiety", "loneliness", "anger", "hope"]
 
