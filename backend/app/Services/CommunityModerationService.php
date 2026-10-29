@@ -86,6 +86,9 @@ class CommunityModerationService
             $confidence =
                 is_numeric($result["confidence"] ?? null) ? (float) $result["confidence"] : null;
             $meta = ["mode" => $mode, "image_review_required" => $hasImage];
+            if ($mode === "manual_review") {
+                return ["moderation_status" => "pending", "moderation_meta" => $meta];
+            }
             // Only validated live text moderation may auto-publish. Images always require a human.
             if (
                 $status === "safe" &&

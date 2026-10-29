@@ -240,6 +240,21 @@ class CommunityTest extends TestCase
             ->assertJsonCount(0, "data.items");
     }
 
+    public function test_manual_review_results_do_not_auto_publish(): void
+    {
+        Http::swap(new \Illuminate\Http\Client\Factory());
+        Http::fake(["*" => Http::response([
+            "status" => "review", "mode" => "manual_review", "confidence" => 0.0, "categories" => []
+        ])]);
+        $service = app(\App\Services\CommunityModerationService::class);
+        foreach (["post", "comment"] as $type) {
+            $result = $service->assess($type, "Hari ini aku merasa lebih tenang.");
+            $this->assertSame("pending", $result["moderation_status"]);
+            $this->assertSame("manual_review", $result["moderation_meta"]["mode"]);
+        }
+        Http::assertSentCount(2);
+    }
+
     public function test_offline_rules_fallback_publishes_clean_and_enforces_violations(): void
     {
         $c = $this->community();
