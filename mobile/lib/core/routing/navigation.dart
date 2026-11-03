@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 const patientTabPaths = [
   '/home',
   '/treatment',
+  '/quick-help',
   '/community',
-  '/insights',
-  '/profile',
+  '/tools',
 ];
 
 /// Select a main tab with one shell, including from a detail page above it.

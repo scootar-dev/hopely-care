@@ -39,4 +39,28 @@ class KnowledgeWorkflowTest extends TestCase
         $this->assertDatabaseHas('knowledge_documents', ['id' => $row['id'], 'status' => 'published', 'revision' => 3]);
         $this->postJson($path.'/unpublish', ['revision' => 3])->assertOk()->assertJsonPath('data.status', 'draft');
     }
+    public function test_import_legacy_articles_is_idempotent_and_requires_distinct_reviewer(): void
+    {
+        $author = $this->staff('legacy-author');
+        $prior = $this->staff('legacy-prior');
+        $disk = \Illuminate\Support\Facades\Storage::fake('local');
+        $disk->put('knowledge-articles/'.hash('sha256', 'legacy-a').'.json', json_encode([
+            'source_id' => 'legacy-a', 'title' => 'Legacy reviewed piece', 'publisher' => 'Old Source',
+            'document_version' => '1.0', 'text' => 'Synthetic clinical education text.', 'reviewed' => true,
+        ]));
+        $disk->put('knowledge-articles/'.hash('sha256', 'legacy-b').'.json', json_encode([
+            'source_id' => 'legacy-b', 'title' => 'Legacy draft piece', 'publisher' => 'Old Source',
+            'document_version' => '1.0', 'text' => 'Synthetic draft education text.', 'reviewed' => false,
+        ]));
+        $disk->put('knowledge-articles/'.hash('sha256', 'broken').'.json', json_encode(['title' => 'Incomplete']));
+        $this->artisan('knowledge:migrate-legacy', ['--author-email' => $author->email])->assertExitCode(0);
+        $this->assertDatabaseHas('knowledge_documents', [
+            'source_id' => 'legacy-a', 'status' => 'reviewed', 'author_id' => $author->id, 'reviewer_id' => $prior->id,
+        ]);
+        $this->assertDatabaseHas('knowledge_documents', [
+            'source_id' => 'legacy-b', 'status' => 'draft', 'reviewer_id' => null,
+        ]);
+        $this->artisan('knowledge:migrate-legacy', ['--author-email' => $author->email])->assertExitCode(0);
+        $this->assertSame(2, \App\Models\KnowledgeDocument::count());
+    }
 }

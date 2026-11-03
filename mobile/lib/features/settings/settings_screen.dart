@@ -122,12 +122,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     setState(() => busy = true);
     try {
       final api = ref.read(apiProvider), session = ref.read(sessionProvider);
-      final device =
-          session.deviceId ??
-          await session.storage.read(key: 'hopely.device_id');
-      if (device != null) {
-        await api.delete('/devices/$device');
-      }
+      await PushService.unregister(api);
       await api.post('/auth/logout');
       await session.storage.delete(key: 'hopely.device_id');
       await session.clear();
@@ -299,26 +294,53 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         CareCard(
           child: TextButton(
             onPressed: () async {
-              final controller = TextEditingController(text: s.user?['name']?.toString() ?? '');
+              final controller = TextEditingController(
+                text: s.user?['name']?.toString() ?? '',
+              );
               final name = await showDialog<String>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
                   title: const Text('Ubah nama akun'),
                   content: TextField(controller: controller, maxLength: 100),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Batal')),
-                    FilledButton(onPressed: () {
-                      if (controller.text.trim().isNotEmpty) Navigator.pop(dialogContext, controller.text.trim());
-                    }, child: const Text('Simpan')),
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Batal'),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        if (controller.text.trim().isNotEmpty) {
+                          Navigator.pop(dialogContext, controller.text.trim());
+                        }
+                      },
+                      child: const Text('Simpan'),
+                    ),
                   ],
                 ),
               );
               if (name == null) return;
               try {
-                await ref.read(apiProvider).put('/me', {'name': name});
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama akun disimpan. Buka ulang profil untuk memuat perubahan.')));
+                final session = ref.read(sessionProvider);
+                final identity = session.token;
+                final result = await ref.read(apiProvider).put('/me', {
+                  'name': name,
+                });
+                if (identity == session.token) {
+                  session.updateAccount(result['user'] as Json);
+                }
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nama akun disimpan.')),
+                  );
+                }
               } catch (_) {
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama belum tersimpan. Coba lagi.')));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nama belum tersimpan. Coba lagi.'),
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Ubah nama akun'),
@@ -496,68 +518,84 @@ class NotificationsScreen extends ConsumerWidget {
         ),
       ],
     ),
-    body: DataPage(
-      load: () => ref.read(apiProvider).get('/notifications'),
-      builder: (data, reload) {
-        final rows = items(data);
-        return PageBody(
-          children: [
-            if (rows.isEmpty)
-              const CareCard(child: Text('Belum ada pengingat baru.')),
-            for (final n in rows)
-              CareCard(
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(n['title']),
-                  subtitle: Text(n['body']),
-                  leading: Icon(
-                    n['read_at'] == null
-                        ? Icons.notifications_active_outlined
-                        : Icons.done,
+    body: ValueListenableBuilder<int>(
+      valueListenable: PushService.changes,
+      builder: (context, version, _) => DataPage(
+        key: ValueKey(version),
+        load: () => ref.read(apiProvider).get('/notifications'),
+        builder: (data, reload) {
+          final rows = items(data);
+          return PageBody(
+            children: [
+              if (rows.isEmpty)
+                const CareCard(child: Text('Belum ada pengingat baru.')),
+              for (final n in rows)
+                CareCard(
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(n['title']),
+                    subtitle: Text(n['body']),
+                    leading: Icon(
+                      n['read_at'] == null
+                          ? Icons.notifications_active_outlined
+                          : Icons.done,
+                    ),
+                    onTap: () async {
+                      if ((n['notification_type'] as String).startsWith(
+                            'emergency_support',
+                          ) &&
+                          ref.read(sessionProvider).caregiver) {
+                        final api = ref.read(apiProvider);
+                        final identity = api.session.token;
+                        try {
+                          if (n['read_at'] == null) {
+                            await api.put('/notifications/${n['id']}/read', {});
+                          }
+                        } catch (_) {
+                          // A read receipt failure must not block access to help.
+                        }
+                        if (context.mounted && identity == api.session.token) {
+                          context.push('/caregiver/sos/${n['id']}');
+                          PushService.changes.value++;
+                        }
+                        return;
+                      }
+                      if (n['notification_type'] == 'support_alert' &&
+                          ref.read(sessionProvider).caregiver) {
+                        await context.push('/caregiver/alerts/${n['id']}');
+                        reload();
+                        return;
+                      }
+                      try {
+                        await ref
+                            .read(apiProvider)
+                            .put('/notifications/${n['id']}/read', {});
+                        if (context.mounted &&
+                            (n['notification_type'] as String).startsWith(
+                              'community_',
+                            )) {
+                          await context.push(
+                            n['notification_type'] == 'community_report_update'
+                                ? '/community/safety'
+                                : '/community/feed?mine=1',
+                          );
+                        }
+                        if (!context.mounted) return;
+                        reload();
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(friendlyError(e))),
+                          );
+                        }
+                      }
+                    },
                   ),
-                  onTap: () async {
-                    if ((n['notification_type'] as String).startsWith(
-                          'emergency_support',
-                        ) &&
-                        ref.read(sessionProvider).caregiver) {
-                      context.go('/caregiver');
-                      return;
-                    }
-                    if (n['notification_type'] == 'support_alert' &&
-                        ref.read(sessionProvider).caregiver) {
-                      await context.push('/caregiver/alerts/${n['id']}');
-                      reload();
-                      return;
-                    }
-                    try {
-                      await ref
-                          .read(apiProvider)
-                          .put('/notifications/${n['id']}/read', {});
-                      if (context.mounted &&
-                          (n['notification_type'] as String).startsWith(
-                            'community_',
-                          )) {
-                        await context.push(
-                          n['notification_type'] == 'community_report_update'
-                              ? '/community/safety'
-                              : '/community/feed?mine=1',
-                        );
-                      }
-                      if (!context.mounted) return;
-                      reload();
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(friendlyError(e))),
-                        );
-                      }
-                    }
-                  },
                 ),
-              ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     ),
   );
 }

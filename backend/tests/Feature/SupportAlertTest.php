@@ -67,4 +67,39 @@ class SupportAlertTest extends TestCase
         $this->postJson('/api/support-alerts')->assertUnprocessable();
         $this->assertDatabaseCount('support_alerts',0);
     }
+    public function test_notification_detail_is_owner_scoped_and_rechecks_revocation(): void
+    {
+        $p = $this->user('PATIENT'); $c = $this->user('CAREGIVER');
+        $link = $this->link($p, $c);
+        Sanctum::actingAs($p);
+        $id = $this->postJson('/api/support-alerts')->assertCreated()->json('data.id');
+        $n = \App\Models\CareNotification::where('user_id', $c->id)->firstOrFail();
+        $this->getJson('/api/notifications/'.$n->id)->assertNotFound();
+        Sanctum::actingAs($c);
+        $this->getJson('/api/notifications/'.$n->id)->assertOk()->assertJsonMissingPath('data.dedupe_key');
+        $this->putJson('/api/notifications/'.$n->id.'/read')->assertOk();
+        $this->getJson('/api/notification-count')->assertOk()->assertJsonPath('data.unread_count', 0);
+        $this->getJson('/api/caregiver/support-alerts/notification/'.$n->id)->assertOk()->assertJsonPath('data.id', $id);
+        $this->postJson('/api/support-alerts/'.$id.'/resolve')->assertOk();
+        $this->postJson('/api/support-alerts/'.$id.'/resolve')->assertConflict();
+        $this->getJson('/api/caregiver/support-alerts/notification/'.$n->id)->assertJsonPath('data.status', 'RESOLVED');
+        $link->update(['invitation_status' => 'revoked']);
+        $this->getJson('/api/caregiver/support-alerts/notification/'.$n->id)->assertForbidden();
+    }
+    public function test_devices_deduplicate_transfer_and_delete_only_for_owner(): void
+    {
+        $a = $this->user('CAREGIVER'); $b = $this->user('CAREGIVER');
+        Sanctum::actingAs($a);
+        $payload = ['token' => 'synthetic-fcm-token', 'platform' => 'android'];
+        $id = $this->postJson('/api/devices', $payload)->assertOk()->json('data.id');
+        $this->postJson('/api/devices', $payload)->assertJsonPath('data.id', $id);
+        $this->assertDatabaseCount('device_tokens', 1);
+        Sanctum::actingAs($b);
+        $this->deleteJson('/api/devices/'.$id)->assertOk();
+        $this->assertDatabaseCount('device_tokens', 1);
+        $this->postJson('/api/devices', $payload)->assertOk();
+        $this->assertDatabaseHas('device_tokens', ['id' => $id, 'user_id' => $b->id]);
+        $this->deleteJson('/api/devices/'.$id)->assertOk();
+        $this->assertDatabaseCount('device_tokens', 0);
+    }
 }

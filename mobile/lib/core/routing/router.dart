@@ -28,6 +28,7 @@ import '../../features/caregiver/caregiver_screen.dart';
 import '../../features/knowledge/knowledge_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../widgets/account_action.dart';
+import 'navigation.dart';
 import '../../features/community/presentation/community_home.dart';
 import '../../features/community/presentation/community_detail.dart';
 import '../../features/community/presentation/community_compose.dart';
@@ -94,14 +95,21 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/onboarding',
             builder: (_, s) => const OnboardingScreen(),
           ),
-          GoRoute(path: '/tools', builder: (_, s) => const ToolsScreen()),
-          GoRoute(
-            path: '/quick-help',
-            builder: (_, s) => const QuickHelpScreen(),
-          ),
+          GoRoute(path: '/insights', builder: (_, s) => const InsightsScreen()),
+          GoRoute(path: '/profile', builder: (_, s) => const SettingsScreen()),
           GoRoute(
             path: '/caregiver/connect',
             builder: (_, s) => const CaregiverConnectScreen(),
+          ),
+          GoRoute(
+            path: '/caregiver/sos/:id',
+            builder: (_, s) => Scaffold(
+              appBar: AppBar(title: const Text('Bantuan Cepat')),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: QuickHelpPanel(caregiver: true, notificationId: s.pathParameters['id']),
+              ),
+            ),
           ),
           GoRoute(
             path: '/caregiver/alerts/:id',
@@ -355,13 +363,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, s) => const CommunityHomeScreen(),
               ),
               GoRoute(
-                path: '/insights',
-                builder: (_, s) => const InsightsScreen(),
+                path: '/quick-help',
+                builder: (_, s) => const QuickHelpScreen(),
               ),
-              GoRoute(
-                path: '/profile',
-                builder: (_, s) => const SettingsScreen(),
-              ),
+              GoRoute(path: '/tools', builder: (_, s) => const ToolsScreen()),
             ],
           ),
         ],
@@ -388,7 +393,7 @@ class AppShell extends ConsumerWidget {
     };
     return Scaffold(
       backgroundColor: canvas,
-      appBar: path == '/community'
+      appBar: const ['/community', '/quick-help', '/tools'].contains(path)
           ? null
           : AppBar(
               toolbarHeight: 64,
@@ -426,7 +431,7 @@ class AppShell extends ConsumerWidget {
               ),
               actions: [
                 IconButton(
-                  onPressed: () => context.push('/quick-help'),
+                  onPressed: () => context.go('/quick-help'),
                   icon: const Icon(Icons.support_agent_outlined),
                   tooltip: 'Bantuan cepat',
                 ),
@@ -442,29 +447,22 @@ class AppShell extends ConsumerWidget {
                   ),
               ],
             ),
-      body: SafeArea(top: false, child: child),
-      bottomNavigationBar: caregiver || MediaQuery.sizeOf(context).width >= 1024
+      body: SafeArea(top: false, bottom: false, child: child),
+      bottomNavigationBar: caregiver
           ? null
           : NavigationBar(
-              height: 68,
+              height: 80,
               backgroundColor: Colors.white,
               indicatorColor: skySoft,
               selectedIndex: switch (path) {
                 '/treatment' => 1,
-                '/community' => 2,
-                '/insights' => 3,
-                '/profile' => 4,
+                '/quick-help' => 2,
+                '/community' => 3,
+                '/tools' => 4,
                 _ => 0,
               },
-              onDestinationSelected: (index) => context.go(
-                const [
-                  '/home',
-                  '/treatment',
-                  '/community',
-                  '/insights',
-                  '/profile',
-                ][index],
-              ),
+              onDestinationSelected: (index) =>
+                  context.go(patientTabPaths[index]),
               destinations: const [
                 NavigationDestination(
                   icon: Icon(Icons.home_outlined),
@@ -477,22 +475,72 @@ class AppShell extends ConsumerWidget {
                   label: 'Perjalanan',
                 ),
                 NavigationDestination(
+                  icon: HelpNavigationIcon(),
+                  label: 'Bantuan',
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.groups_outlined),
                   selectedIcon: Icon(Icons.groups),
                   label: 'Komunitas',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.insights_outlined),
-                  selectedIcon: Icon(Icons.insights),
-                  label: 'Insight',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.account_circle_outlined),
-                  selectedIcon: Icon(Icons.account_circle),
-                  label: 'Profil',
+                  icon: Icon(Icons.health_and_safety_outlined),
+                  selectedIcon: Icon(Icons.health_and_safety),
+                  label: 'Tools',
                 ),
               ],
             ),
     );
   }
+}
+
+class HelpNavigationIcon extends StatelessWidget {
+  const HelpNavigationIcon({super.key});
+  @override
+  Widget build(BuildContext context) => Transform.translate(
+    offset: const Offset(0, -8),
+    child: Container(
+      width: 52,
+      height: 52,
+      decoration: const BoxDecoration(
+        color: hopelyBlue,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x26003591),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Center(
+        child: CustomPaint(size: Size(30, 30), painter: _SirenPainter()),
+      ),
+    ),
+  );
+}
+
+class _SirenPainter extends CustomPainter {
+  const _SirenPainter();
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(7, 10, 16, 15),
+        const Radius.circular(7),
+      ),
+      paint,
+    );
+    canvas.drawLine(const Offset(5, 26), const Offset(25, 26), paint);
+    canvas.drawLine(const Offset(15, 2), const Offset(15, 5), paint);
+    canvas.drawLine(const Offset(3, 6), const Offset(6, 9), paint);
+    canvas.drawLine(const Offset(27, 6), const Offset(24, 9), paint);
+  }
+
+  @override
+  bool shouldRepaint(_SirenPainter oldDelegate) => false;
 }

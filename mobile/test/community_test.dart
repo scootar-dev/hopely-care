@@ -280,7 +280,7 @@ void main() {
     await tapVisible(tester, find.text('Masuk Komunitas'));
     expect(find.byType(CommunityHomeScreen), findsOneWidget);
     expect(api.reads, contains('/community/home'));
-    container.read(routerProvider).pop();
+    container.read(routerProvider).go('/home');
     await tester.pumpAndSettle();
     expect(find.byType(AppShell, skipOffstage: false), findsOneWidget);
   });

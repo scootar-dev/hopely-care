@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,6 +59,25 @@ Future<ProviderContainer> openApp(
 }
 
 Future<void> tapLabel(WidgetTester tester, String label) async {
+  if ([
+    'Undang Kerabat Tepercaya',
+    'Tulis Jurnal Pribadi',
+    'Ringkasan Dokter',
+  ].contains(label)) {
+    await tester.scrollUntilVisible(
+      find.byType(HomeFeatureCards),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.scrollUntilVisible(
+      find.text(label),
+      160,
+      scrollable: find.descendant(
+        of: find.byType(HomeFeatureCards),
+        matching: find.byType(Scrollable),
+      ),
+    );
+  }
   final target = find.text(label);
   await tester.scrollUntilVisible(
     target,
@@ -73,6 +93,7 @@ Future<void> tapLabel(WidgetTester tester, String label) async {
 }
 
 void main() {
+  FlutterSecureStorage.setMockInitialValues({});
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await (FontLoader(
@@ -100,6 +121,46 @@ void main() {
     },
   );
 
+  testWidgets(
+    'five patient tabs keep help accessible without sending an alert',
+    (tester) async {
+      final container = await openApp(tester);
+      final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
+      expect(
+        bar.destinations.cast<NavigationDestination>().map((d) => d.label),
+        ['Beranda', 'Perjalanan', 'Bantuan', 'Komunitas', 'Tools'],
+      );
+      for (final label in [
+        'Perjalanan',
+        'Bantuan',
+        'Komunitas',
+        'Tools',
+        'Beranda',
+      ]) {
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text(label),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(NavigationBar), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        if (label == 'Bantuan') {
+          expect(find.text('Butuh bantuan sekarang?'), findsOneWidget);
+          expect((container.read(apiProvider) as FixtureApi).writes, isEmpty);
+        }
+      }
+    },
+  );
+
+  testWidgets('horizontal home cards open doctor summary', (tester) async {
+    await openApp(tester);
+    await tapLabel(tester, 'Ringkasan Dokter');
+    expect(find.byType(HomeScreen), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final origin in ['home', 'profile']) {
     testWidgets('invite from $origin creates a private invitation code', (
       tester,
@@ -112,7 +173,7 @@ void main() {
       await tapLabel(
         tester,
         origin == 'home'
-            ? 'Undang kerabat tepercaya'
+            ? 'Undang Kerabat Tepercaya'
             : 'Undang & kelola kerabat',
       );
       expect(find.text('Undang Kerabat'), findsOneWidget);
@@ -141,7 +202,8 @@ void main() {
     tester,
   ) async {
     final container = await openApp(tester);
-    await tapLabel(tester, 'Jelajahi Tools Kesehatan');
+    await tester.tap(find.text('Tools'));
+    await tester.pumpAndSettle();
     await tapLabel(tester, 'Jadwal Perawatan');
     expect(
       container.read(routerProvider).routeInformationProvider.value.uri.path,
@@ -167,22 +229,23 @@ void main() {
     await tapLabel(tester, 'Simpan Ringkasan');
     await tapLabel(tester, 'Lihat pola catatanku');
     expect(
-      container.read(routerProvider).routeInformationProvider.value.uri.path,
+      container
+          .read(routerProvider)
+          .routerDelegate
+          .currentConfiguration
+          .last
+          .matchedLocation,
       '/insights',
     );
     expect(find.byType(AppShell, skipOffstage: false), findsOneWidget);
-    expect(container.read(routerProvider).canPop(), false);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      3,
-    );
+    expect(container.read(routerProvider).canPop(), true);
   });
 
   testWidgets('journal editor privacy round trip preserves navigation', (
     tester,
   ) async {
     final container = await openApp(tester);
-    await tapLabel(tester, 'Tulis jurnal pribadi');
+    await tapLabel(tester, 'Tulis Jurnal Pribadi');
     await tester.tap(find.text('Tulis Jurnal Baru'));
     await tester.pumpAndSettle();
     await tapLabel(tester, 'Aktifkan izin analisis di Privasi');

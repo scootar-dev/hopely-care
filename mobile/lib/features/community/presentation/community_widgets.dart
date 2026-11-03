@@ -165,7 +165,12 @@ class CommunityBody extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 620),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          12,
+          16,
+          24 + MediaQuery.paddingOf(context).bottom,
+        ),
         physics: const AlwaysScrollableScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: children,

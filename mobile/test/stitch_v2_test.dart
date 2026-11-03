@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -213,6 +214,7 @@ Future<void> savePreview(
 }
 
 void main() {
+  FlutterSecureStorage.setMockInitialValues({});
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     // Use the shipped typeface and icons instead of the test-only Ahem font,

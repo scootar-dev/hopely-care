@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api/api.dart';
+import '../../core/notifications/push_service.dart';
 
 const _emergencyRed = Color(0xFFB42332);
 
@@ -19,8 +21,13 @@ class QuickHelpScreen extends StatelessWidget {
 }
 
 class QuickHelpPanel extends ConsumerStatefulWidget {
-  const QuickHelpPanel({super.key, this.caregiver = false});
+  const QuickHelpPanel({
+    super.key,
+    this.caregiver = false,
+    this.notificationId,
+  });
   final bool caregiver;
+  final String? notificationId;
   @override
   ConsumerState<QuickHelpPanel> createState() => _QuickHelpPanelState();
 }
@@ -32,10 +39,17 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
   bool _loading = true, _busy = false, _fetching = false;
   String? _error;
   bool _sendFailed = false;
+  int _generation = 0;
+  String? _result;
+  void _pushChanged() {
+    if (!_busy) _load();
+  }
+
   @override
   void initState() {
     super.initState();
     _load();
+    PushService.changes.addListener(_pushChanged);
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!_busy) _load();
     });
@@ -43,6 +57,8 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
 
   @override
   void dispose() {
+    _generation++;
+    PushService.changes.removeListener(_pushChanged);
     _timer?.cancel();
     super.dispose();
   }
@@ -50,17 +66,25 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
   Future<void> _load() async {
     if (_fetching) return;
     _fetching = true;
+    final request = ++_generation;
+    final token = ref.read(sessionProvider).token;
     try {
       final data = await ref
           .read(apiProvider)
           .get(
-            widget.caregiver
+            widget.notificationId != null
+                ? '/caregiver/support-alerts/notification/${widget.notificationId}'
+                : widget.caregiver
                 ? '/caregiver/support-alerts'
                 : '/support-alerts/active',
           );
-      if (mounted) {
+      if (mounted &&
+          request == _generation &&
+          token == ref.read(sessionProvider).token) {
         setState(() {
-          _alerts = (data['alerts'] as List).cast<Json>();
+          _alerts = widget.notificationId != null
+              ? [data as Json]
+              : (data['alerts'] as List).cast<Json>();
           _eligible = data['eligible_count'] as int? ?? 0;
           _loading = false;
           if (!_sendFailed) {
@@ -68,15 +92,19 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
           }
         });
       }
-    } catch (_) {
-      if (mounted) {
+    } catch (e) {
+      if (mounted && request == _generation) {
         setState(() {
           _loading = false;
-          _error = 'Status bantuan belum dapat diperbarui. Periksa koneksimu.';
+          _alerts = [];
+          _error =
+              e is DioException && [401, 403].contains(e.response?.statusCode)
+              ? 'Akses bantuan ditolak. Periksa sesi dan izin pendamping.'
+              : 'Status bantuan belum dapat diperbarui. Periksa koneksimu.';
         });
       }
     } finally {
-      _fetching = false;
+      if (request == _generation) _fetching = false;
     }
   }
 
@@ -85,6 +113,29 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
     bool send = false,
     bool cancel = false,
   }) async {
+    if (_busy) return;
+    if (widget.caregiver && path.endsWith('/resolve')) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Selesaikan permintaan bantuan?'),
+          content: const Text(
+            'Permintaan akan ditandai selesai. Pastikan kebutuhan bantuan sudah ditangani.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Selesaikan'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || confirmed != true || _busy) return;
+    }
     if (send || cancel) {
       final confirmed = await showDialog<bool>(
         context: context,
@@ -113,8 +164,11 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
       if (confirmed != true || !mounted) return;
     }
     setState(() {
+      _generation++;
+      _fetching = false;
       _busy = true;
       _error = null;
+      _result = null;
     });
     try {
       final result = await ref.read(apiProvider).post(path, {});
@@ -122,6 +176,16 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
       setState(() {
         _sendFailed = false;
         if (send) _alerts = [result as Json];
+        if (!send && result is Map) {
+          if (result['status'] == 'ACKNOWLEDGED') {
+            _result = 'Permintaan telah kamu tanggapi.';
+          }
+          if (result['status'] == 'RESOLVED') {
+            _result = cancel
+                ? 'Permintaan bantuan dibatalkan.'
+                : 'Permintaan bantuan selesai.';
+          }
+        }
       });
       await _load();
     } catch (_) {
@@ -152,6 +216,20 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_result != null) Semantics(liveRegion: true, child: Text(_result!)),
+        if (widget.caregiver && _alerts.isEmpty && _error == null)
+          const Text('Tidak ada permintaan Bantuan Cepat aktif.'),
+        if (!widget.caregiver) ...[
+          Text(
+            'Butuh bantuan sekarang?',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Kirim permintaan bantuan kepada pendamping yang terhubung melalui Care Circle dan memiliki izin menerima alert.',
+          ),
+          const SizedBox(height: 16),
+        ],
         const Text(
           'Untuk keadaan medis darurat, segera hubungi layanan kegawatdaruratan setempat atau fasilitas kesehatan terdekat. Jangan menunggu tanggapan aplikasi.',
         ),
@@ -172,14 +250,6 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
         if (_busy)
           const LinearProgressIndicator(semanticsLabel: 'Menyimpan alert'),
         if (!widget.caregiver && _alerts.isEmpty && _error == null) ...[
-          Text(
-            'Butuh bantuan sekarang?',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Gunakan fitur ini jika kamu membutuhkan bantuan segera dari pendampingmu.',
-          ),
           const SizedBox(height: 32),
           if (_eligible == 0) ...[
             const Text('Belum ada pendamping yang terhubung.'),
@@ -230,6 +300,16 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                         : 'Permintaan bantuan tercatat',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
+                  if (a['created_at'] != null)
+                    Text(
+                      'Diminta ${DateTime.tryParse(a['created_at'].toString())?.toLocal().toString().substring(0, 16) ?? a['created_at']}',
+                    ),
+                  Text(switch (a['status']) {
+                    'ACTIVE' => 'Membutuhkan tanggapan',
+                    'ACKNOWLEDGED' => 'Sudah ditanggapi',
+                    'RESOLVED' => 'Sudah selesai',
+                    _ => 'Status sedang diperbarui',
+                  }),
                   Text(
                     widget.caregiver
                         ? '${a['patient_name']} meminta bantuan sekarang.'
@@ -274,7 +354,10 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                             ),
                       child: const Text('Batalkan Alert'),
                     ),
-                  if (widget.caregiver || a['status'] == 'ACKNOWLEDGED')
+                  if (a['status'] == 'RESOLVED')
+                    const Text('Permintaan bantuan sudah selesai.'),
+                  if (a['status'] != 'RESOLVED' &&
+                      (widget.caregiver || a['status'] == 'ACKNOWLEDGED'))
                     OutlinedButton(
                       onPressed: _busy
                           ? null

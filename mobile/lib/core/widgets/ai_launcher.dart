@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api.dart';
 import '../routing/router.dart';
 import 'feature_rail.dart';
+import '../routing/navigation.dart';
 
 class AiLauncher extends ConsumerWidget {
   const AiLauncher({super.key, required this.child});
@@ -24,13 +25,7 @@ class AiLauncher extends ConsumerWidget {
             path != '/quick-help' &&
             path != '/splash' &&
             MediaQuery.viewInsetsOf(context).bottom == 0;
-        final hasTabs = const [
-          '/home',
-          '/treatment',
-          '/community',
-          '/insights',
-          '/profile',
-        ].contains(path);
+        final hasTabs = patientTabPaths.contains(path);
         return Stack(
           children: [
             if (session.loggedIn &&

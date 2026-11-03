@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'stitch.dart';
+import '../routing/navigation.dart';
 
 class FeatureRail extends StatelessWidget {
   const FeatureRail({super.key, required this.child});
@@ -45,7 +46,8 @@ class FeatureRail extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: IconButton(
                               tooltip: item.$2,
-                              onPressed: () => context.push(item.$3),
+                              onPressed: () =>
+                                  openAppDestination(context, item.$3),
                               icon: Icon(item.$1),
                             ),
                           ),
@@ -58,7 +60,7 @@ class FeatureRail extends StatelessWidget {
                   child: IconButton(
                     tooltip: 'Bantuan Cepat',
                     icon: const Icon(Icons.shield_outlined),
-                    onPressed: () => context.push('/quick-help'),
+                    onPressed: () => context.go('/quick-help'),
                   ),
                 ),
               ],

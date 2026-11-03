@@ -4,6 +4,10 @@ use App\Models\{DeviceToken, CareNotification};
 use Illuminate\Http\Request;
 class NotificationController extends Controller
 {
+    public function unread(Request $r)
+    {
+        return $this->ok(['unread_count' => CareNotification::where('user_id', $r->user()->id)->whereNull('read_at')->count()]);
+    }
     public function index(Request $r)
     {
         return $this->ok(
@@ -19,6 +23,11 @@ class NotificationController extends Controller
         $n->read_at = now();
         $n->save();
         return $this->ok();
+    }
+    public function show(Request $r)
+    {
+        $n = CareNotification::where('user_id', $r->user()->id)->findOrFail($r->route('id'));
+        return $this->ok($n->only(['id', 'title', 'body', 'notification_type', 'read_at', 'created_at']));
     }
     public function device(Request $r)
     {

@@ -49,6 +49,14 @@ class SupportAlertController extends Controller
             ->filter(fn($a) => $this->visible($a, $r->user()))->map(fn($a) => $this->data($a))->values();
         return $this->ok(['alerts' => $alerts, 'eligible_count' => $r->user()->role === 'PATIENT' ? $this->recipients($r->user()->id)->count() : null]);
     }
+    public function notification(Request $r, string $id)
+    {
+        $n = \App\Models\CareNotification::where('user_id', $r->user()->id)->findOrFail($id);
+        abort_unless(in_array($n->notification_type, ['emergency_support', 'emergency_support_update'], true), 404);
+        $a = SupportAlert::findOrFail(explode(':', $n->dedupe_key)[1] ?? '');
+        abort_unless($this->visible($a, $r->user()), 403);
+        return $this->ok($this->data($a));
+    }
     public function store(Request $r)
     {
         $r->validate(['patient_id' => 'prohibited', 'status' => 'prohibited', 'type' => 'prohibited']);

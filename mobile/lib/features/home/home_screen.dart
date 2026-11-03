@@ -307,7 +307,7 @@ class HomeScreen extends ConsumerWidget {
                           shape: const StadiumBorder(),
                           minimumSize: const Size(88, 40),
                         ),
-                        onPressed: () => context.push('/community'),
+                        onPressed: () => context.go('/community'),
                         child: const Text('Masuk Komunitas'),
                       ),
                     ],
@@ -315,32 +315,7 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ActionLink(
-                  'Insight',
-                  '/insights',
-                  icon: Icons.insights_outlined,
-                ),
-                ActionLink(
-                  'Tulis jurnal pribadi',
-                  '/journal',
-                  icon: Icons.edit_note,
-                ),
-                ActionLink(
-                  'Jelajahi Tools Kesehatan',
-                  '/tools',
-                  icon: Icons.health_and_safety_outlined,
-                ),
-                ActionLink(
-                  'Undang kerabat tepercaya',
-                  '/care-circle',
-                  icon: Icons.people_outline,
-                ),
-              ],
-            ),
+            const HomeFeatureCards(),
             const Padding(
               padding: EdgeInsets.only(top: 8),
               child: Row(
@@ -363,6 +338,65 @@ class HomeScreen extends ConsumerWidget {
       },
     );
   }
+}
+
+class HomeFeatureCards extends StatelessWidget {
+  const HomeFeatureCards({super.key});
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Fitur pendukung · Geser untuk melihat lainnya'),
+      const SizedBox(height: 12),
+      SizedBox(
+        height: 72 + MediaQuery.textScalerOf(context).scale(16) * 4,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: 5,
+          separatorBuilder: (_, index) => const SizedBox(width: 12),
+          itemBuilder: (context, index) {
+            final item = const [
+              ('Insight Emosional', '/insights', Icons.insights_outlined),
+              (
+                'Ringkasan Dokter',
+                '/doctor-summary',
+                Icons.description_outlined,
+              ),
+              ('Tulis Jurnal Pribadi', '/journal', Icons.edit_note),
+              (
+                'Undang Kerabat Tepercaya',
+                '/care-circle',
+                Icons.people_outline,
+              ),
+              ('Artikel Kesehatan', '/knowledge', Icons.menu_book_outlined),
+            ][index];
+            return SizedBox(
+              width: 180,
+              child: Material(
+                color: skySoft,
+                borderRadius: BorderRadius.circular(20),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => context.push(item.$2),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(item.$3, color: hopelyBlue),
+                        const SizedBox(height: 12),
+                        Text(item.$1),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ],
+  );
 }
 
 class HomeRecommendation extends ConsumerStatefulWidget {

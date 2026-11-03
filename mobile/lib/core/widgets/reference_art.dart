@@ -15,29 +15,39 @@ class ReferenceArt extends StatelessWidget {
   final Rect crop;
   final double radius;
   @override
-  Widget build(BuildContext context) => AspectRatio(
-    aspectRatio: crop.width / crop.height,
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final scale = constraints.maxWidth / crop.width;
-          return Stack(
-            children: [
-              Positioned(
-                left: -crop.left * scale,
-                top: -crop.top * scale,
-                width: imageSize.width * scale,
-                height: imageSize.height * scale,
-                child: Image.asset(
-                  'assets/illustrations/$asset',
-                  fit: BoxFit.fill,
-                  excludeFromSemantics: true,
-                ),
-              ),
-            ],
-          );
-        },
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: (MediaQuery.sizeOf(context).height * 0.38).clamp(
+          160.0,
+          340.0,
+        ),
+      ),
+      child: AspectRatio(
+        aspectRatio: crop.width / crop.height,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final scale = constraints.maxWidth / crop.width;
+              return Stack(
+                children: [
+                  Positioned(
+                    left: -crop.left * scale,
+                    top: -crop.top * scale,
+                    width: imageSize.width * scale,
+                    height: imageSize.height * scale,
+                    child: Image.asset(
+                      'assets/illustrations/$asset',
+                      fit: BoxFit.contain,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     ),
   );

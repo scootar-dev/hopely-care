@@ -215,22 +215,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ),
                           ],
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: FilledButton.tonalIcon(
-                            onPressed: () => setState(
-                              () => input.text =
-                                  'Boleh, pandu aku hening 2 menit.',
-                            ),
-                            icon: const Icon(Icons.air, size: 18),
-                            label: const Text('Latihan Napas'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: skySoft,
-                              foregroundColor: hopelyBlue,
-                              shape: const StadiumBorder(),
-                            ),
-                          ),
-                        ),
                         const SizedBox(height: 20),
                         if (!allowed)
                           const CareCard(

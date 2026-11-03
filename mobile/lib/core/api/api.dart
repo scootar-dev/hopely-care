@@ -25,17 +25,26 @@ class Session extends ChangeNotifier {
   Set<String> consents = {};
   String? deviceId;
   bool initialized = false;
+  void updateAccount(Json account) {
+    if (account['id'] != user?['id']) return;
+    user = account;
+    notifyListeners();
+  }
+
   bool get loggedIn => token != null && user != null;
   bool get caregiver => user?['role'] == 'CAREGIVER';
   bool get needsConsent =>
       !caregiver && !consents.contains('HEALTH_DATA_PROCESSING');
   Future<void> restore() async {
+    // Session work runs concurrently with the minimum branding time.
+    final minimumSplash = Future<void>.delayed(const Duration(seconds: 2));
     try {
       token = await storage.read(key: 'hopely.token');
       deviceId = await storage.read(key: 'hopely.device_id');
       if (token != null) {
         await refresh();
       }
+      await minimumSplash;
     } catch (_) {
       user = null;
     } finally {
@@ -50,7 +59,9 @@ class Session extends ChangeNotifier {
     user = result['user'] as Json;
     if (!const ['PATIENT', 'CAREGIVER'].contains(user?['role'])) {
       await clear();
-      throw StateError('Akun admin hanya dapat digunakan melalui website /admin.');
+      throw StateError(
+        'Akun admin hanya dapat digunakan melalui website /admin.',
+      );
     }
     profile = result['profile'] as Json?;
     final rows = await api.get('/consents') as List;
@@ -73,6 +84,7 @@ class Session extends ChangeNotifier {
   }
 
   Future<void> clear() async {
+    await storage.delete(key: 'hopely.patient.${user?['id']}');
     token = null;
     user = null;
     profile = null;

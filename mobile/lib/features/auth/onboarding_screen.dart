@@ -66,18 +66,8 @@ class SplashScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Semantics(
-                      label: 'Memuat ruang pribadimu',
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _PulseDot(opacity: 0.4),
-                          SizedBox(width: 6),
-                          _PulseDot(opacity: 0.7),
-                          SizedBox(width: 6),
-                          _PulseDot(opacity: 0.4),
-                        ],
-                      ),
+                    const CircularProgressIndicator(
+                      semanticsLabel: 'Memuat ruang pribadimu',
                     ),
                     const Spacer(flex: 3),
                     const Row(
@@ -105,20 +95,6 @@ class SplashScreen extends StatelessWidget {
           ),
         ),
       ),
-    ),
-  );
-}
-
-class _PulseDot extends StatelessWidget {
-  const _PulseDot({required this.opacity});
-  final double opacity;
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 6,
-    height: 6,
-    decoration: BoxDecoration(
-      color: hopelyBlue.withValues(alpha: opacity),
-      shape: BoxShape.circle,
     ),
   );
 }

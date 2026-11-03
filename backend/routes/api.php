@@ -31,6 +31,7 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
         Route::get('support-alerts/active', [\App\Http\Controllers\SupportAlertController::class, 'active']);
     });
     Route::get('caregiver/support-alerts', [\App\Http\Controllers\SupportAlertController::class, 'active'])->middleware('role:CAREGIVER');
+    Route::get('caregiver/support-alerts/notification/{id}', [\App\Http\Controllers\SupportAlertController::class, 'notification'])->middleware('role:CAREGIVER');
     foreach (['acknowledge', 'resolve', 'cancel'] as $action) {
         Route::post("support-alerts/{id}/$action", [\App\Http\Controllers\SupportAlertController::class, 'transition'])->defaults('action', $action);
     }
@@ -42,6 +43,8 @@ Route::middleware(["auth:sanctum", "throttle:api"])->group(function () {
     Route::get("consents", [ConsentController::class, "index"]);
     Route::put("consents", [ConsentController::class, "update"]);
     Route::get("notifications", [NotificationController::class, "index"]);
+    Route::get("notification-count", [NotificationController::class, "unread"]);
+    Route::get("notifications/{id}", [NotificationController::class, "show"]);
     Route::put("notifications/{id}/read", [NotificationController::class, "read"]);
     Route::post("devices", [NotificationController::class, "device"]);
     Route::delete("devices/{id}", [NotificationController::class, "removeDevice"]);

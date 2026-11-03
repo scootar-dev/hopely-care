@@ -52,6 +52,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Permintaan bantuan tercatat'), findsOneWidget);
     expect(find.text('Pendampingmu sudah diberi tahu.'), findsNothing);
+    await tester.ensureVisible(find.text('Batalkan Alert'));
     await tester.tap(find.text('Batalkan Alert'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Batalkan Alert').last);
