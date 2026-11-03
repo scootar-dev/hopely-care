@@ -275,7 +275,10 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                           onChanged: busy
                               ? null
                               : (v) async {
-                                  setState(() => busy = true);
+                                  setState(() {
+                                    busy = true;
+                                    error = null;
+                                  });
                                   try {
                                     final p = Map<String, dynamic>.from(
                                       row['permissions'],
@@ -287,13 +290,17 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
                                         k: p[k],
                                     };
                                     payload[e.key] = v;
-                                    await ref
+                                    final permissions = await ref
                                         .read(apiProvider)
                                         .put(
                                           '/caregivers/${row['id']}/permissions',
                                           payload,
                                         );
-                                    reload();
+                                    if (mounted) {
+                                      setState(() {
+                                        row['permissions'] = permissions;
+                                      });
+                                    }
                                   } catch (e) {
                                     if (mounted) {
                                       setState(() => error = e);

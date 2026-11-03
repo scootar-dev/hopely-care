@@ -219,7 +219,7 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
         if (_result != null) Semantics(liveRegion: true, child: Text(_result!)),
         if (widget.caregiver && _alerts.isEmpty && _error == null)
           const Text('Tidak ada permintaan Bantuan Cepat aktif.'),
-        if (!widget.caregiver) ...[
+        if (!widget.caregiver && _alerts.isEmpty) ...[
           Text(
             'Butuh bantuan sekarang?',
             style: Theme.of(context).textTheme.headlineMedium,
@@ -230,9 +230,10 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
           ),
           const SizedBox(height: 16),
         ],
-        const Text(
-          'Untuk keadaan medis darurat, segera hubungi layanan kegawatdaruratan setempat atau fasilitas kesehatan terdekat. Jangan menunggu tanggapan aplikasi.',
-        ),
+        if (widget.caregiver || _alerts.isEmpty)
+          const Text(
+            'Untuk keadaan medis darurat, segera hubungi layanan kegawatdaruratan setempat atau fasilitas kesehatan terdekat. Jangan menunggu tanggapan aplikasi.',
+          ),
         if (_error != null) ...[
           Semantics(
             liveRegion: true,
@@ -297,33 +298,23 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                   Text(
                     widget.caregiver
                         ? 'Bantuan Dibutuhkan'
-                        : 'Permintaan bantuan tercatat',
+                        : 'Permintaan bantuan cepat terkirim',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  if (a['created_at'] != null)
+                  if (widget.caregiver && a['created_at'] != null)
                     Text(
                       'Diminta ${DateTime.tryParse(a['created_at'].toString())?.toLocal().toString().substring(0, 16) ?? a['created_at']}',
                     ),
-                  Text(switch (a['status']) {
-                    'ACTIVE' => 'Membutuhkan tanggapan',
-                    'ACKNOWLEDGED' => 'Sudah ditanggapi',
-                    'RESOLVED' => 'Sudah selesai',
-                    _ => 'Status sedang diperbarui',
-                  }),
-                  Text(
-                    widget.caregiver
-                        ? '${a['patient_name']} meminta bantuan sekarang.'
-                        : 'Belum berarti pendamping telah menerima atau membaca pemberitahuan.',
-                  ),
-                  if (!widget.caregiver)
-                    Text('${a['recipient_count']} pendamping dituju'),
-                  if (!widget.caregiver)
-                    Text(
-                      'Diterima layanan push: ${a['notification_status']?['provider_accepted_count'] ?? 0}. '
-                      'Belum terkonfirmasi terkirim: ${a['notification_status']?['unconfirmed_count'] ?? a['recipient_count']}. '
-                      'Jika belum ada tanggapan, hubungi pendamping secara langsung.',
-                    ),
-                  if (a['status'] == 'ACKNOWLEDGED')
+                  if (widget.caregiver)
+                    Text(switch (a['status']) {
+                      'ACTIVE' => 'Membutuhkan tanggapan',
+                      'ACKNOWLEDGED' => 'Sudah ditanggapi',
+                      'RESOLVED' => 'Sudah selesai',
+                      _ => 'Status sedang diperbarui',
+                    }),
+                  if (widget.caregiver)
+                    Text('${a['patient_name']} meminta bantuan sekarang.'),
+                  if (widget.caregiver && a['status'] == 'ACKNOWLEDGED')
                     Text(
                       'Sedang ditangani oleh ${a['acknowledged_name'] ?? 'pendamping'}',
                     ),
@@ -354,7 +345,7 @@ class _QuickHelpPanelState extends ConsumerState<QuickHelpPanel> {
                             ),
                       child: const Text('Batalkan Alert'),
                     ),
-                  if (a['status'] == 'RESOLVED')
+                  if (widget.caregiver && a['status'] == 'RESOLVED')
                     const Text('Permintaan bantuan sudah selesai.'),
                   if (a['status'] != 'RESOLVED' &&
                       (widget.caregiver || a['status'] == 'ACKNOWLEDGED'))
