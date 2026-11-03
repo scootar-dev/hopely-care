@@ -15,12 +15,14 @@ backend/storage/logs/*
 backend/storage/framework/cache/*
 backend/storage/framework/sessions/*
 backend/storage/framework/views/*
+backend/storage/framework/testing/*
 backend/bootstrap/cache/*.php
 mobile/android/local.properties
 mobile/android/key.properties
 *.jks
 *-service-account.json
-mobile/lib/firebase_options.dart
+# FlutterFire client configuration must be available in clean CI checkouts.
+# Service-account credentials remain excluded above; never put them in this file.
 
 # Local visual test captures; uploaded by CI for review.
 mobile/test-output/

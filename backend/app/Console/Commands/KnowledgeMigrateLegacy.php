@@ -24,22 +24,19 @@ class KnowledgeMigrateLegacy extends Command
             return self::FAILURE;
         }
         $disk = Storage::disk('local');
-        fwrite(STDERR, 'DEBUG root='.config('filesystems.disks.local.root').' files='.implode(',', $disk->allFiles()).PHP_EOL);
         $files = collect($disk->files('knowledge-articles'))
-            ->filter(fn (string $f): bool => preg_match('/^[a-f0-9]{64}\.json$/', pathinfo($f, PATHINFO_FILENAME)) === 1)
+            ->filter(fn (string $f): bool => preg_match('/^[a-f0-9]{64}\.json$/', basename($f)) === 1)
             ->values();
         if ($files->isEmpty()) {
             $this->info('No migration candidates under local storage knowledge-articles. Knowledge remains managed by knowledge_documents.');
             return self::SUCCESS;
         }
-        $this->line('DEBUG candidates: '.$files->count().' -> '.$files->implode(', '));
         $imported = 0;
         $skipped = 0;
         $invalid = 0;
         foreach ($files as $file) {
             $name = pathinfo($file, PATHINFO_FILENAME);
             $raw = $disk->get($file);
-            fwrite(STDERR, 'DEBUG reading '.$name.' raw='.substr(is_string($raw) ? $raw : json_encode($raw), 0, 200).PHP_EOL);
             $row = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
             if (!is_array($row)) {
                 $invalid++;
@@ -94,7 +91,6 @@ class KnowledgeMigrateLegacy extends Command
                 'reviewer_id' => $reviewerId,
                 'revision' => 1,
             ])->save();
-            fwrite(STDERR, 'DEBUG saved source_id='.$sourceId.' status='.$status.' exists='.var_export($document->exists, true).PHP_EOL);
             $imported++;
         }
         app(AuditService::class)->record($author->id, 'knowledge.legacy_articles_imported', 'knowledge');
