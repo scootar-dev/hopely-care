@@ -50,7 +50,8 @@ void main() {
     expect(api.sends, 0);
     await tester.tap(find.text('Kirim Alert'));
     await tester.pumpAndSettle();
-    expect(find.text('Permintaan bantuan tercatat'), findsOneWidget);
+    expect(api.sends, 1);
+    expect(find.text('Permintaan bantuan cepat terkirim'), findsOneWidget);
     expect(find.text('Pendampingmu sudah diberi tahu.'), findsNothing);
     await tester.ensureVisible(find.text('Batalkan Alert'));
     await tester.tap(find.text('Batalkan Alert'));
@@ -68,7 +69,7 @@ void main() {
     await tester.tap(find.text('Kirim Alert'));
     await tester.pumpAndSettle();
     expect(find.text('Alert belum berhasil dikirim.'), findsOneWidget);
-    expect(find.text('Bantuan sudah dikirim'), findsNothing);
+    expect(find.text('Permintaan bantuan cepat terkirim'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
   testWidgets('no caregiver has no send action and fits narrow viewport', (
